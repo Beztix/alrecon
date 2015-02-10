@@ -54,6 +54,9 @@
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 6.5.props" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\props\build_type_app.props" />
@@ -87,24 +90,39 @@
     <Import Project="..\props\build_opencv_Win32_release.props" />
   </ImportGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 6.5.targets" />
+  </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PostBuildEvent>
       <Command>"$(ProjectDir)..\..\copy_assets\copy_all_assets.bat"</Command>
     </PostBuildEvent>
+    <CudaCompile>
+      <CodeGeneration>compute_13,sm_20</CodeGeneration>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PostBuildEvent>
       <Command>"$(ProjectDir)..\..\copy_assets\copy_all_assets.bat"</Command>
     </PostBuildEvent>
+    <CudaCompile>
+      <CodeGeneration>compute_13,sm_20</CodeGeneration>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PostBuildEvent>
       <Command>"$(ProjectDir)..\..\copy_assets\copy_all_assets.bat"</Command>
     </PostBuildEvent>
+    <CudaCompile>
+      <CodeGeneration>compute_13,sm_20</CodeGeneration>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PostBuildEvent>
       <Command>"$(ProjectDir)..\..\copy_assets\copy_all_assets.bat"</Command>
     </PostBuildEvent>
+    <CudaCompile>
+      <CodeGeneration>compute_13,sm_20</CodeGeneration>
+    </CudaCompile>
   </ItemDefinitionGroup>
 </Project>
