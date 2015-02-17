@@ -72,37 +72,6 @@ list<Point_2> convertPixelsToPoints(int* pixels, int width, int height) {
 
 
 
-void writePixelsToTextFile(int* pixels, int width, int height) {	
-	int totalNum = 0;
-
-	//calculate number of set pixels
-	for (int i = 0; i < height*width; i++) {
-		if (pixels[i] != 0){
-			totalNum++;
-		}
-	}
-
-	ofstream myfile;
-	myfile.open("setPixels.txt");
-	myfile << to_string(totalNum) << endl;
-	
-	int num = 0;
-
-	//write the set pixels to file
-	for (int i = 0; i < height*width; i++) {
-		if (pixels[i] != 0){
-			int y = i / width;
-			int x = i % width;
-
-			myfile << to_string(num) << " " << to_string(x) << " " << to_string(y) << endl;
-			num++;
-		}
-	}
-
-	myfile.close();
-
-}
-
 
 
 
@@ -169,7 +138,7 @@ void writeSegmentsToImage(string imageLocation, std::vector<Segment> segments, i
  * The time needed for each step is evaluated and printed on console.
 */
 
-int useCgal(string inputImage)
+int useCgal(string inputImage, string reducedImgName, string outputImage, int reduction)
 {
 	int width;
 	int height;
@@ -184,12 +153,9 @@ int useCgal(string inputImage)
 
 
 	//reducing pixels
-	int* reducedPixels = input::reducePixels(pixels, width, height, 1);
+	int* reducedPixels = input::reducePixels(pixels, width, height, reduction, reducedImgName);
 	auto reduceTime = chrono::high_resolution_clock::now();
 
-
-	writePixelsToTextFile(reducedPixels, width, height);
-	auto writeTextTime = chrono::high_resolution_clock::now();
 
 	//converting pixels
 	list<Point_2> points = convertPixelsToPoints(reducedPixels, width, height);
@@ -208,7 +174,7 @@ int useCgal(string inputImage)
 
 
 	//writing alpha shape image
-	writeSegmentsToImage("alphaImage.png", segments, width, height);
+	writeSegmentsToImage(outputImage, segments, width, height);
 	auto writeImageTime = chrono::high_resolution_clock::now();
 
 
@@ -217,14 +183,12 @@ int useCgal(string inputImage)
 	//evaluation time elapsed
 	auto loadDuration = loadTime - startTime;
 	auto reduceDuration = reduceTime - loadTime;
-	auto writeTextDuration = writeTextTime - reduceTime;
-	auto convertDuration = convertTime - writeTextTime;
+	auto convertDuration = convertTime - reduceTime;
 	auto alphaDuration = alphaTime - convertTime;
 	auto writeImageDuration = writeImageTime - alphaTime;
 
 	cout << "loadDuration:     " << chrono::duration_cast<chrono::microseconds>(loadDuration).count() << endl;
 	cout << "reduceDuration:   " << chrono::duration_cast<chrono::microseconds>(reduceDuration).count() << endl;
-	cout << "writeTextDuration:    " << chrono::duration_cast<chrono::microseconds>(writeTextDuration).count() << endl;
 	cout << "convertDuration:  " << chrono::duration_cast<chrono::microseconds>(convertDuration).count() << endl;
 	cout << "alphaDuration:    " << chrono::duration_cast<chrono::microseconds>(alphaDuration).count() << endl;
 	cout << "writeImageDuration:    " << chrono::duration_cast<chrono::microseconds>(writeImageDuration).count() << endl;

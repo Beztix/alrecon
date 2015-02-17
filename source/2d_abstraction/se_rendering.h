@@ -4,7 +4,7 @@
 #include <iostream>
 
 
-int processSuperellipsesFromTextfile(std::string input);
+int processSuperellipsesFromTextfile(std::string input, std::string output);
 
 
 

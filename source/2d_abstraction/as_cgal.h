@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-int useCgal(std::string inputImage);
+int useCgal(std::string inputImage, std::string reducedImgName, std::string outputImage, int reduction);
 
 
 

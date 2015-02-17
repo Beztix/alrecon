@@ -32,7 +32,7 @@ void evaluateSuperellipse(double a, double b, double epsilon, double theta, doub
 
 
 
-void writeSuperellipsesToImage(vector<vector<tuple<double, double>>> pointListContainer) {
+void writeSuperellipsesToImage(vector<vector<tuple<double, double>>> pointListContainer, string imgName) {
 	int offsetX = 200;
 	int offsetY = 200;
 	int width = 600;
@@ -85,7 +85,7 @@ void writeSuperellipsesToImage(vector<vector<tuple<double, double>>> pointListCo
 	}
 
 
-	imwrite("ellipse.png", image);
+	imwrite(imgName, image);
 
 
 }
@@ -135,7 +135,7 @@ vector<tuple<double, double>> renderSuperellipse(double xc, double yc, double a,
 
 
 
-int processSuperellipsesFromTextfile(string input) {
+int processSuperellipsesFromTextfile(string input, string output) {
 	
 	ifstream infile(input);
 
@@ -168,7 +168,7 @@ int processSuperellipsesFromTextfile(string input) {
 		listOfEllipses.emplace_back(pointListOfEllipse);
 	}
 
-	writeSuperellipsesToImage(listOfEllipses);
+	writeSuperellipsesToImage(listOfEllipses, output);
 
 	
 	return 0;

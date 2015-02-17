@@ -4,7 +4,7 @@
 #include <iostream>
 
 
-int prepareInput(std::string inputImage, std::string outputFile);
+int prepareInputForSE(std::string inputImage, std::string reducedImgName, std::string outputFile, int reduction);
 
 
 

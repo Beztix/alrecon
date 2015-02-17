@@ -79,7 +79,7 @@ namespace input {
 	* The reduced image is written to disc as a png image using opencv.
 	*/
 
-	int* reducePixels(int* pixels, int width, int height, int spacing) {
+	int* reducePixels(int* pixels, int width, int height, int spacing, string reducedImgName) {
 		int size = width* height;
 
 		//initialize new pixel array
@@ -140,10 +140,9 @@ namespace input {
 				reducedImage.at<Vec3b>(Point(x, y)) = Vec3b(250, 250, 250);
 			}
 		}
-		string imageName = "reducedImage.png";
 
-		cout << "Writing reduced image to disc: " << imageName << endl;
-		imwrite(imageName, reducedImage);
+		cout << "Writing reduced image to disc: " << reducedImgName << endl;
+		imwrite(reducedImgName, reducedImage);
 
 		return reducedPixels;
 	}

@@ -14,14 +14,21 @@ using namespace std;
 
 
 
-void writePixelsToTextFileForSE(string outputFile, int* pixels, int width, int height) {
-	
+void writePixelsToTextFileForAS(string outputFile, int* pixels, int width, int height) {
+	int totalNum = 0;
+
+	//calculate number of set pixels
+	for (int i = 0; i < height*width; i++) {
+		if (pixels[i] != 0){
+			totalNum++;
+		}
+	}
+
 	ofstream myfile;
 	myfile.open(outputFile);
-	myfile << "pixel" << endl;
-	myfile << "list: 0" << endl;
+	myfile << to_string(totalNum) << endl;
 
-
+	int num = 0;
 
 	//write the set pixels to file
 	for (int i = 0; i < height*width; i++) {
@@ -29,10 +36,10 @@ void writePixelsToTextFileForSE(string outputFile, int* pixels, int width, int h
 			int y = i / width;
 			int x = i % width;
 
-			myfile << to_string(x) << " " << to_string(y) << endl;
+			myfile << to_string(num) << " " << to_string(x) << " " << to_string(y) << endl;
+			num++;
 		}
 	}
-	myfile << "-1 -1" << endl;
 
 	myfile.close();
 
@@ -42,7 +49,7 @@ void writePixelsToTextFileForSE(string outputFile, int* pixels, int width, int h
 
 
 
-int prepareInputForSE(string inputImage, string reducedImgName, string outputFile, int reduction) {
+int prepareInputForAS(string inputImage, string reducedImgName, string outputFile, int reduction) {
 	int width;
 	int height;
 	
@@ -55,6 +62,7 @@ int prepareInputForSE(string inputImage, string reducedImgName, string outputFil
 	//reducing pixels
 	int* reducedPixels = input::reducePixels(pixels, width, height, reduction, reducedImgName);
 
-	writePixelsToTextFileForSE(outputFile, reducedPixels, width, height);
+	//write pixels to textfile in Format used by GPUAlpha
+	writePixelsToTextFileForAS(outputFile, reducedPixels, width, height);
 
 }
