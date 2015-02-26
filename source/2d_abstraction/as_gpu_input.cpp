@@ -1,3 +1,14 @@
+/**
+*************************************************************************
+*
+* @file as_gpu_input.cpp
+*
+* Class for preparing the input for GPUAlpha, implementation.
+*
+************************************************************************/
+
+#include "as_gpu_input.h"
+
 #include <iostream>
 #include <fstream>
 

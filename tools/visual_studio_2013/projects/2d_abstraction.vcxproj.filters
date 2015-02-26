@@ -26,10 +26,10 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\as_cgal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\source\2d_abstraction\se_epsilon_new.h">
+    <ClInclude Include="..\..\..\source\2d_abstraction\as_gpu_input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\source\2d_abstraction\as_gpu_input.h">
+    <ClInclude Include="..\..\..\source\2d_abstraction\se_epsilon2_new.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -49,10 +49,10 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\as_cgal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\source\2d_abstraction\se_epsilon_new.c">
+    <ClCompile Include="..\..\..\source\2d_abstraction\as_gpu_input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\source\2d_abstraction\as_gpu_input.cpp">
+    <ClCompile Include="..\..\..\source\2d_abstraction\se_epsilon2_new.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

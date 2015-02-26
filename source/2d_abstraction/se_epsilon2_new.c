@@ -1,23 +1,12 @@
-/**
-*************************************************************************
-*
-* @file se_epsilon_new.cpp
-*
-* C-Code from Paul Rosin for calculating superellipses.
-* Modified to replace main method by calculateEllipse().
-*
-************************************************************************/
-
 /*
  *    estimate value of epsilon for superellipse
- *    use area of polygon - assumes closed pixel list
- *    use look-up table to correct estimate
- *    use MBR to estimate a, b, centre, and orientation
+ *    use intersection points of diagonals
+ *    take median of 4 such estimates
  *
  *    Paul Rosin
  *    March 1998
  */
-
+ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -31,46 +20,27 @@
 
 #define MAX(a,b)     (((a) > (b)) ? (a) : (b))
 #define MIN(a,b)     (((a) < (b)) ? (a) : (b))
+#define ABS(x)       (((x)<0.0)? (-(x)): (x))
 
 #define PI 3.1415927
 
 int no_pixels;
 int x[MAX_PIXELS],y[MAX_PIXELS];
+double x2[MAX_PIXELS],y2[MAX_PIXELS];
 
-double true[] = {
-    0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7,
-    0.75, 0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35,
-    1.4, 1.45, 1.5, 1.55, 1.6, 1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2.0,
-    2.05, 2.1, 2.15, 2.2, 2.25, 2.3, 2.35, 2.4, 2.45, 2.5, 2.55, 2.6, 2.65,
-    2.7, 2.75, 2.8, 2.85, 2.9, 2.95, 3};
-
-double estimate[] = {
-    0.318584, 0.365502, 0.398717, 0.440398, 0.486608, 0.536431, 0.586335,
-    0.633462, 0.685600, 0.736455, 0.795713, 0.844208, 0.898549, 0.955068,
-    1.002863, 1.061981, 1.105906, 1.157625, 1.207333, 1.257242, 1.305059,
-    1.351158, 1.396603, 1.442770, 1.487420, 1.530119, 1.577719, 1.617412,
-    1.659471, 1.698296, 1.738293, 1.777394, 1.817147, 1.855153, 1.889113,
-    1.926441, 1.963253, 1.997633, 2.031319, 2.061589, 2.094047, 2.124089,
-    2.154160, 2.182415, 2.213236, 2.241130, 2.268343, 2.293863, 2.322353,
-    2.347539, 2.374734, 2.396072, 2.420877, 2.443699, 2.465211, 2.487450,
-    2.510880, 2.533847, 2.552825};
-
-double correct();
-
-int calculateEllipse(char* inputFile, char* outputFile)
+int calculateEllipse2(char* inputFile, char* outputFile)
 {
     FILE *fp1,*fp2;
     char file_type[50];
-    int j;
+    int i,j;
     int endoffile;
     double a,b,xc,yc,xc2,yc2,area,epsilon,t,theta;
     int flag;
     char *outfile = NULL;
+    double xi1,yi1,xi2,yi2;
+    double eps[4];
 
-    int constrain = FALSE; /* constrain fit to be oval */
-
-    
-    outfile = outputFile;
+	outfile = outputFile;
 
 
 	if ((fp1 = fopen(inputFile, "r")) == NULL){
@@ -79,14 +49,13 @@ int calculateEllipse(char* inputFile, char* outputFile)
 	}
 
 
-    if((fp2=fopen(outputFile,"w")) == NULL){
-        printf("cant open %s\n",outputFile);
-        exit(-1);
-    }
-   
-	
-	fprintf(fp2,"super\nlist: 0\n");
-    
+	if ((fp2 = fopen(outputFile, "w")) == NULL){
+		printf("cant open %s\n", outputFile);
+		exit(-1);
+	}
+
+	fprintf(fp2, "super\nlist: 0\n");
+
 
     /* read magic word for format of file */
     fscanf(fp1,"%s\n",file_type);
@@ -102,46 +71,65 @@ int calculateEllipse(char* inputFile, char* outputFile)
         mbr(&xc,&yc,&a,&b,&theta);
         a /= 2.0;
         b /= 2.0;
+        
+        normalise_data(xc,yc,theta);
 
-        /*
-        a = 200;
-        b = 100;
-        */
+        intersect(x2,y2,no_pixels,b,a,&xi1,&yi1,&xi2,&yi2);
+        eps[0] = 2 * log(a/ABS(xi1)) / log(2.0);
+        eps[1] = 2 * log(a/ABS(xi2)) / log(2.0);
 
-        flag = polyCentroid(x,y,no_pixels,&xc2,&yc2,&area);
-        if (area < 0) area = -area;
+        intersect(x2,y2,no_pixels,-b,a,&xi1,&yi1,&xi2,&yi2);
+        eps[2] = 2 * log(a/ABS(xi1)) / log(2.0);
+        eps[3] = 2 * log(a/ABS(xi2)) / log(2.0);
 
-        t = area / (4.0*a*b);
-        epsilon = 1 -  t + sqrt(t*t-6*t+5);
+        /* take median of estimates */
+        for (i = 0; i < 3; i++) {
+            for (j = i+1; j < 4; j++) {
+                if (eps[i] < eps[j]) {
+                    t = eps[i];
+                    eps[i] = eps[j];
+                    eps[j] = t;
+                }
+            }
+        }
+        epsilon = (eps[1] + eps[2]) / 2.0;
 
         if (outfile == NULL) {
             printf("ctr %f %f\n",xc,yc);
             printf("a b %f %f\n",MAX(a,b),MIN(a,b));
-            /*
-            printf("theta %f\n",theta*1/PI);
-            */
             printf("theta %f\n",theta);
-            /*
             printf("epsilon %f\n",epsilon);
-            */
-            printf("epsilon %f\n",correct(epsilon));
         }
-        else {
-            if (constrain) epsilon = MIN(1,epsilon);
-            
-            fprintf(fp2,"superellipse: 0.0 %.0f %.0f %d %d %d %d %f %f %f %f %f %f %d\n",
-                xc,yc,
-                0,0,0,0,
-                a,b,epsilon,theta,
-				t, area,
-                1);
-        }
+        else
+            fprintf(fp2,"superellipse: 0.0 %.0f %.0f %d %d %d %d %f %f %f %f %d\n",
+            xc,yc,
+            0,0,0,0,
+            a,b,epsilon,theta,
+            1);
 
     } while (!endoffile);
     fclose(fp1);
-    if (outfile != NULL) {
+       if (outfile != NULL) {
         fprintf(fp2,"endl:\nendf:\n");
         fclose(fp2);
+    }
+}
+
+/* shift and rotate to origin */
+normalise_data(xc,yc,theta)
+double xc,yc,theta;
+{
+    double cosine2 = cos(-theta);
+    double sine2 = sin(-theta);
+    double tx,ty;
+    int i;
+
+    for (i = 0; i < no_pixels; i++) {
+        tx = x[i] - xc;
+        ty = y[i] - yc;
+
+        x2[i] = (tx * cosine2 - ty * sine2);
+        y2[i] = (tx * sine2 + ty * cosine2);
     }
 }
 
@@ -162,82 +150,34 @@ int *endoffile;
     no_pixels = j;
 }
 
-/*
- * ANSI C code from the article
- * "Centroid of a Polygon"
- * by Gerard Bashein and Paul R. Detmer,
-    (gb@locke.hs.washington.edu, pdetmer@u.washington.edu)
- * in "Graphics Gems IV", Academic Press, 1994
- */
-
-/*********************************************************************
-polyCentroid: Calculates the centroid (xCentroid, yCentroid) and area
-of a polygon, given its vertices (x[0], y[0]) ... (x[n-1], y[n-1]). It
-is assumed that the contour is closed, i.e., that the vertex following
-(x[n-1], y[n-1]) is (x[0], y[0]).  The algebraic sign of the area is
-positive for counterclockwise ordering of vertices in x-y plane;
-otherwise negative.
-
-Returned values:  0 for normal execution;  1 if the polygon is
-degenerate (number of vertices < 3);  and 2 if area = 0 (and the
-centroid is undefined).
-**********************************************************************/
-int polyCentroid(int x[], int y[], int n,
-         double *xCentroid, double *yCentroid, double *area)
+/* return intersection points of ray "y = p/q x" and polygon */
+intersect(xdata,ydata,no_points,p,q,xi1,yi1,xi2,yi2)
+double xdata[],ydata[];
+int no_points;
+double p,q;
+double *xi1,*yi1,*xi2,*yi2;
 {
-     register int i, j;
-     double ai, atmp = 0, xtmp = 0, ytmp = 0;
-     if (n < 3) return 1;
-     for (i = n-1, j = 0; j < n; i = j, j++) {
-         ai = x[i] * y[j] - x[j] * y[i];
-         atmp += ai;
-         xtmp += (x[j] + x[i]) * ai;
-         ytmp += (y[j] + y[i]) * ai;
-     }
-     *area = atmp / 2;
-     if (atmp != 0) {
-         *xCentroid = xtmp / (3 * atmp);
-         *yCentroid = ytmp / (3 * atmp);
-         return 0;
-     }
-     return 2;
-}
+    int a,b,c,d,i;
+    double t,xi,yi;
 
-/* use linear interpolated table look-up to correct epsilon estimate */
-double correct(v)
-double v;
-{
-    int i=0;
-    double delta_est,delta_true,delta_value,ratio,interp;
-
-    do {
-        i++;
-        if (i >= 59)
-            break;
-        if (v < estimate[i])
-            break;
-    } while (TRUE);
-    /***
-    printf("interpolating between %f at %d and %f at %d\n",
-           estimate[i-1],i-1,estimate[i],i);
-    ***/
-    if ((i >= 59) || (v < estimate[i-1])) {
-        /*
-        fprintf(stderr,"ERROR: cannot interpolate %f\n",v);
-        exit(-1);
-        */
-        interp = v;
+    for (i = 0; i < no_points; i++) {
+        a = xdata[i]; b = ydata[i];
+        c = xdata[(i+1)%no_points]; d = ydata[(i+1)%no_points];
+        t = (q*b - p*a) / (p*(c-a)+q*(b-d));
+        /* intersects */
+        if ((t >= 0) && (t <= 1)) {
+            xi = a + t*(c-a);
+            yi = b + t*(d-b);
+            /* store only 1 intersection on +ve X axis */
+            if (xi > 0) {
+                *xi1 = xi; *yi1 = yi;
+            }
+            /* store only 1 intersection on -ve X axis */
+            else {
+                *xi2 = xi; *yi2 = yi;
+            }
+        }
     }
-    else {
-        delta_est = estimate[i] - estimate[i-1];
-        delta_true = true[i] - true[i-1];
-        delta_value = v - estimate[i-1];
-        ratio = delta_value / delta_est;
-        /* interpolated corrected value */
-        interp = true[i-1] + ratio * delta_true;
-    }
-
-    return(interp);
 }
 
 mbr(xct,yct,a,b,rot)
@@ -372,20 +312,20 @@ double *xct,*yct,*a,*b,*rot;
 
 /* ############################################################ */
 
-/*
+/* 
 convexhull.c
 
 Find the convex hull of a set of points.
 
-The algorithm used is as describe in
+The algorithm used is as describe in 
 
 Shamos, Michael,  "Problems
-in Computational Geometry"  May, 1975 (a set of photocopies --
-QA 447.S52 1983 in Carlson).
+in Computational Geometry"  May, 1975 (a set of photocopies -- 
+QA 447.S52 1983 in Carlson).  
 
-It originally appeared in a more complicated form in
+It originally appeared in a more complicated form in 
 
-Jarvis, R.A., "On the Identification of the Convex Hull of a
+Jarvis, R.A., "On the Identification of the Convex Hull of a 
 Finite Set of Points in the Plane", Info. Proc. Letters 2(1973),
 pp. 18-21.
 
@@ -396,7 +336,7 @@ usage:
 convex_hull(p,n,ch,&nch,directions);
 where p is an n*2 array of doubles containing the set of points,
 n is the number of points,
-ch is an array of size n integers to hold the list of points in the
+ch is an array of size n integers to hold the list of points in the 
     convex hull, numbered 0 to nch-1;
 In nch the number of points in the convex hull is returned.
 directions is either "full" or "norm".  If directions="full" all the
@@ -433,8 +373,8 @@ int n, *p_nch, *ch;
 char *directions;
 double epsilon;
 {
-    double phi, max_phi, dist, max_cen_dist, min_dist, max_dist,
-        x, y, cen_x, cen_y, xp, yp,
+    double phi, max_phi, dist, max_cen_dist, min_dist, max_dist, 
+        x, y, cen_x, cen_y, xp, yp, 
     xx, yy, m[2][2];
     int i, i_keep, vertex, furthest, ch_vert;
     boolean full;
@@ -462,12 +402,12 @@ double epsilon;
     }
     }
 
-    /*
+    /* 
     Determine rotation matrix so that coordinate system for determining
     the orientations of line segments is wrt the line from the point
-    under consideration to the centroid.  Then all angles will be
-    < 90 degrees.  To maintain the strict inequality the furthest
-    point along the extreme ray will be used as the next point on
+    under consideration to the centroid.  Then all angles will be 
+    < 90 degrees.  To maintain the strict inequality the furthest 
+    point along the extreme ray will be used as the next point on 
     the convex hull.
     */
 
@@ -477,7 +417,7 @@ double epsilon;
     vertex = furthest;
     do {
     ch[ch_vert] = vertex;
-    /* Find the ray with the maximum and minimum angle in the new
+    /* Find the ray with the maximum and minimum angle in the new 
        coordinate system */
     if (debug) printf("vertex %d\n",vertex);
     max_phi = - BIGNUM;
@@ -530,12 +470,12 @@ double epsilon;
 
 
 centroid(pts,n,p_cen_x, p_cen_y)
-/*
+/* 
 Determines the centroid of the set of n points in the n*2 array of
 doubles pts and returns its x-coordinate and y-coordinate in p_cen_x
 and p_cen_y respectively.
 */
-double *pts, *p_cen_x, *p_cen_y;
+double *pts, *p_cen_x, *p_cen_y; 
 int n;
 {
     double sumx, sumy;
@@ -553,9 +493,9 @@ int n;
 
 make_rotation_matrix(cos_theta,sin_theta,m)
 double cos_theta, sin_theta, *m;
-/*
+/* 
 Given a unit vector (vx,vy) system, finds the matrix m that
-corresponds to rotating the coordinate system so that its x-axis
+corresponds to rotating the coordinate system so that its x-axis 
 lies in the direction defined by (vx,vy).
 */
 {

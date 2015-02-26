@@ -1,3 +1,14 @@
+/**
+*************************************************************************
+*
+* @file as_cgal.cpp
+*
+* Class for using CGAL to calculate alpha shapes, implementation.
+*
+************************************************************************/
+
+#include "as_cgal.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -6,7 +17,6 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/algorithm.h>
 #include <CGAL/Delaunay_triangulation_2.h>

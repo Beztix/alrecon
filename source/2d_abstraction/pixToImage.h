@@ -6,7 +6,7 @@
 
 int prepareInputForSE(std::string inputImage, std::string reducedImgName, std::string outputFile, int reduction);
 
-int pixFileToImage(std::string input, std::string output);
+
 
 
 #endif /* SE_INPUT_H*/

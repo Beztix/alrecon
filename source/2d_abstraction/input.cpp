@@ -1,3 +1,14 @@
+/**
+*************************************************************************
+*
+* @file input.cpp
+*
+* Class containing general input methods to load information from images, implementation.
+*
+************************************************************************/
+
+#include "input.h"
+
 #include <iostream>
 #include <fstream>
 

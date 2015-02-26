@@ -1,3 +1,14 @@
+/**
+*************************************************************************
+*
+* @file se_rendering.cpp
+*
+* Output class for rendering superellipses from text files to images, implementation.
+*
+************************************************************************/
+
+#include "se_rendering.h"
+
 #define _USE_MATH_DEFINES
 
 #include <list>

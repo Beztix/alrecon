@@ -1,6 +1,18 @@
+/**
+*************************************************************************
+*
+* @file main.cpp
+*
+* Main class for executing the various algorithms of alrecon.
+*
+************************************************************************/
+
 #include <string>
-
-
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <tuple>
+#include <algorithm>
 
 
 // CGAL stuff
@@ -15,7 +27,8 @@
 // Superellipses stuff
 #include "se_rendering.h"
 #include "se_input.h"
-#include "se_epsilon_new.h"
+//#include "se_epsilon_new.h"
+#include "se_epsilon2_new.h"
 
 
 
@@ -26,12 +39,55 @@ using namespace std;
 
 
 
+
+void sortPixelFile(string input, string output) {
+
+
+
+	ifstream infile(input);
+	vector<tuple<int, int>> points;
+	int x;
+	int y;
+	while (infile >> x >> y) {
+		tuple<int, int> point(x, y);
+		points.emplace_back(point);
+	}
+
+	sort(points.begin(), points.end());
+
+
+
+	ofstream myfile;
+	myfile.open(output);
+
+	for (int i = 0; i < points.size(); i++) {
+		tuple<int, int> point = points.at(i);
+		myfile << to_string(get<0>(point)) << " " << to_string(get<1>(point)) << endl;
+	}
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int main() {
 
 
 
-	bool USE_CGAL =				true;
-	bool USE_GPUALPHA =			true;
+	bool USE_CGAL =				false;
+	bool USE_GPUALPHA =			false;
 	bool USE_SUPERELLIPSES =	true;
 
 
@@ -74,8 +130,8 @@ int main() {
 		//++++++++++++++++++++++++++++
 		bool PREPARE = true;
 
-		string inputName =	"image";
-		int reduction =		10; 
+		string inputName =	"1920x1080_high";
+		int reduction =		5; 
 		//++++++++++++++++++++++++++++
 
 
@@ -105,19 +161,32 @@ int main() {
 	if (USE_SUPERELLIPSES) {
 
 		//++++++++++++++++++++++++++++
-		bool PREPARE =	true;
+		bool RESTORE_IMAGE = false;
+		bool PREPARE =	false;
 		bool COMPUTE =	true;
 		bool RENDER =	true;
 
-		string inputName =	"image";
-		int reduction =		15;
+		string inputName =	"mouse_part_sort";
+		int reduction =		1;
 		//++++++++++++++++++++++++++++
 
 		string inputImage = "images/" + inputName + ".png";
 		string reducedImgName = "se_" + inputName + "_reducedImage.png";
-		string pixelFile = "se_" + inputName + "_pixels.txt";
+		//string pixelFile = "se_" + inputName + "_pixels.txt";
+		string pixelFile = inputName + ".txt";
 		string ellipseTextFile = "se_" + inputName + "_textellipses";
 		string ellipseImage = "se_" + inputName + "_ellipseImage.png";
+		string restorePixFile = "mouse_part_sort.txt";
+		string restoredImage = "mouse_part_sort.png";
+
+
+		if (RESTORE_IMAGE) {
+			int err = pixFileToImage(restorePixFile, restoredImage);
+
+		}
+
+
+	//	sortPixelFile("mousePart_restoredPixels.txt", "mousePart_restoredPixelsSorted.txt");
 
 
 		if (PREPARE) {
@@ -137,7 +206,7 @@ int main() {
 			ellipseTextFileChar[ellipseTextFile.size()] = 0;
 			memcpy(ellipseTextFileChar, ellipseTextFile.c_str(), ellipseTextFile.size());
 
-			calculateEllipse(pixelFileChar, ellipseTextFileChar);
+			calculateEllipse2(pixelFileChar, ellipseTextFileChar);
 			cout << "Calculated ellipses for file " << pixelFile << " to file " << ellipseTextFile << endl;
 		}
 
