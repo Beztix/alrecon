@@ -185,3 +185,34 @@ int processSuperellipsesFromTextfile(string input, string output) {
 	return 0;
 
 }
+
+
+
+int processSuperellipsesFromTextfileCeres(string input, string output) {
+
+	ifstream infile(input);
+
+	string line;
+
+	double xCenter;
+	double yCenter;
+	double a;
+	double b;
+	double epsilon;
+
+	vector<tuple<double, double>> pointListOfEllipse;		//list of points rendered from one superellipse
+	vector<vector<tuple<double, double>>> listOfEllipses;	//list of all pointListOfEllipses
+
+	// reading superellipse parameters from textfile
+	while (infile >> xCenter >> yCenter >> a >> b >> epsilon) {
+		cout << xCenter << " " << yCenter << " " << a << " " << b << " " << epsilon << endl;
+		pointListOfEllipse = renderSuperellipse(xCenter, yCenter, a, b, epsilon, 0.0);
+		listOfEllipses.emplace_back(pointListOfEllipse);
+	}
+
+	writeSuperellipsesToImage(listOfEllipses, output);
+
+
+	return 0;
+
+}

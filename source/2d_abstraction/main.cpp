@@ -29,7 +29,7 @@
 #include "se_input.h"
 //#include "se_epsilon_new.h"
 #include "se_epsilon2_new.h"
-
+#include "ellipseFit.h"
 
 
 
@@ -86,9 +86,10 @@ int main() {
 
 
 
-	bool USE_CGAL =				false;
-	bool USE_GPUALPHA =			false;
-	bool USE_SUPERELLIPSES =	true;
+	bool USE_CGAL =					false;
+	bool USE_GPUALPHA =				false;
+	bool USE_SUPERELLIPSES_RONIN =	false;
+	bool USE_SUPERELLIPSES_CERES =	true;
 
 
 	
@@ -158,7 +159,7 @@ int main() {
 	//===========================
 	//====   Superellipses   ====
 	//===========================
-	if (USE_SUPERELLIPSES) {
+	if (USE_SUPERELLIPSES_RONIN) {
 
 		//++++++++++++++++++++++++++++
 		bool RESTORE_IMAGE = false;
@@ -190,8 +191,8 @@ int main() {
 
 
 		if (PREPARE) {
-			cout << "Preparing input for superellipses" << endl;
-			int err = prepareInputForSE(inputImage, reducedImgName, pixelFile, reduction);
+			cout << "Preparing input for superellipses - Ronin" << endl;
+			int err = prepareInputForRonin(inputImage, reducedImgName, pixelFile, reduction);
 			cout << "Prepared input from file " << inputImage << " to file " << pixelFile << endl;
 		}
 
@@ -216,6 +217,63 @@ int main() {
 			int err = processSuperellipsesFromTextfile(ellipseTextFile, ellipseImage);
 			cout << "Rendered ellipses from file " << ellipseTextFile << " to Image " << ellipseImage << endl;
 		}
+
+	}
+
+
+
+
+
+	if (USE_SUPERELLIPSES_CERES) {
+
+		//++++++++++++++++++++++++++++
+		bool RESTORE_IMAGE =	false;
+		bool PREPARE =			true;
+		bool COMPUTE =			true;
+		bool RENDER =			true;
+
+		string inputName = "ellipsetest3";
+		int reduction = 100;
+		//++++++++++++++++++++++++++++
+
+		string inputImage = "images/" + inputName + ".png";
+		string reducedImgName = "se_" + inputName + "_reducedImage.png";
+		string pixelFile = "se_" + inputName + "_pixels.txt";
+		string ellipseTextFile = "se_" + inputName + "_textellipses";
+		string ellipseImage = "se_" + inputName + "_ellipseImage.png";
+		string restorePixFile = "mouse_part_sort.txt";
+		string restoredImage = "mouse_part_sort.png";
+
+
+		if (RESTORE_IMAGE) {
+			int err = pixFileToImage(restorePixFile, restoredImage);
+
+		}
+
+
+
+		if (PREPARE) {
+			cout << "Preparing input for superellipses - Ceres" << endl;
+			int err = prepareInputForCeres(inputImage, reducedImgName, pixelFile, reduction);
+			cout << "Prepared input from file " << inputImage << " to file " << pixelFile << endl;
+		}
+
+
+		if (COMPUTE) {
+			cout << "Calculating superellipses - Ceres" << endl;
+			int err = useCeres(pixelFile, ellipseTextFile);
+			cout << "Calculated ellipses for file " << pixelFile << " to file " << ellipseTextFile << endl;
+		}
+
+
+		if (RENDER) {
+			cout << "Rendering superellipses" << endl;
+			int err = processSuperellipsesFromTextfileCeres(ellipseTextFile, ellipseImage);
+			cout << "Rendered ellipses from file " << ellipseTextFile << " to Image " << ellipseImage << endl;
+		}
+
+
+
 
 	}
 

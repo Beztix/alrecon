@@ -25,7 +25,7 @@ using namespace std;
 
 
 
-void writePixelsToTextFileForSE(string outputFile, int* pixels, int width, int height) {
+void writePixelsToTextFileForRonin(string outputFile, int* pixels, int width, int height) {
 	
 	ofstream myfile;
 	myfile.open(outputFile);
@@ -51,9 +51,28 @@ void writePixelsToTextFileForSE(string outputFile, int* pixels, int width, int h
 
 
 
+void writePixelsToTextFileForCeres(string outputFile, int* pixels, int width, int height) {
+
+	ofstream myfile;
+	myfile.open(outputFile);
+
+	//write the set pixels to file
+	for (int i = 0; i < height*width; i++) {
+		if (pixels[i] != 0){
+			int y = i / width;
+			int x = i % width;
+
+			myfile << to_string(x) << " " << to_string(y) << endl;
+		}
+	}
+	myfile.close();
+
+}
 
 
-int prepareInputForSE(string inputImage, string reducedImgName, string outputFile, int reduction) {
+
+
+int prepareInputForRonin(string inputImage, string reducedImgName, string outputFile, int reduction) {
 	int width;
 	int height;
 	
@@ -66,9 +85,29 @@ int prepareInputForSE(string inputImage, string reducedImgName, string outputFil
 	//reducing pixels
 	int* reducedPixels = input::reducePixels(pixels, width, height, reduction, reducedImgName);
 
-	writePixelsToTextFileForSE(outputFile, reducedPixels, width, height);
-
+	writePixelsToTextFileForRonin(outputFile, reducedPixels, width, height);
+	return 0;
 }
+
+
+
+int prepareInputForCeres(string inputImage, string reducedImgName, string outputFile, int reduction) {
+	int width;
+	int height;
+
+	//loading binary input image
+	int* pixels = input::loadPixelsFromImage(inputImage, &width, &height);
+	if (pixels == nullptr){
+		return -1;
+	}
+
+	//reducing pixels
+	int* reducedPixels = input::reducePixels(pixels, width, height, reduction, reducedImgName);
+
+	writePixelsToTextFileForCeres(outputFile, reducedPixels, width, height);
+	return 0;
+}
+
 
 
 

@@ -5,8 +5,9 @@
 
 
 int processSuperellipsesFromTextfile(std::string input, std::string output);
+int processSuperellipsesFromTextfileCeres(std::string input, std::string output);
 
 
 
 
-#endif /* SE_INPUT_H*/
+#endif /* SE_RENDERING*/

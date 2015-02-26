@@ -4,7 +4,10 @@
 #include <iostream>
 
 
-int prepareInputForSE(std::string inputImage, std::string reducedImgName, std::string outputFile, int reduction);
+int prepareInputForRonin(std::string inputImage, std::string reducedImgName, std::string outputFile, int reduction);
+
+
+int prepareInputForCeres(std::string inputImage, std::string reducedImgName, std::string outputFile, int reduction);
 
 int pixFileToImage(std::string input, std::string output);
 
