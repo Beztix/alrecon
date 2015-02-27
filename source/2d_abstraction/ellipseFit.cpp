@@ -1,6 +1,9 @@
+#include <chrono>
 
-#include "ellipseFit.h""
+
+#include "ellipseFit.h"
 #include <ceres/ceres.h>
+
 
 using ceres::AutoDiffCostFunction;
 using ceres::CostFunction;
@@ -12,10 +15,13 @@ using namespace std;
 
 
 
-vector<tuple<double,double>> getInput(string inputFile) {
+vector<tuple<double,double>> getInput(string inputFile, int &width, int &height) {
 	vector<tuple<double,double>> input;
 
 	ifstream infile(inputFile);
+	string dummy;
+	infile >> dummy >> width;
+	infile >> dummy >> height;
 
 
 	double xIn, yIn;
@@ -78,10 +84,13 @@ public:
 
 	//create functor evaluating the cost
 	template <typename T> 
-	bool operator()(const T* const xc, const T* const yc, const T* const a, const T* const b, const T* const e, T* residual) const {
+	bool operator()(const T* const xc, const T* const yc, const T* const theta, const T* const a, const T* const b, const T* const e, T* residual) const {
+		T xTrans = T(xx_) - *xc + dRand(0.00000000001, 0.00000000009);
+		T yTrans = T(yy_) - *yc + dRand(0.00000000001, 0.00000000009);
 
-		T xRel = T(xx_) - *xc + dRand(0.00000000001, 0.00000000009);
-		T yRel = T(yy_) - *yc + dRand(0.00000000001, 0.00000000009);
+		T xRel = xTrans * cos(-*theta) - yTrans * sin(-*theta) + dRand(0.00000000001, 0.00000000009);
+		T yRel = xTrans * sin(-*theta) + yTrans * cos(-*theta) + dRand(0.00000000001, 0.00000000009);
+		
 
 		//==================================
 
@@ -132,15 +141,17 @@ private:
 
 
 int useCeres(string inputFile, string outputFile) {
-
-
-  vector<tuple<double,double>> input = getInput(inputFile);
+  
+	int width, height;
+  vector<tuple<double,double>> input = getInput(inputFile, width, height);
+  
   tuple<double, double> centroid = getCentroid(input);
 
 
   // Save initial values for comparison.
   double initial_xc = get<0>(centroid);
   double initial_yc = get<1>(centroid);
+  double initial_theta = 0.0;
   double initial_a = 200.0;
   double initial_b = 200.0;
   double initial_e = 1.0;
@@ -150,6 +161,7 @@ int useCeres(string inputFile, string outputFile) {
 
   double xc = initial_xc;
   double yc = initial_yc;
+  double theta = initial_theta;
   double a = initial_a;
   double b = initial_b;
   double e = initial_e;
@@ -167,12 +179,14 @@ int useCeres(string inputFile, string outputFile) {
 	  //cout << input_x << " " << input_y << endl;
 
 	  CostFunction *cost =
-		  new AutoDiffCostFunction<DistanceFromCircleCost, 1, 1, 1, 1, 1, 1>(
+		  new AutoDiffCostFunction<DistanceFromCircleCost, 1, 1, 1, 1, 1, 1, 1>(
 		  new DistanceFromCircleCost(input_x, input_y));
-	  problem.AddResidualBlock(cost, NULL, &xc, &yc, &a, &b, &e);
+	  problem.AddResidualBlock(cost, NULL, &xc, &yc, &theta, &a, &b, &e);
 	  problem.SetParameterLowerBound(&a, 0, 0.001);
 	  problem.SetParameterLowerBound(&b, 0, 0.001);
 	  problem.SetParameterLowerBound(&e, 0, 0.001);
+	  problem.SetParameterLowerBound(&theta, 0, -3.200);
+	  problem.SetParameterUpperBound(&theta, 0, 3.200);
   }
 
 
@@ -180,28 +194,31 @@ int useCeres(string inputFile, string outputFile) {
   // Run the solver!
   Solver::Options options;
   options.max_solver_time_in_seconds = 15;
-  options.num_threads = 1;
+  options.num_threads = 10;
   options.max_num_iterations = 25;
   options.linear_solver_type = ceres::DENSE_QR;
   options.minimizer_progress_to_stdout = true;
 
 
+
   Solver::Summary summary;
   Solve(options, &problem, &summary);
-
   
-  std::cout << summary.BriefReport() << "\n";
+  
+  std::cout << summary.FullReport() << "\n";
   std::cout << "xc : " << initial_xc << " -> " << xc << "\n";
   std::cout << "yc : " << initial_yc << " -> " << yc << "\n";
+  std::cout << "theta : " << initial_theta << " -> " << theta << "\n";
   std::cout << "a : " << initial_a << " -> " << a << "\n";
   std::cout << "b : " << initial_b << " -> " << b << "\n";
   std::cout << "e : " << initial_e << " -> " << e << "\n";
 
-  
 
   ofstream outfile(outputFile);
 
-  outfile << xc << " " << yc << " " << a << " " << b << " " << e << endl;
+  outfile << "w " << width << endl;
+  outfile << "h " << height << endl;
+  outfile << xc << " " << yc << " " << theta << " " << a << " " << b << " " << e << endl;
 
 
 

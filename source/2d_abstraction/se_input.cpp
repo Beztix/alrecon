@@ -55,6 +55,8 @@ void writePixelsToTextFileForCeres(string outputFile, int* pixels, int width, in
 
 	ofstream myfile;
 	myfile.open(outputFile);
+	myfile << "w " << width << endl;
+	myfile << "h " << height << endl;
 
 	//write the set pixels to file
 	for (int i = 0; i < height*width; i++) {

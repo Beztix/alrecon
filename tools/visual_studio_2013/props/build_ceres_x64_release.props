@@ -4,7 +4,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <IncludePath>$(ProjectDir)..\..\..\external\ceres\include\;$(ProjectDir)..\..\..\external\ceres\internal\;$(ProjectDir)..\..\..\external\ceres\internal\ceres\miniglog\;$(ProjectDir)..\..\..\external\ceres\config\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)$(ProjectDir)..\..\..\external\ceres\lib\Release\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)..\..\..\external\ceres\lib\Release\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>

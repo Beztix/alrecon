@@ -43,11 +43,7 @@ void evaluateSuperellipse(double a, double b, double epsilon, double theta, doub
 
 
 
-void writeSuperellipsesToImage(vector<vector<tuple<double, double>>> pointListContainer, string imgName) {
-	int offsetX = 200;
-	int offsetY = 200;
-	int width = 600;
-	int height = 600;
+void writeSuperellipsesToImage(vector<vector<tuple<double, double>>> pointListContainer, string imgName, int width, int height) {
 
 	Mat image = Mat(height, width, CV_8UC3);
 	for (int y = 0; y < height; y++) {
@@ -73,8 +69,6 @@ void writeSuperellipsesToImage(vector<vector<tuple<double, double>>> pointListCo
 			tuple<double, double> point = *it;
 			double x = get<0>(point);
 			double y = get<1>(point);
-			x += offsetX;
-			y += offsetY;
 			x += 0.5;		//rounding instead of cutting off by casting to int
 			y += 0.5;
 			int xInt = static_cast<int>(x);
@@ -179,7 +173,7 @@ int processSuperellipsesFromTextfile(string input, string output) {
 		listOfEllipses.emplace_back(pointListOfEllipse);
 	}
 
-	writeSuperellipsesToImage(listOfEllipses, output);
+	writeSuperellipsesToImage(listOfEllipses, output, 1000, 1000);
 
 	
 	return 0;
@@ -196,6 +190,7 @@ int processSuperellipsesFromTextfileCeres(string input, string output) {
 
 	double xCenter;
 	double yCenter;
+	double theta;
 	double a;
 	double b;
 	double epsilon;
@@ -203,14 +198,17 @@ int processSuperellipsesFromTextfileCeres(string input, string output) {
 	vector<tuple<double, double>> pointListOfEllipse;		//list of points rendered from one superellipse
 	vector<vector<tuple<double, double>>> listOfEllipses;	//list of all pointListOfEllipses
 
+	int width, height;
+	infile >> line >> width;
+	infile >> line >> height;
 	// reading superellipse parameters from textfile
-	while (infile >> xCenter >> yCenter >> a >> b >> epsilon) {
-		cout << xCenter << " " << yCenter << " " << a << " " << b << " " << epsilon << endl;
-		pointListOfEllipse = renderSuperellipse(xCenter, yCenter, a, b, epsilon, 0.0);
+	while (infile >> xCenter >> yCenter >> theta >> a >> b >> epsilon) {
+		cout << xCenter << " " << yCenter << " " << theta << " " << a << " " << b << " " << epsilon << endl;
+		pointListOfEllipse = renderSuperellipse(xCenter, yCenter, a, b, epsilon, theta);
 		listOfEllipses.emplace_back(pointListOfEllipse);
 	}
 
-	writeSuperellipsesToImage(listOfEllipses, output);
+	writeSuperellipsesToImage(listOfEllipses, output, width, height);
 
 
 	return 0;

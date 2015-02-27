@@ -227,12 +227,11 @@ int main() {
 	if (USE_SUPERELLIPSES_CERES) {
 
 		//++++++++++++++++++++++++++++
-		bool RESTORE_IMAGE =	false;
 		bool PREPARE =			true;
 		bool COMPUTE =			true;
 		bool RENDER =			true;
 
-		string inputName = "ellipsetest3";
+		string inputName = "ellipsetest7";
 		int reduction = 100;
 		//++++++++++++++++++++++++++++
 
@@ -243,12 +242,6 @@ int main() {
 		string ellipseImage = "se_" + inputName + "_ellipseImage.png";
 		string restorePixFile = "mouse_part_sort.txt";
 		string restoredImage = "mouse_part_sort.png";
-
-
-		if (RESTORE_IMAGE) {
-			int err = pixFileToImage(restorePixFile, restoredImage);
-
-		}
 
 
 
