@@ -107,6 +107,7 @@ int prepareInputForCeres(string inputImage, string reducedImgName, string output
 	int* reducedPixels = input::reducePixels(pixels, width, height, reduction, reducedImgName);
 
 	writePixelsToTextFileForCeres(outputFile, reducedPixels, width, height);
+	writePixelsToTextFileForCeres("allPixels", pixels, width, height);
 	return 0;
 }
 
@@ -203,3 +204,44 @@ int pixFileToImage(string input, string output) {
 }
 
 
+
+
+int pixelFileToImage(string input, string output) {
+
+	
+	ifstream infile(input);
+
+
+
+	int x;
+	int y;
+	int width = 0;
+	int height = 0;
+	string line;
+
+	infile >> line >> width;
+	infile >> line >> height;
+
+	Mat image = Mat(height, width, CV_8UC3);
+
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			image.at<Vec3b>(Point(x, y)) = Vec3b(0, 0, 0);
+		}
+	}
+
+	Point point;
+
+	// reading pixels from textfile
+	while (infile >> x >> y) {
+		point = Point(x, y);
+		image.at<Vec3b>(point) = Vec3b(255, 255, 255);
+		
+	}
+
+
+	imwrite(output, image);
+
+	return 0;
+
+}

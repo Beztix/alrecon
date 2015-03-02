@@ -4,7 +4,8 @@
 #include <iostream>
 
 
-int useCeres(std::string pixelFile, std::string ellipseTextFile);
+
+double useCeres(std::string pixelFile, std::string ellipseTextFile, double &xOut, double &yOut, double &thetaOut);
 
 
 

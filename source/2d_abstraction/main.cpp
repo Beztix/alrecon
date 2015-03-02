@@ -30,13 +30,17 @@
 //#include "se_epsilon_new.h"
 #include "se_epsilon2_new.h"
 #include "ellipseFit.h"
+#include <ceres/ceres.h>
+#include "se_split.h"
 
 
 
+
+#include "convexHull.h"
 
 
 using namespace std;
-
+using ceres::Solver;
 
 
 
@@ -74,6 +78,67 @@ void sortPixelFile(string input, string output) {
 
 
 
+void appendEllipseToGlobalFile(string ellipseTextFile, string globalEllipseTextFile) {
+	ifstream infile(ellipseTextFile);
+	int width, height;
+	string dummy;
+	infile >> dummy >> width;
+	infile >> dummy >> height;
+
+
+	//Test if global ellipse file is initialized
+	ifstream readOutfile(globalEllipseTextFile);
+	int dummyInt;
+	if (!(readOutfile >> dummy >> dummyInt)) {
+		ofstream outfileInit(globalEllipseTextFile);
+		outfileInit << "w " << width << endl;
+		outfileInit << "h " << height  << endl;
+	}
+
+
+	//append ellipse to global ellipse file
+	double xc, yc, theta, a, b, epsilon;
+	infile >> xc >> yc >> theta >> a >> b >> epsilon;
+
+	ofstream outfile(globalEllipseTextFile, std::ios_base::app);
+	outfile << xc << " " << yc << " " << theta << " " << a << " " << b << " " << epsilon << endl;
+
+
+}
+
+
+
+void useCeresRecursive(string pixelFile, string contourFile, string ellipseTextFile, string id, string globalEllipseTextFile) {
+	double x, y, theta;
+	double maxFinalCost = useCeres(contourFile, ellipseTextFile, x, y, theta);
+	if (maxFinalCost > 10000) {
+		string id1 = id + "0";
+		string id2 = id + "1";
+		splitImage(pixelFile, x, y, theta, "file" + id1, "file" + id2);
+		
+		pixelFileToImage("file" + id1, "file" + id1 + ".png");
+		pixelFileToImage("file" + id2, "file" + id2 + ".png");
+		
+		getContours("file" + id1, "contourFile" + id1);
+		getContours("file" + id2, "contourFile" + id2);
+
+	
+		pixelFileToImage("contourFile" + id1, "contourFile" + id1 + ".png");
+		pixelFileToImage("contourFile" + id2, "contourFile" + id2 + ".png");
+
+		useCeresRecursive("file" + id1, "contourFile" + id1, "ellipseFile" + id1, id1, globalEllipseTextFile);
+		processSuperellipsesFromTextfileCeres("ellipseFile" + id1, "ellipseFile" + id1 + ".png");
+
+		useCeresRecursive("file" + id2, "contourFile" + id2, "ellipseFile" + id2, id2, globalEllipseTextFile);
+		processSuperellipsesFromTextfileCeres("ellipseFile" + id2, "ellipseFile" + id2 + ".png");
+
+	}
+	else {
+		appendEllipseToGlobalFile(ellipseTextFile, globalEllipseTextFile);
+	}
+
+
+}
 
 
 
@@ -88,9 +153,50 @@ int main() {
 
 	bool USE_CGAL =					false;
 	bool USE_GPUALPHA =				false;
-	bool USE_SUPERELLIPSES_RONIN =	false;
-	bool USE_SUPERELLIPSES_CERES =	true;
+	bool USE_SUPERELLIPSES_RONIN =	true;
+	bool USE_SUPERELLIPSES_CERES =	false;
 
+
+
+	//vector<Point> points;
+	//Point p;
+
+	//p.x = 1;
+	//p.y = 1;
+	//points.emplace_back(p);
+	//p.x = 1;
+	//p.y = 3;
+	//points.emplace_back(p);
+	//p.x = 2;
+	//p.y = 1;
+	//points.emplace_back(p);
+	//p.x = 2;
+	//p.y = 2;
+	//points.emplace_back(p);
+	//p.x = 3;
+	//p.y = 2;
+	//points.emplace_back(p);
+	//p.x = 3;
+	//p.y = 3;
+	//points.emplace_back(p);
+	//p.x = 4;
+	//p.y = 1;
+	//points.emplace_back(p);
+	//p.x = 4;
+	//p.y = 4;
+	//points.emplace_back(p);
+	//p.x = 0;
+	//p.y = 0;
+	//points.emplace_back(p);
+
+	//
+	//
+	//vector<Point> hull = convex_hull(points);
+
+	//for (int i = 0; i < hull.size(); i++) {
+	//	Point p = hull.at(i);
+	//	cout << p.x << " " << p.y << endl;
+	//}
 
 	
 
@@ -162,12 +268,12 @@ int main() {
 	if (USE_SUPERELLIPSES_RONIN) {
 
 		//++++++++++++++++++++++++++++
-		bool RESTORE_IMAGE = false;
-		bool PREPARE =	false;
-		bool COMPUTE =	true;
-		bool RENDER =	true;
+		bool RESTORE_IMAGE =	false;
+		bool PREPARE =			false;
+		bool COMPUTE =			true;
+		bool RENDER =			true;
 
-		string inputName =	"mouse_part_sort";
+		string inputName =	"mouse_part_sorted";
 		int reduction =		1;
 		//++++++++++++++++++++++++++++
 
@@ -187,7 +293,7 @@ int main() {
 		}
 
 
-	//	sortPixelFile("mousePart_restoredPixels.txt", "mousePart_restoredPixelsSorted.txt");
+		//sortPixelFile("mouse_part__.txt", "mouse_part_sorted.txt");
 
 
 		if (PREPARE) {
@@ -231,7 +337,7 @@ int main() {
 		bool COMPUTE =			true;
 		bool RENDER =			true;
 
-		string inputName = "ellipsetest7";
+		string inputName = "ellipsetest8";
 		int reduction = 100;
 		//++++++++++++++++++++++++++++
 
@@ -253,16 +359,40 @@ int main() {
 
 
 		if (COMPUTE) {
-			cout << "Calculating superellipses - Ceres" << endl;
-			int err = useCeres(pixelFile, ellipseTextFile);
-			cout << "Calculated ellipses for file " << pixelFile << " to file " << ellipseTextFile << endl;
+			double x, y, theta;
+			
+
+			useCeresRecursive("allPixels", pixelFile, ellipseTextFile, "", "globalEllipses");
+
+
+
 		}
 
 
 		if (RENDER) {
 			cout << "Rendering superellipses" << endl;
-			int err = processSuperellipsesFromTextfileCeres(ellipseTextFile, ellipseImage);
+			int err = processSuperellipsesFromTextfileCeres("globalEllipses", "globalEllipses.png");
 			cout << "Rendered ellipses from file " << ellipseTextFile << " to Image " << ellipseImage << endl;
+
+			//pixelFileToImage("file0", "file0neu.png");
+			/*pixelFileToImage("file00", "file00.png");
+			pixelFileToImage("file01", "file01.png");
+			pixelFileToImage("file1", "file1.png");
+			pixelFileToImage("file01", "file01.png");
+			pixelFileToImage("file010", "file010.png");
+			pixelFileToImage("file011", "file011.png");
+			pixelFileToImage("file0100", "file0100.png");
+			pixelFileToImage("file0101", "file0101.png");
+
+			processSuperellipsesFromTextfileCeres("ellipseFile0", "ellipseFile0.png");
+			processSuperellipsesFromTextfileCeres("ellipseFile1", "ellipseFile1.png");
+			processSuperellipsesFromTextfileCeres("ellipseFile00", "ellipseFile00.png");
+			processSuperellipsesFromTextfileCeres("ellipseFile01", "ellipseFile01.png");
+			processSuperellipsesFromTextfileCeres("ellipseFile010", "ellipseFile010.png");
+			processSuperellipsesFromTextfileCeres("ellipseFile011", "ellipseFile011.png");
+			processSuperellipsesFromTextfileCeres("ellipseFile0100", "ellipseFile0100.png");
+			processSuperellipsesFromTextfileCeres("ellipseFile0101", "ellipseFile0101.png");*/
+
 		}
 
 
@@ -273,3 +403,5 @@ int main() {
 
 
 }
+
+

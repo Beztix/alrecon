@@ -21,22 +21,26 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\source\2d_abstraction\as_cgal.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\as_gpu_input.cpp" />
+    <ClCompile Include="..\..\..\source\2d_abstraction\convex_hull.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\ellipseFit.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\input.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\main.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_epsilon2_new.c" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_input.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_rendering.cpp" />
+    <ClCompile Include="..\..\..\source\2d_abstraction\se_split.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\source\2d_abstraction\Alpha_shape_2.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\as_cgal.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\as_gpu_input.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\convexHull.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\ellipseFit.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\input.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_epsilon2_new.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_input.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_rendering.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\se_split.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2ACAE83F-9E09-4295-943E-320765D3F91C}</ProjectGuid>

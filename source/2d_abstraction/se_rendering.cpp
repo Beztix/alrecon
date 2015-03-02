@@ -125,7 +125,7 @@ vector<tuple<double, double>> renderSuperellipse(double xc, double yc, double a,
 		
 		std::tuple<double, double> point (xNew, yNew);
 		pointList.emplace_back(point);
-		std::cout << "X: " << x << " Y: " << y << std::endl;
+		//std::cout << "X: " << x << " Y: " << y << std::endl;
 	}
 
 

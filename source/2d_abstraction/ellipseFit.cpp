@@ -4,7 +4,6 @@
 #include "ellipseFit.h"
 #include <ceres/ceres.h>
 
-
 using ceres::AutoDiffCostFunction;
 using ceres::CostFunction;
 using ceres::Problem;
@@ -140,8 +139,8 @@ private:
 
 
 
-int useCeres(string inputFile, string outputFile) {
-  
+double useCeres(string inputFile, string outputFile, double &xOut, double &yOut, double &thetaOut) {
+
 	int width, height;
   vector<tuple<double,double>> input = getInput(inputFile, width, height);
   
@@ -193,11 +192,11 @@ int useCeres(string inputFile, string outputFile) {
 
   // Run the solver!
   Solver::Options options;
-  options.max_solver_time_in_seconds = 15;
+  options.max_solver_time_in_seconds = 5;
   options.num_threads = 10;
   options.max_num_iterations = 25;
   options.linear_solver_type = ceres::DENSE_QR;
-  options.minimizer_progress_to_stdout = true;
+  options.minimizer_progress_to_stdout = false;
 
 
 
@@ -205,6 +204,15 @@ int useCeres(string inputFile, string outputFile) {
   Solve(options, &problem, &summary);
   
   
+  if (a < b) {
+	  double temp = a;
+	  a = b;
+	  b = temp;
+
+	  theta += 1.5707963268;
+  }
+
+
   std::cout << summary.FullReport() << "\n";
   std::cout << "xc : " << initial_xc << " -> " << xc << "\n";
   std::cout << "yc : " << initial_yc << " -> " << yc << "\n";
@@ -214,13 +222,17 @@ int useCeres(string inputFile, string outputFile) {
   std::cout << "e : " << initial_e << " -> " << e << "\n";
 
 
+
   ofstream outfile(outputFile);
 
   outfile << "w " << width << endl;
   outfile << "h " << height << endl;
   outfile << xc << " " << yc << " " << theta << " " << a << " " << b << " " << e << endl;
 
+  xOut = xc;
+  yOut = yc;
+  thetaOut = theta;
 
 
-  return 0;
+  return summary.final_cost;
 }

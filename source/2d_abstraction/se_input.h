@@ -11,5 +11,7 @@ int prepareInputForCeres(std::string inputImage, std::string reducedImgName, std
 
 int pixFileToImage(std::string input, std::string output);
 
+int pixelFileToImage(std::string input, std::string output);
+
 
 #endif /* SE_INPUT_H*/
