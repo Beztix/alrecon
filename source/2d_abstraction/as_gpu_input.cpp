@@ -15,7 +15,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include "input.h"
+#include "image_input.h"
+#include "util.h"
 
 
 using namespace cv;
@@ -65,15 +66,16 @@ int prepareInputForAS(string inputImage, string reducedImgName, string outputFil
 	int height;
 	
 	//loading binary input image
-	int* pixels = input::loadPixelsFromImage(inputImage, width, height);
+	int* pixels = image_input::loadPixelsFromImage(inputImage, width, height);
 	if (pixels == nullptr){
 		return -1;
 	}
 
 	//reducing pixels
-	int* reducedPixels = input::reducePixels(pixels, width, height, reduction, reducedImgName);
+	int* reducedPixels = util::reducePixels(pixels, width, height, reduction, reducedImgName);
 
 	//write pixels to textfile in Format used by GPUAlpha
 	writePixelsToTextFileForAS(outputFile, reducedPixels, width, height);
 
+	return 0;
 }

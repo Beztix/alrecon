@@ -8,6 +8,7 @@
 ************************************************************************/
 
 #include "se_rendering.h"
+#include "image_output.h"
 
 #define _USE_MATH_DEFINES
 
@@ -32,10 +33,16 @@ template <typename T> int sgn(T val) {
 }
 
 
-void evaluateSuperellipse(double a, double b, double epsilon, double theta, double *x, double *y) {
 
-	double cost = cos(theta);
-	double sint = sin(theta);
+/// evaluates the superellipse by calculaten the x and y coordinates of the border of the superellipse at the given angle phi
+/**
+*
+*/
+
+void evaluateSuperellipse(double a, double b, double epsilon, double phi, double *x, double *y) {
+
+	double cost = cos(phi);
+	double sint = sin(phi);
 	*x = a*sgn<double>(cost)* pow(abs(cost), epsilon);
 	*y = b*sgn<double>(sint)* pow(abs(sint), epsilon);
 
@@ -43,63 +50,13 @@ void evaluateSuperellipse(double a, double b, double epsilon, double theta, doub
 
 
 
-void writeSuperellipsesToImage(vector<vector<tuple<double, double>>> pointListContainer, string imgName, int width, int height) {
 
-	Mat image = Mat(height, width, CV_8UC3);
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			image.at<Vec3b>(Point(x, y)) = Vec3b(0, 0, 0);
-		}
-	}
+/// renders the superellipse given by its parameters to a list of 100 points forming segments on the border of the superellipse
+/**
+*
+*/
 
-
-	//go through all superellipses
-	for (vector<vector<tuple<double, double>>>::iterator iterator = pointListContainer.begin(); iterator != pointListContainer.end(); iterator++) {
-		vector<tuple<double, double>> pointList = *iterator;
-
-		//for each superellipse:
-
-		Point previousPoint;
-		Point firstPoint;
-		Point currentPoint;
-		bool first = true;
-
-		//go through all rendered points
-		for (vector<tuple<double, double>>::iterator it = pointList.begin(); it != pointList.end(); it++) {
-			tuple<double, double> point = *it;
-			double x = get<0>(point);
-			double y = get<1>(point);
-			x += 0.5;		//rounding instead of cutting off by casting to int
-			y += 0.5;
-			int xInt = static_cast<int>(x);
-			int yInt = static_cast<int>(y);
-			currentPoint = Point(xInt, yInt);
-
-			if (!first) {
-				line(image, previousPoint, currentPoint, Scalar(255, 200, 20), 1, 8, 0);
-			}
-			else {
-				firstPoint = currentPoint;
-			}
-
-			previousPoint = currentPoint;
-			first = false;
-		}
-		line(image, currentPoint, firstPoint, Scalar(255, 200, 20), 1, 8, 0);
-
-	}
-
-
-	imwrite(imgName, image);
-
-
-}
-
-
-
-
-
-vector<tuple<double, double>> renderSuperellipse(double xc, double yc, double a, double b, double epsilon, double extTheta) {
+vector<tuple<double, double>> renderSuperellipseToPixelvector(double xc, double yc, double a, double b, double epsilon, double theta) {
 	int points = 100;
 	double step = 360.0/points;
 	double halfPi = M_PI*2.0;
@@ -108,16 +65,16 @@ vector<tuple<double, double>> renderSuperellipse(double xc, double yc, double a,
 	for (int i = 0; i < points; i++) {
 		double angle = step*i;
 		double t = 1.0 / 360.0*angle;
-		double theta = t * halfPi;
+		double phi = t * halfPi;
 		double x;
 		double y;
-		evaluateSuperellipse(a, b, epsilon, theta, &x, &y);
+		evaluateSuperellipse(a, b, epsilon, phi, &x, &y);
 		
 		//include offset and rotation of the superellipse
 
 		//rotate with extTheta:
-		double xNew = cos(extTheta)*x - sin(extTheta)*y;
-		double yNew = sin(extTheta)*x + cos(extTheta)*y;
+		double xNew = cos(theta)*x - sin(theta)*y;
+		double yNew = sin(theta)*x + cos(theta)*y;
 		
 		//include offset:
 		xNew += xc;
@@ -128,100 +85,24 @@ vector<tuple<double, double>> renderSuperellipse(double xc, double yc, double a,
 		//std::cout << "X: " << x << " Y: " << y << std::endl;
 	}
 
-
-
-
-
 	return pointList;
-
-
 }
 
 
 
 
-int processSuperellipsesFromTextfile(string input, string output) {
-	
-	ifstream infile(input);
-
-	string line;
-	int i;
-	
- 	// reading the first two lines (not needed here)
-	infile >> line;
-	//cout << line << endl;
-	infile >> line >> i;
-	//cout << line << i << endl;
-
-	
-	
-	double d;
-	double xCenter;
-	double yCenter;
-	double a;
-	double b;
-	double epsilon;
-	double theta;
-
-	vector<tuple<double, double>> pointListOfEllipse;		//list of points rendered from one superellipse
-	vector<vector<tuple<double, double>>> listOfEllipses;	//list of all pointListOfEllipses
-	
-	// reading superellipse parameters from textfile
-	while (infile >> line >> d >> xCenter >> yCenter >> d >> d >> d >> d >> a >> b >> epsilon >> theta >> d) {
-		cout << xCenter << " " << yCenter << " " << a << " " << b << " " << epsilon << " " << theta << endl;
-		pointListOfEllipse = renderSuperellipse(xCenter, yCenter, a, b, epsilon, theta);
-		listOfEllipses.emplace_back(pointListOfEllipse);
-	}
-
-	writeSuperellipsesToImage(listOfEllipses, output, 1000, 1000);
-
-	
-	return 0;
-
-}
-
-
-
-int processSuperellipsesFromTextfileCeres(string input, string output) {
-
-	ifstream infile(input);
-
-	string line;
-
-	double xCenter;
-	double yCenter;
-	double theta;
-	double a;
-	double b;
-	double epsilon;
-
-	vector<tuple<double, double>> pointListOfEllipse;		//list of points rendered from one superellipse
-	vector<vector<tuple<double, double>>> listOfEllipses;	//list of all pointListOfEllipses
-
-	int width, height;
-	infile >> line >> width;
-	infile >> line >> height;
-	// reading superellipse parameters from textfile
-	while (infile >> xCenter >> yCenter >> theta >> a >> b >> epsilon) {
-		cout << xCenter << " " << yCenter << " " << theta << " " << a << " " << b << " " << epsilon << endl;
-		pointListOfEllipse = renderSuperellipse(xCenter, yCenter, a, b, epsilon, theta);
-		listOfEllipses.emplace_back(pointListOfEllipse);
-	}
-
-	writeSuperellipsesToImage(listOfEllipses, output, width, height);
-
-
-	return 0;
-
-}
 
 
 
 
+/// processes the superellipses given as an array by rendering them to a list of segments and writing them to an image
+/**
+*
+*/
 
 int processSuperellipsesFromArray(double* ellipses, string outputFile) {
 
-	double d;
+
 	double xCenter;
 	double yCenter;
 	double a;
@@ -241,20 +122,25 @@ int processSuperellipsesFromArray(double* ellipses, string outputFile) {
 		b =       ellipses[6 * i + 4];
 		epsilon = ellipses[6 * i + 5];
 
-		pointListOfEllipse = renderSuperellipse(xCenter, yCenter, a, b, epsilon, theta);
+		pointListOfEllipse = renderSuperellipseToPixelvector(xCenter, yCenter, a, b, epsilon, theta);
 		listOfEllipses.emplace_back(pointListOfEllipse);
 	}
 
-	writeSuperellipsesToImage(listOfEllipses, outputFile, 1000, 1000);
+	image_output::writeSuperellipsesToImage(listOfEllipses, outputFile, 1000, 1000);
 
 	return 0;
-
 }
 
 
 
 
-int processSuperellipsesFromVector(vector<vector<double>> superellipses, string outputFile) {
+
+/// processes the superellipses given as a vector by rendering them to a list of segments and writing them to an image
+/**
+*
+*/
+
+int processSuperellipsesFromVector(vector<vector<double>> superellipses, string outputFile, const int width, const int height) {
 
 	double xc, yc, a, b, epsilon, theta;
 
@@ -264,19 +150,18 @@ int processSuperellipsesFromVector(vector<vector<double>> superellipses, string 
 	// reading superellipse parameters
 	for (int i = 0; i < superellipses.size(); i++) {
 		vector<double> superellipse = superellipses.at(i);
-		xc = superellipse.at(0);
-		yc = superellipse.at(1);
+		xc =	superellipse.at(0);
+		yc =	superellipse.at(1);
 		theta = superellipse.at(2);
-		a = superellipse.at(3);
-		b = superellipse.at(4);
+		a =		superellipse.at(3);
+		b =		superellipse.at(4);
 		epsilon = superellipse.at(5);
 
-		pointListOfEllipse = renderSuperellipse(xc, yc, a, b, epsilon, theta);
+		pointListOfEllipse = renderSuperellipseToPixelvector(xc, yc, a, b, epsilon, theta);
 		listOfEllipses.emplace_back(pointListOfEllipse);
 	}
 
-	writeSuperellipsesToImage(listOfEllipses, outputFile, 1000, 1000);
+	image_output::writeSuperellipsesToImage(listOfEllipses, outputFile, width, height);
 
 	return 0;
-
 }

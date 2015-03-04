@@ -26,7 +26,8 @@ coord2_t cross(const Point &O, const Point &A, const Point &B)
 // Note: the last point in the returned list is the same as the first one.
 vector<Point> convex_hull(vector<Point> P)
 {
-	int n = P.size(), k = 0;
+	int n = int(P.size());
+	int k = 0;
 	vector<Point> H(2*n);
  
 	// Sort points lexicographically
@@ -56,34 +57,12 @@ extern "C" int external_convex_hull(double *p, int n, int *ch, int *p_nch, char 
 
 	for (int i = 0; i < n; i++) {
 		Point point;
-		point.x = p[2 * i];
-		point.y = p[2 * i + 1];
+		point.x = int(p[2 * i]);
+		point.y = int(p[2 * i + 1]);
 		inputPoints.emplace_back(point);
 	}
 
-	//printf("===================================== \n");
-	//printf("====  Internal: Input by C Call  ==== \n");
-	for (int i = 0; i < inputPoints.size(); i++) {
-		Point p = inputPoints.at(i);
-		//printf("%i %i\n", p.x, p.y);
-		//cout << p.x << " " << p.y << endl;
-	}
-	//printf("==================================== \n");
-
-
-
 	vector<Point> outputPoints = convex_hull(inputPoints);
-
-
-	//printf("==================================== \n");
-	//printf("====  Internal: Hull by C Call  ==== \n");
-	for (int i = 0; i < outputPoints.size(); i++) {
-		Point p = outputPoints.at(i);
-		//printf("%i %i \n", p.x, p.y);
-		//cout << p.x << " " << p.y << endl;
-	}
-	//printf("==================================== \n");
-
 
 
 	//==============================
@@ -97,7 +76,7 @@ extern "C" int external_convex_hull(double *p, int n, int *ch, int *p_nch, char 
 			}
 		}
 	}
-	*p_nch = outputPoints.size();
+	*p_nch = int(outputPoints.size());
 
 
 

@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <chrono>
 
-#include "input.h"
+#include "image_input.h"
 
 
 // CGAL stuff
@@ -29,293 +29,16 @@
 
 // Superellipses stuff
 #include "se_rendering.h"
-#include "se_input.h"
-//#include "se_epsilon_new.h"
-#include "se_epsilon2_new.h"
-#include "ellipseFit.h"
+#include "se_ronin_core.h"
+#include "se_ronin_recursive.h"
 #include <ceres/ceres.h>
 #include "se_split.h"
-
-
 
 
 #include "convexHull.h"
 #include "convexHullForC.h"
 
 using namespace std;
-
-
-void sortPixelFile(string input, string output) {
-
-
-
-	ifstream infile(input);
-	vector<tuple<int, int>> points;
-	int x;
-	int y;
-	while (infile >> x >> y) {
-		tuple<int, int> point(x, y);
-		points.emplace_back(point);
-	}
-
-	sort(points.begin(), points.end());
-
-
-
-	ofstream myfile;
-	myfile.open(output);
-
-	for (int i = 0; i < points.size(); i++) {
-		tuple<int, int> point = points.at(i);
-		myfile << to_string(get<0>(point)) << " " << to_string(get<1>(point)) << endl;
-	}
-
-
-}
-
-
-
-
-
-
-
-void appendEllipseToGlobalFile(string ellipseTextFile, string globalEllipseTextFile) {
-	ifstream infile(ellipseTextFile);
-	int width, height;
-	string dummy;
-	infile >> dummy >> width;
-	infile >> dummy >> height;
-
-
-	//Test if global ellipse file is initialized
-	ifstream readOutfile(globalEllipseTextFile);
-	int dummyInt;
-	if (!(readOutfile >> dummy >> dummyInt)) {
-		ofstream outfileInit(globalEllipseTextFile);
-		outfileInit << "w " << width << endl;
-		outfileInit << "h " << height  << endl;
-	}
-
-
-	//append ellipse to global ellipse file
-	double xc, yc, theta, a, b, epsilon;
-	infile >> xc >> yc >> theta >> a >> b >> epsilon;
-
-	ofstream outfile(globalEllipseTextFile, std::ios_base::app);
-	outfile << xc << " " << yc << " " << theta << " " << a << " " << b << " " << epsilon << endl;
-
-
-}
-
-
-void appendEllipseToGlobalFileRonin(string ellipseTextFile, string globalEllipseTextFile) {
-	ifstream infile(ellipseTextFile);
-	int width = 1000;
-	int height = 1000;
-	int dummyInt;
-	string dummy;
-	infile >> dummy;
-	infile >> dummy >> dummyInt;
-
-
-	//Test if global ellipse file is initialized
-	ifstream readOutfile(globalEllipseTextFile);
-	if (!(readOutfile >> dummy)) {
-		ofstream outfileInit(globalEllipseTextFile);
-		outfileInit << "super" << endl;
-		outfileInit << "list: 0 " << endl;
-	}
-
-
-	//append ellipse to global ellipse file
-	double xc, yc, theta, a, b, epsilon, d;
-	infile >> dummy >> d >> xc >> yc >> d >> d >> d >> d >> a >> b >> theta >> epsilon >> d;
-
-	ofstream outfile(globalEllipseTextFile, std::ios_base::app);
-	outfile << "superellipse: 0.0 " << xc << " " << yc << " 0 0 0 0 " << a << " " << b << " " << theta << " " << epsilon << " 1" << endl;
-
-
-}
-
-
-
-
-
-//void useCeresRecursive(string pixelFile, string contourFile, string ellipseTextFile, string id, string globalEllipseTextFile) {
-//	double x, y, theta;
-//	double maxFinalCost = useCeres(contourFile, ellipseTextFile, x, y, theta);
-//	if (maxFinalCost > 10000) {
-//		string id1 = id + "0";
-//		string id2 = id + "1";
-//		splitImage(pixelFile, x, y, theta, "file" + id1, "file" + id2);
-//		
-//		pixelFileToImage("file" + id1, "file" + id1 + ".png");
-//		pixelFileToImage("file" + id2, "file" + id2 + ".png");
-//		
-//		getContours("file" + id1, "contourFile" + id1);
-//		getContours("file" + id2, "contourFile" + id2);
-//
-//	
-//		pixelFileToImage("contourFile" + id1, "contourFile" + id1 + ".png");
-//		pixelFileToImage("contourFile" + id2, "contourFile" + id2 + ".png");
-//
-//		useCeresRecursive("file" + id1, "contourFile" + id1, "ellipseFile" + id1, id1, globalEllipseTextFile);
-//		processSuperellipsesFromTextfileCeres("ellipseFile" + id1, "ellipseFile" + id1 + ".png");
-//
-//		useCeresRecursive("file" + id2, "contourFile" + id2, "ellipseFile" + id2, id2, globalEllipseTextFile);
-//		processSuperellipsesFromTextfileCeres("ellipseFile" + id2, "ellipseFile" + id2 + ".png");
-//
-//	}
-//	else {
-//		appendEllipseToGlobalFile(ellipseTextFile, globalEllipseTextFile);
-//	}
-//
-//
-//}
-
-
-
-
-
-double evaluateSuperellipse(vector<int> contourVector, double xc, double yc, double theta, double a, double b, double epsilon) {
-	int no_contourPixels = contourVector.size() / 2;
-	int* contourList = &contourVector[0];
-	double cosine2 = cos(-theta);
-	double sine2 = sin(-theta);
-	double tx, ty;
-	double x, y, x2, y2, value;
-	double totalValue = 0;
-
-	double exponent = 2.0 / epsilon;
-
-
-	for (int i = 0; i < no_contourPixels; i++){
-		x = contourList[i * 2];
-		y = contourList[i * 2 + 1];
-		tx = x - xc;
-		ty = y - yc;
-		x2 = (tx * cosine2 - ty * sine2);
-		y2 = (tx * sine2 + ty * cosine2);
-
-		double firstTerm = (fabs(x2) / a);
-		double secondTerm = (fabs(y2) / b);
-		value = fabs(pow(firstTerm, exponent) + pow(secondTerm, exponent) - 1.0);
-		totalValue += value;
-	}
-
-	//cout << "Total Value: " << totalValue << endl;
-	return totalValue;
-
-}
-//
-//
-//void useRoninRecursive(string pixelFile, string contourFile, string ellipseTextFile, string id, string globalEllipseTextFile) {
-//	
-//	//convert filename strings to chararrays
-//	char *contourFileChar = new char[contourFile.size() + 1];
-//	contourFileChar[contourFile.size()] = 0;
-//	memcpy(contourFileChar, contourFile.c_str(), contourFile.size());
-//	char *ellipseTextFileChar = new char[ellipseTextFile.size() + 1];
-//	ellipseTextFileChar[ellipseTextFile.size()] = 0;
-//	memcpy(ellipseTextFileChar, ellipseTextFile.c_str(), ellipseTextFile.size());
-//
-//
-//	//fit one superellipse to the contour contained in the contourFile
-//	calculateEllipse2(contourFileChar, ellipseTextFileChar);
-//	processSuperellipsesFromTextfile(ellipseTextFile, ellipseTextFile + ".png");
-//
-//	//evaluate the fit
-//	double xc, yc, theta;
-//	double currentValue = evaluateSuperellipse(contourFile, ellipseTextFile, xc, yc, theta);
-//	
-//	//if the fit is not good enough yet: split the input and fit two separate superellipses
-//	if (currentValue > 100) {
-//		string id1 = id + "0";
-//		string id2 = id + "1";
-//
-//		splitImage(pixelFile, xc, yc, theta, "file" + id1, "file" + id2);
-//		pixelFileToImage("file" + id1, "file" + id1 + ".png");
-//		pixelFileToImage("file" + id2, "file" + id2 + ".png");
-//
-//
-//		getContoursRonin("file" + id1, "contourFile" + id1);
-//		getContoursRonin("file" + id2, "contourFile" + id2);
-//		pixFileToImage("contourFile" + id1, "contourFile" + id1 + ".png");
-//		pixFileToImage("contourFile" + id2, "contourFile" + id2 + ".png");
-//
-//		useRoninRecursive("file" + id1, "contourFile" + id1, "ellipseFile" + id1, id1, globalEllipseTextFile);
-//		//processSuperellipsesFromTextfileCeres("ellipseFile" + id1, "ellipseFile" + id1 + ".png");
-//
-//		useRoninRecursive("file" + id2, "contourFile" + id2, "ellipseFile" + id2, id2, globalEllipseTextFile);
-//		//processSuperellipsesFromTextfileCeres("ellipseFile" + id2, "ellipseFile" + id2 + ".png");
-//
-//	}
-//
-//	//if the fit is good enough: add the superellipse to the global file
-//	else {
-//		appendEllipseToGlobalFileRonin(ellipseTextFile, globalEllipseTextFile);
-//	}
-//
-//
-//}
-
-
-
-
-
-
-
-
-
-vector<vector<double>> useRoninRecursive(int* pixelGrid, vector<int> contourVector, const int width, const int height) {
-	
-	//fit one ellipse to the contout in the contourVector
-	int no_contourPixels = contourVector.size() / 2;
-	int* contourList = &contourVector[0];
-	double xc, yc, theta, a, b, epsilon;
-	fitEllipseRonin2(contourList, no_contourPixels, &xc, &yc, &theta, &a, &b, &epsilon);
-
-
-	//evaluate the fit
-	double currentValue = evaluateSuperellipse(contourVector, xc, yc, theta, a, b, epsilon);
-	
-	//if the fit is not good enough yet:
-	if (currentValue > 100) {
-
-		//split the full pixel grid
-		vector<int> splitPixelPart1(width*height);
-		vector<int> splitPixelPart2(width*height);
-		splitImage(pixelGrid, width, height, xc, yc, theta, splitPixelPart1, splitPixelPart2);
-		int* splitPixelGrid1 = &splitPixelPart1[0];
-		int* splitPixelGrid2 = &splitPixelPart2[0];
-
-		//get the two new contours from the splitted image
-		vector<int> contourVector1 = getContoursArray(splitPixelGrid1, width, height);
-		vector<int> contourVector2 = getContoursArray(splitPixelGrid2, width, height);
-
-		//use ronin recursive on the two new contours
-		vector<vector<double>> resultVector1 = useRoninRecursive(splitPixelGrid1, contourVector1, width, height);
-		vector<vector<double>> resultVector2 = useRoninRecursive(splitPixelGrid2, contourVector2, width, height);
-		
-		//combine the fitted ellipses from the recursive calls and return them
-		resultVector1.insert(resultVector1.end(), resultVector2.begin(), resultVector2.end());
-		return resultVector1;
-	}
-
-	//if the fit is good enough:
-	else {
-		//return the fitted ellipse
-		vector<double> fittedSuperellipse = { xc, yc, theta, a, b, epsilon };
-		vector<vector<double>> resultVector;
-		resultVector.emplace_back(fittedSuperellipse);
-		return resultVector;
-	}
-}
-
-
-
-
-
 
 
 
@@ -332,287 +55,14 @@ int main() {
 
 
 
-	//double input_sorted[1000] = {
-	//	63, 140,
-	//	63, 141,
-	//	63, 142,
-	//	63, 143,
-	//	64, 138,
-	//	64, 139,
-	//	64, 144,
-	//	65, 137,
-	//	65, 138,
-	//	65, 145,
-	//	66, 135,
-	//	66, 136,
-	//	66, 146,
-	//	67, 134,
-	//	67, 147,
-	//	68, 134,
-	//	68, 148,
-	//	69, 134,
-	//	69, 149,
-	//	69, 151,
-	//	69, 152,
-	//	69, 153,
-	//	69, 154,
-	//	69, 154,
-	//	69, 155,
-	//	69, 156,
-	//	70, 135,
-	//	70, 150,
-	//	70, 157,
-	//	70, 158,
-	//	70, 159,
-	//	70, 160,
-	//	71, 136,
-	//	71, 161,
-	//	71, 162,
-	//	71, 163,
-	//	72, 137,
-	//	72, 164,
-	//	72, 165,
-	//	72, 166,
-	//	72, 167,
-	//	72, 168,
-	//	73, 137,
-	//	73, 146,
-	//	73, 147,
-	//	73, 148,
-	//	73, 169,
-	//	73, 170,
-	//	74, 138,
-	//	74, 144,
-	//	74, 145,
-	//	74, 149,
-	//	74, 170,
-	//	75, 138,
-	//	75, 143,
-	//	75, 150,
-	//	75, 171,
-	//	76, 139,
-	//	76, 141,
-	//	76, 142,
-	//	76, 151,
-	//	76, 152,
-	//	76, 153,
-	//	76, 171,
-	//	77, 140,
-	//	77, 154,
-	//	77, 154,
-	//	77, 155,
-	//	77, 156,
-	//	77, 157,
-	//	77, 171,
-	//	78, 158,
-	//	78, 159,
-	//	78, 160,
-	//	78, 171,
-	//	79, 161,
-	//	79, 162,
-	//	79, 170,
-	//	80, 163,
-	//	80, 164,
-	//	80, 169,
-	//	80, 170,
-	//	81, 165,
-	//	81, 166,
-	//	81, 167,
-	//	81, 168,
-	//};
 
 
 
 
+	//############################################
+	//##########          CGAL          ##########       
+	//############################################
 
-
-
-	//vector<Point> points_sorted;
-	//for (int i = 0; i < 85; i++) {
-	//	Point p;
-	//	p.x = input_sorted[2 * i];
-	//	p.y = input_sorted[2 * i + 1];
-	//	points_sorted.emplace_back(p);
-	//}
-
-	//cout << "==================================" << endl;
-	//cout << "=======  Input by C++ Call  =======" << endl;
-	//for (int i = 0; i < points_sorted.size(); i++) {
-	//	Point p = points_sorted.at(i);
-	//	cout << p.x << " " << p.y << endl;
-	//}
-	//cout << "==================================" << endl;
-
-
-
-	//vector<Point> hull_sorted = convex_hull(points_sorted);
-
-	//cout << "==================================" << endl;
-	//cout << "=======  Hull by C++ Call  =======" << endl;
-	//for (int i = 0; i < hull_sorted.size(); i++) {
-	//	Point p = hull_sorted.at(i);
-	//	cout << p.x << " " << p.y << endl;
-	//}
-	//cout << "==================================" << endl;
-
-
-	//
-
-
-
-
-
-	//double p[1000 * 2];
-	//int n1, n2;
-	//int ch[1000];
-	//int nch;
-	//static char directions[] = "norm";
-	//double epsilon = 0.001;
-	//int i, j, save_i;
-	//double dx, dy, theta, cosine, sine, x1, y1, x2, y2, x3, y3, x4, y4, xo, yo, xc, yc;
-	//double area, min_area;
-	//double min_x, min_y, max_x, max_y;
-
-	//for (i = 0; i < 85; i++) {
-	//	p[i * 2] = input_sorted[i*2];
-	//	p[i * 2 + 1] = input_sorted[i*2+1];
-	//}
-	//n1 = 85;
-
-	//cout << "==================================" << endl;
-	//cout << "=======   Input by C Call   =======" << endl;
-	//for (int i = 0; i < 85; i++) {
-	//	cout << p[i*2] << " " << p[i*2+1] << endl;
-	//}
-	//cout << "==================================" << endl;
-
-
-	//external_convex_hull(p, n1, ch, &nch, directions, epsilon);
-
-	//cout << "==================================" << endl;
-	//cout << "=======   Hull by C Call   =======" << endl;
-	//for (int i = 0; i < nch; i++) {
-	//	n1 = ch[i];
-	//	x1 = input_sorted[n1 * 2];
-	//	y1 = input_sorted[n1 * 2 + 1];
-	//	cout << x1 << " " << y1 << endl;
-	//}
-	//cout << "==================================" << endl;
-
-	////printf("calculated ch \n");
-	////for (i = 0; i < nch; i++) {
-	////	n1 = ch[i];
-	////	n2 = (ch[i + 1] % 85);
-	////	if (n1 == n2) continue;
-	////	x1 = input_sorted[n1 * 2];
-	////	y1 = input_sorted[n1 * 2 + 1];
-	////	x2 = input_sorted[n2 * 2];
-	////	y2 = input_sorted[n2 * 2 + 1];
-	////	//printf("x1: %f, y1: %f  -  x2: %f, y2: %f \n", x1, y1, x2, y2);
-	////	
-	////	printf("%f,%f, %f,%f, \n", x1, y1, x2, y2);
-	////}
-
-
-
-
-
-
-
-
-
-
-
-
-	////double ch_sorted_by_main[1000] = {
-	////	63, 140, 64, 138,
-	////	64, 138, 66, 135,
-	////	66, 135, 67, 134,
-	////	67, 134, 69, 134,
-	////	69, 134, 75, 138,
-	////	75, 138, 77, 140,
-	////	77, 140, 81, 165,
-	////	81, 165, 81, 167,
-	////	81, 167, 80, 170,
-	////	80, 170, 78, 171,
-	////	78, 171, 75, 171,
-	////	75, 171, 73, 170,
-	////	73, 170, 72, 168,
-	////	72, 168, 63, 143,
-	////	63, 143, 63, 140,
-	////	63, 140, 0, 0,
-	////};
-
-
-
-
-	///*double data_sorted[1000] = {
-	//	63.000000, 140.000000, 64.000000, 138.000000,
-	//	64.000000, 138.000000, 66.000000, 135.000000,
-	//	66.000000, 135.000000, 67.000000, 134.000000,
-	//	67.000000, 134.000000, 69.000000, 134.000000,
-	//	69.000000, 134.000000, 75.000000, 138.000000,
-	//	75.000000, 138.000000, 77.000000, 140.000000,
-	//	77.000000, 140.000000, 81.000000, 165.000000,
-	//	81.000000, 165.000000, 80.000000, 163.000000,
-	//	80.000000, 163.000000, 78.000000, 158.000000,
-	//	78.000000, 158.000000, 75.000000, 138.000000,
-	//	75.000000, 138.000000, 73.000000, 137.000000,
-	//	73.000000, 137.000000, 72.000000, 137.000000,
-	//	72.000000, 137.000000, 63.000000, 140.000000,
-	//	63.000000, 140.000000, 0.000000, 0.000000,
-	//};
-
-
-	//double data_unsorted[1000] = {
-	//	63.000000, 140.000000, 64.000000, 138.000000,
-	//	64.000000, 138.000000, 66.000000, 135.000000,
-	//	66.000000, 135.000000, 67.000000, 134.000000,
-	//	67.000000, 134.000000, 69.000000, 149.000000,
-	//	69.000000, 149.000000, 75.000000, 171.000000,
-	//	75.000000, 171.000000, 77.000000, 171.000000,
-	//	77.000000, 171.000000, 81.000000, 168.000000,
-	//	81.000000, 168.000000, 80.000000, 170.000000,
-	//	80.000000, 170.000000, 78.000000, 171.000000,
-	//	78.000000, 171.000000, 75.000000, 171.000000,
-	//	75.000000, 171.000000, 73.000000, 169.000000,
-	//	73.000000, 169.000000, 72.000000, 164.000000,
-	//	72.000000, 164.000000, 63.000000, 140.000000,
-	//	63.000000, 140.000000, 0.000000, 0.000000,
-	//};*/
-
-	////input::renderImage("ch_sorted_by_main.png", 300, 300, 14, ch_sorted_by_main);
-	///*input::renderImage("ch_sorted_by_epsilon2.png", 300, 300, 14, data_sorted);
-	//input::renderImage("ch_unsorted_by_epsilon2.png", 300, 300, 14, data_unsorted);*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//==========================
-	//====       CGAL       ====
-	//==========================
 	if (USE_CGAL) {
 
 		//++++++++++++++++++++++++++++
@@ -638,9 +88,11 @@ int main() {
 
 
 
-	//==========================
-	//====     GPUAlpha     ====
-	//==========================
+
+	//############################################
+	//##########        GPUAlpha        ##########       
+	//############################################
+
 	if (USE_GPUALPHA) {
 
 		//++++++++++++++++++++++++++++
@@ -671,119 +123,101 @@ int main() {
 
 
 
-	//===========================
-	//====   Superellipses   ====
-	//===========================
+
+	//#######################################################
+	//##########        Superellipses Ronin        ##########       
+	//#######################################################
+
 	if (USE_SUPERELLIPSES_RONIN) {
 
 		//++++++++++++++++++++++++++++
-		bool FULL =				true;
-		bool RESTORE_IMAGE =	false;
-		bool PREPARE =			false;
-		bool COMPUTE =			false;
-		bool RENDER =			false;
+		bool RECURSIVE =				true;
+		bool RECURSIVE_WITH_OUTPUT =	false;
+		bool SINGLE_FIT =				false;
+		bool COMPUTE =					false;
+		bool RENDER =					false;
 
-		string inputName =	"ellipsetest8";
+		string inputName =	"image";
 		int reduction =		10000;
 		//++++++++++++++++++++++++++++
 
+
 		string inputImage = "images/" + inputName + ".png";
-		string reducedImgName = "se_" + inputName + "_reducedImage.png";
-		string pixelFile = "se_" + inputName + "_pixels.txt";
-		string contourFile = "se_" + inputName + "_contour.txt";
-		string ellipseTextFile = "se_" + inputName + "_textellipses";
-		string globalEllipseTextFile = "se_" + inputName + "_globalEllipses";
-		string ellipseImage = "se_" + inputName + "_ellipseImage.png";
-		string restorePixFile = "mouse_part_sort.txt";
-		string restoredImage = "mouse_part_sort.png";
-
-
-	/*	if (RESTORE_IMAGE) {
-			int err = pixFileToImage(restorePixFile, restoredImage);
-
-		}
-*/
-
-		//sortPixelFile("mouse_part__.txt", "mouse_part_sorted.txt");
-
+		string ellipseImage = "se_ronin_" + inputName + "_ellipseImage.png";
 
 		int width;
 		int height;
 
-		if (FULL) {
+		if (RECURSIVE) {
 
 			auto startTime = chrono::high_resolution_clock::now();
-			int* pixelGrid = input::loadPixelsFromImage(inputImage, width, height);
 
 
+			//load the pixels from image
+			int* pixelGrid = image_input::loadPixelsFromImage(inputImage, width, height);
+			if (pixelGrid == nullptr) {
+				return -1;
+			}
+
+
+			//extract the contours of the image
 			vector<int> contourVector = getContoursArray(pixelGrid, width, height);
-			int no_contourPixels = contourVector.size()/2;
+			int no_contourPixels = int(contourVector.size()/2);
 			int* contourList = &contourVector[0];
-
-
 			auto preCalculateTime = chrono::high_resolution_clock::now();
-			double xc, yc, theta, a, b, epsilon;
+			
+
+			//recursively fit superellipses to the contours
 			vector<vector<double>> ellipsesVector = useRoninRecursive(pixelGrid, contourVector, width, height);
-
-
 			auto postCalculateTime = chrono::high_resolution_clock::now();
-			int err = processSuperellipsesFromVector(ellipsesVector, "ellipse.png");
 
+
+			//render the fitted superellipses to an image file
+			int err = processSuperellipsesFromVector(ellipsesVector, ellipseImage, width, height);
 			auto postRenderTime = chrono::high_resolution_clock::now();
 
 
+
+			//time measurement
 			auto prepareDuration = preCalculateTime - startTime;
 			auto calculateDuration = postCalculateTime - preCalculateTime;
 			auto renderDuration = postRenderTime - postCalculateTime;
 			cout << "prepareDuration:     " << double(chrono::duration_cast<chrono::microseconds>(prepareDuration).count())/1000000.0 << "s" << endl;
 			cout << "calculateDuration:   " << double(chrono::duration_cast<chrono::microseconds>(calculateDuration).count())/1000000.0 << "s" << endl;
 			cout << "renderDuration:      " << double(chrono::duration_cast<chrono::microseconds>(renderDuration).count())/1000000.0 << "s" << endl;
+		}
+
+
+
+		if (RECURSIVE_WITH_OUTPUT) {
+			//load the pixels from image
+			int* pixelGrid = image_input::loadPixelsFromImage(inputImage, width, height);
+
+
+			//extract the contours of the image
+			vector<int> contourVector = getContoursArray(pixelGrid, width, height);
+			int no_contourPixels = int(contourVector.size() / 2);
+			int* contourList = &contourVector[0];
+
 
 		}
 
 
 
 
-
-
-		//if (PREPARE) {
-		//	cout << "Preparing input for superellipses - Ronin" << endl;
-		//	int err = prepareInputForRonin(inputImage, reducedImgName, pixelFile, contourFile, reduction);
-		//	cout << "Prepared input from file " << inputImage << " - pixelFile is " << pixelFile << ", contourFile is "<< contourFile << endl;
-		//}
-
-
-		//if (COMPUTE) {
-		//	cout << "Calculating superellipses" << endl;
-		//	char *pixelFileChar = new char[pixelFile.size() + 1];
-		//	pixelFileChar[pixelFile.size()] = 0;
-		//	memcpy(pixelFileChar, pixelFile.c_str(), pixelFile.size());
-
-		//	char *ellipseTextFileChar = new char[ellipseTextFile.size() + 1];
-		//	ellipseTextFileChar[ellipseTextFile.size()] = 0;
-		//	memcpy(ellipseTextFileChar, ellipseTextFile.c_str(), ellipseTextFile.size());
-
-		//	useRoninRecursive(pixelFile, contourFile, ellipseTextFile, "", globalEllipseTextFile);
-		//	cout << "Calculated ellipses for file " << pixelFile << " to file " << ellipseTextFile << endl;
-
-		//	//evaluateSuperellipse(pixelFile, ellipseTextFile);
-		//}
-
-
-		//if (RENDER) {
-		//	cout << "Rendering superellipses" << endl;
-
-		//	int err = processSuperellipsesFromTextfile(globalEllipseTextFile, ellipseImage);
-
-
-		//	cout << "Rendered ellipses from file " << ellipseTextFile << " to image " << ellipseImage << endl;
-		//}
-
 	}
 
 
 
 
+
+
+
+
+
+	//#######################################################
+	//##########        Superellipses Ceres        ##########       
+	//#######################################################
 
 	if (USE_SUPERELLIPSES_CERES) {
 
@@ -797,56 +231,30 @@ int main() {
 		//++++++++++++++++++++++++++++
 
 		string inputImage = "images/" + inputName + ".png";
-		string reducedImgName = "se_" + inputName + "_reducedImage.png";
-		string pixelFile = "se_" + inputName + "_pixels.txt";
-		string ellipseTextFile = "se_" + inputName + "_textellipses";
-		string ellipseImage = "se_" + inputName + "_ellipseImage.png";
-		string restorePixFile = "mouse_part_sort.txt";
-		string restoredImage = "mouse_part_sort.png";
-
+		string reducedImgName = "se_ceres_" + inputName + "_reducedImage.png";
+		string pixelFile = "se_ceres_" + inputName + "_pixels.txt";
+		string ellipseTextFile = "se_ceres_" + inputName + "_textellipses";
+		string ellipseImage = "se_ceres_" + inputName + "_ellipseImage.png";
 
 
 		if (PREPARE) {
 			cout << "Preparing input for superellipses - Ceres" << endl;
-			int err = prepareInputForCeres(inputImage, reducedImgName, pixelFile, reduction);
+			//int err = prepareInputForCeres(inputImage, reducedImgName, pixelFile, reduction);
 			cout << "Prepared input from file " << inputImage << " to file " << pixelFile << endl;
 		}
 
 
 		if (COMPUTE) {
-			double x, y, theta;
-			
-
+			//double x, y, theta;
 			//useCeresRecursive("allPixels", pixelFile, ellipseTextFile, "", "globalEllipses");
-
-
 
 		}
 
 
 		if (RENDER) {
 			cout << "Rendering superellipses" << endl;
-			int err = processSuperellipsesFromTextfileCeres("globalEllipses", "globalEllipses.png");
+			//int err = processSuperellipsesFromTextfileCeres("globalEllipses", "globalEllipses.png");
 			cout << "Rendered ellipses from file " << ellipseTextFile << " to Image " << ellipseImage << endl;
-
-			//pixelFileToImage("file0", "file0neu.png");
-			/*pixelFileToImage("file00", "file00.png");
-			pixelFileToImage("file01", "file01.png");
-			pixelFileToImage("file1", "file1.png");
-			pixelFileToImage("file01", "file01.png");
-			pixelFileToImage("file010", "file010.png");
-			pixelFileToImage("file011", "file011.png");
-			pixelFileToImage("file0100", "file0100.png");
-			pixelFileToImage("file0101", "file0101.png");
-
-			processSuperellipsesFromTextfileCeres("ellipseFile0", "ellipseFile0.png");
-			processSuperellipsesFromTextfileCeres("ellipseFile1", "ellipseFile1.png");
-			processSuperellipsesFromTextfileCeres("ellipseFile00", "ellipseFile00.png");
-			processSuperellipsesFromTextfileCeres("ellipseFile01", "ellipseFile01.png");
-			processSuperellipsesFromTextfileCeres("ellipseFile010", "ellipseFile010.png");
-			processSuperellipsesFromTextfileCeres("ellipseFile011", "ellipseFile011.png");
-			processSuperellipsesFromTextfileCeres("ellipseFile0100", "ellipseFile0100.png");
-			processSuperellipsesFromTextfileCeres("ellipseFile0101", "ellipseFile0101.png");*/
 
 		}
 

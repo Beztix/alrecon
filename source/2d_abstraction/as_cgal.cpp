@@ -22,7 +22,8 @@
 #include <CGAL/Delaunay_triangulation_2.h>
 
 #include "Alpha_shape_2.h"
-#include "input.h"
+#include "image_input.h"
+#include "util.h"
 
 
 using namespace cv;
@@ -109,8 +110,6 @@ void writeSegmentsToImage(string imageLocation, std::vector<Segment> segments, i
 	Point point1;
 	Point point2;
 	Segment seg;
-	int x;
-	int y;
 	Vec3b color;
 
 	// for each segment mark its end points in the image
@@ -118,8 +117,8 @@ void writeSegmentsToImage(string imageLocation, std::vector<Segment> segments, i
 		seg = *it;
 		p1 = seg.source();
 		p2 = seg.target();
-		point1 = Point(p1.x(), p1.y());
-		point2 = Point(p2.x(), p2.y());
+		point1 = Point(int(p1.x()), int(p1.y()));
+		point2 = Point(int(p2.x()), int(p2.y()));
 
 		//draw the line segment (light blue)
 		line(alphaImage, point1, point2, Scalar(255, 200, 20), 1, 8, 0);
@@ -155,7 +154,7 @@ int useCgal(string inputImage, string reducedImgName, string outputImage, int re
 	auto startTime = chrono::high_resolution_clock::now();
 
 	//loading binary input image
-	int* pixels = input::loadPixelsFromImage(inputImage, width, height);
+	int* pixels = image_input::loadPixelsFromImage(inputImage, width, height);
 	if (pixels == nullptr){
 		return -1;
 	}
@@ -163,7 +162,7 @@ int useCgal(string inputImage, string reducedImgName, string outputImage, int re
 
 
 	//reducing pixels
-	int* reducedPixels = input::reducePixels(pixels, width, height, reduction, reducedImgName);
+	int* reducedPixels = util::reducePixels(pixels, width, height, reduction, reducedImgName);
 	auto reduceTime = chrono::high_resolution_clock::now();
 
 

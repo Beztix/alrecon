@@ -3,7 +3,7 @@
 #include <iostream>
 #include <ceres/ceres.h>
 
-#include "input.h"
+#include "util.h"
 
 using namespace std;
 using ceres::Solver;
@@ -120,7 +120,7 @@ void getContours(string inputFile, string contourFile) {
 		pixels[x + y*width] = 100;
 	}
 
-	int* reducedPixels = input::reducePixels(pixels, width, height, 1000, "test.png");
+	int* reducedPixels = util::reducePixels(pixels, width, height, 1000, "test.png");
 
 
 	ofstream outfile(contourFile);
@@ -161,7 +161,7 @@ void getContoursRonin(string inputFile, string contourFile) {
 		pixels[x + y*width] = 100;
 	}
 
-	int* reducedPixels = input::reducePixels(pixels, width, height, 1000, "test.png");
+	int* reducedPixels = util::reducePixels(pixels, width, height, 1000, "test.png");
 
 
 	ofstream outfile(contourFile);
@@ -187,7 +187,7 @@ void getContoursRonin(string inputFile, string contourFile) {
 std::vector<int> getContoursArray(int* inputPixelGrid, int width, int height) {
 	
 
-	int* reducedPixelGrid = input::reducePixels(inputPixelGrid, width, height, 100000, "test.png");
+	int* reducedPixelGrid = util::reducePixels(inputPixelGrid, width, height, 100000, "test.png");
 
 	vector<int> contourVector;
 
