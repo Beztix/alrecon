@@ -79,7 +79,7 @@ int prepareInputForRonin(string inputImage, string reducedImgName, string pixelF
 	int height;
 	
 	//loading binary input image
-	int* pixels = input::loadPixelsFromImage(inputImage, &width, &height);
+	int* pixels = input::loadPixelsFromImage(inputImage, width, height);
 	if (pixels == nullptr){
 		return -1;
 	}
@@ -100,7 +100,7 @@ int prepareInputForCeres(string inputImage, string reducedImgName, string output
 	int height;
 
 	//loading binary input image
-	int* pixels = input::loadPixelsFromImage(inputImage, &width, &height);
+	int* pixels = input::loadPixelsFromImage(inputImage, width, height);
 	if (pixels == nullptr){
 		return -1;
 	}

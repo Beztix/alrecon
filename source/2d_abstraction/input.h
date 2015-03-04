@@ -4,7 +4,7 @@
 #include <iostream>
 namespace input {
 
-	int* loadPixelsFromImage(std::string imageLocation, int *widthPtr, int *heightPtr);
+	int* loadPixelsFromImage(std::string imageLocation, int &width, int &height);
 
 
 	int* reducePixels(int* pixels, int width, int height, int spacing, std::string reducedImgName);

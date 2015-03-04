@@ -214,3 +214,69 @@ int processSuperellipsesFromTextfileCeres(string input, string output) {
 	return 0;
 
 }
+
+
+
+
+
+int processSuperellipsesFromArray(double* ellipses, string outputFile) {
+
+	double d;
+	double xCenter;
+	double yCenter;
+	double a;
+	double b;
+	double epsilon;
+	double theta;
+
+	vector<tuple<double, double>> pointListOfEllipse;		//list of points rendered from one superellipse
+	vector<vector<tuple<double, double>>> listOfEllipses;	//list of all pointListOfEllipses
+
+	// reading superellipse parameters from textfile
+	for (int i = 0; i < sizeof(ellipses) / 6; i++) {
+		xCenter = ellipses[6 * i];
+		yCenter = ellipses[6 * i + 1];
+		theta =	  ellipses[6 * i + 2];
+		a =       ellipses[6 * i + 3];
+		b =       ellipses[6 * i + 4];
+		epsilon = ellipses[6 * i + 5];
+
+		pointListOfEllipse = renderSuperellipse(xCenter, yCenter, a, b, epsilon, theta);
+		listOfEllipses.emplace_back(pointListOfEllipse);
+	}
+
+	writeSuperellipsesToImage(listOfEllipses, outputFile, 1000, 1000);
+
+	return 0;
+
+}
+
+
+
+
+int processSuperellipsesFromVector(vector<vector<double>> superellipses, string outputFile) {
+
+	double xc, yc, a, b, epsilon, theta;
+
+	vector<tuple<double, double>> pointListOfEllipse;		//list of points rendered from one superellipse
+	vector<vector<tuple<double, double>>> listOfEllipses;	//list of all pointListOfEllipses
+
+	// reading superellipse parameters
+	for (int i = 0; i < superellipses.size(); i++) {
+		vector<double> superellipse = superellipses.at(i);
+		xc = superellipse.at(0);
+		yc = superellipse.at(1);
+		theta = superellipse.at(2);
+		a = superellipse.at(3);
+		b = superellipse.at(4);
+		epsilon = superellipse.at(5);
+
+		pointListOfEllipse = renderSuperellipse(xc, yc, a, b, epsilon, theta);
+		listOfEllipses.emplace_back(pointListOfEllipse);
+	}
+
+	writeSuperellipsesToImage(listOfEllipses, outputFile, 1000, 1000);
+
+	return 0;
+
+}

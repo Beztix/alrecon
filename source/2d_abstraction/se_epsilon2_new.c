@@ -1,10 +1,25 @@
 /*
+*	=================
+*	==  ORIGINAL:  ==
+*	=================
 *    estimate value of epsilon for superellipse
 *    use intersection points of diagonals
 *    take median of 4 such estimates
 *
 *    Paul Rosin
 *    March 1998
+*
+*
+*	================
+*	==  CURRENT:  ==
+*	================
+*
+*	Modified by Sebastian Lützow, March 2015
+*	* pseudointersection is used instead of intersection to remove
+*	  dependency on the order of the input
+*	* in- and output is now via arrays instead of files on HDD (slow)
+*	* external convex hull algorithm is used
+*
 */
 
 #include <stdio.h>
@@ -29,102 +44,58 @@ int no_pixels;
 int x[MAX_PIXELS], y[MAX_PIXELS];
 double x2[MAX_PIXELS], y2[MAX_PIXELS];
 
-int calculateEllipse2(char* inputFile, char* outputFile)
+
+
+void fitEllipseRonin2(int* pixels, int no_contourPixels, 
+		double *xcOut, double *ycOut, double *thetaOut, double *aOut, double *bOut, double *epsilonOut)
 {
-	FILE *fp1, *fp2;
-	char file_type[50];
+	
 	int i, j;
-	int endoffile;
 	double a, b, xc, yc, xc2, yc2, area, epsilon, t, theta;
-	int flag;
-	char *outfile = NULL;
 	double xi1, yi1, xi2, yi2;
 	double eps[4];
+	no_pixels = no_contourPixels;
 
-	outfile = outputFile;
+	//put data from pixels[] to x[] and y[]
+	read_link_data(pixels);
 
+	//calculate position, size and orientation of minimum bounding rectangle
+	mbr(&xc, &yc, &a, &b, &theta);
+	a /= 2.0;
+	b /= 2.0;
 
-	if ((fp1 = fopen(inputFile, "r")) == NULL){
-		printf("cant open %s\n", inputFile);
-		exit(-1);
-	}
+	//set mbr to origin -> transform input accordingly
+	normalise_data(xc, yc, theta);
 
+	//pseudointersect the four diagonals of the mbr with the input to estimate epsilon
+	pseudoIntersect(x2, y2, no_pixels, b, a, &xi1, &yi1, &xi2, &yi2);
+	eps[0] = 2 * log(a / ABS(xi1)) / log(2.0);
+	eps[1] = 2 * log(a / ABS(xi2)) / log(2.0);
+	pseudoIntersect(x2, y2, no_pixels, -b, a, &xi1, &yi1, &xi2, &yi2);
+	eps[2] = 2 * log(a / ABS(xi1)) / log(2.0);
+	eps[3] = 2 * log(a / ABS(xi2)) / log(2.0);
 
-	if ((fp2 = fopen(outputFile, "w")) == NULL){
-		printf("cant open %s\n", outputFile);
-		exit(-1);
-	}
-
-	fprintf(fp2, "super\nlist: 0\n");
-
-
-	/* read magic word for format of file */
-	fscanf(fp1, "%s\n", file_type);
-	j = strcmp(file_type, "pixel");
-	if (j != 0){
-		printf("not link data file - aborting\n");
-		exit(-1);
-	}
-
-	do {
-		read_link_data(fp1, &endoffile);
-
-		mbr(&xc, &yc, &a, &b, &theta);
-		a /= 2.0;
-		b /= 2.0;
-
-		normalise_data(xc, yc, theta);
-
-		newintersect(x2, y2, no_pixels, b, a, &xi1, &yi1, &xi2, &yi2);
-		//printf("intersect - xi1: %f yi1: %f xi2: %f yi2: %f", xi1, yi1, xi2, yi2);
-
-		eps[0] = 2 * log(a / ABS(xi1)) / log(2.0);
-		eps[1] = 2 * log(a / ABS(xi2)) / log(2.0);
-
-		//printf("%f\n", eps[0]);
-		//printf("%f\n", eps[1]);
-
-		newintersect(x2, y2, no_pixels, -b, a, &xi1, &yi1, &xi2, &yi2);
-		//printf("intersect - xi1: %f yi1: %f xi2: %f yi2: %f", xi1, yi1, xi2, yi2);
-
-		eps[2] = 2 * log(a / ABS(xi1)) / log(2.0);
-		eps[3] = 2 * log(a / ABS(xi2)) / log(2.0);
-
-		//printf("%f\n", eps[2]);
-		//printf("%f\n", eps[3]);
-
-		/* take median of estimates */
-		for (i = 0; i < 3; i++) {
-			for (j = i + 1; j < 4; j++) {
-				if (eps[i] < eps[j]) {
-					t = eps[i];
-					eps[i] = eps[j];
-					eps[j] = t;
-				}
+	/* take median of estimates */
+	for (i = 0; i < 3; i++) {
+		for (j = i + 1; j < 4; j++) {
+			if (eps[i] < eps[j]) {
+				t = eps[i];
+				eps[i] = eps[j];
+				eps[j] = t;
 			}
 		}
-		epsilon = (eps[1] + eps[2]) / 2.0;
-
-		if (outfile == NULL) {
-			printf("ctr %f %f\n", xc, yc);
-			printf("a b %f %f\n", MAX(a, b), MIN(a, b));
-			printf("theta %f\n", theta);
-			printf("epsilon %f\n", epsilon);
-		}
-		else
-			fprintf(fp2, "superellipse: 0.0 %.0f %.0f %d %d %d %d %f %f %f %f %d\n",
-			xc, yc,
-			0, 0, 0, 0,
-			a, b, epsilon, theta,
-			1);
-
-	} while (!endoffile);
-	fclose(fp1);
-	if (outfile != NULL) {
-		fprintf(fp2, "endl:\nendf:\n");
-		fclose(fp2);
 	}
+	epsilon = (eps[1] + eps[2]) / 2.0;
+
+	*xcOut = xc;
+	*ycOut = yc;
+	*thetaOut = theta;
+	*aOut = a;
+	*bOut = b;
+	*epsilonOut = epsilon;
 }
+
+
 
 /* shift and rotate to origin */
 normalise_data(xc, yc, theta)
@@ -144,64 +115,22 @@ double xc, yc, theta;
 	}
 }
 
-read_link_data(fp, endoffile)
-FILE *fp;
-int *endoffile;
+
+
+/* put the input in x[] and y[] */
+read_link_data(int* pixels)
 {
-	char dumstring[50];
-	int j;
-
-	fscanf(fp, "%s %d\n", dumstring, &j);
-	j = -1;
-	do{
-		j++;
-		fscanf(fp, "%d %d\n", &x[j], &y[j]);
-	} while (x[j] != -1);
-	*endoffile = (y[j] == -1);
-	no_pixels = j;
-}
-
-
-
-/* return intersection points of ray "y = p/q x" and polygon */
-intersect(xdata, ydata, no_points, p, q, xi1, yi1, xi2, yi2)
-double xdata[], ydata[];
-int no_points;
-double p, q;
-double *xi1, *yi1, *xi2, *yi2;
-{
-	int a, b, c, d, i;
-	double t, xi, yi;
-
-	for (i = 0; i < no_points; i++) {
-		a = xdata[i]; b = ydata[i];
-		c = xdata[(i + 1) % no_points]; d = ydata[(i + 1) % no_points];
-		t = (q*b - p*a) / (p*(c - a) + q*(b - d));
-		/* intersects */
-		if ((t >= 0) && (t <= 1)) {
-			xi = a + t*(c - a);
-			yi = b + t*(d - b);
-			/* store only 1 intersection on +ve X axis */
-			if (xi > 0) {
-				*xi1 = xi; *yi1 = yi;
-			}
-			/* store only 1 intersection on -ve X axis */
-			else {
-				*xi2 = xi; *yi2 = yi;
-			}
-		}
+	for (int i = 0; i < no_pixels; i++) {
+		x[i] = pixels[2 * i];
+		y[i] = pixels[2 * i + 1];
 	}
 }
 
 
 
-
-
-
-
 /* return approximated intersection points of ray "y = p/q x" and polygon */
 /* approximation by finding the point closest to the ray and calculating the pedal point*/
-newintersect(xdata, ydata, no_points, p, q, xi1, yi1, xi2, yi2)
+pseudoIntersect(xdata, ydata, no_points, p, q, xi1, yi1, xi2, yi2)
 double xdata[], ydata[];
 int no_points;
 double p, q;
@@ -254,14 +183,7 @@ double *xi1, *yi1, *xi2, *yi2;
 
 
 
-
-
-
-
-
-
-
-
+/* calculate the minimum bounding rectangle */
 mbr(xct, yct, a, b, rot)
 double *xct, *yct, *a, *b, *rot;
 {
@@ -282,6 +204,7 @@ double *xct, *yct, *a, *b, *rot;
 	}
 	n1 = no_pixels;
 
+	//calculate convex hull
 	external_convex_hull(p, n1, ch, &nch, directions, epsilon);
 
 	/* go through all CH edges */
@@ -295,12 +218,6 @@ double *xct, *yct, *a, *b, *rot;
 		y1 = y[n1];
 		x2 = x[n2];
 		y2 = y[n2];
-		//printf("x1: %f, y1: %f  -  x2: %f, y2: %f \n", x1, y1, x2, y2);
-
-
-		//printf("====== Convex Hull Edges ======\n");
-		//printf("%f,%f, %f,%f,\n", x1, y1, x2, y2);
-		//printf("===============================\n");
 		dx = x2 - x1; dy = y2 - y1;
 		theta = atan2(dy, dx);
 		cosine = cos(-theta);

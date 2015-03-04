@@ -37,32 +37,16 @@ bool isLeftOf(tuple<double, double> testPoint, tuple<double, double> point1, tup
 
 
 
-void splitImage(string inputFile, double xc, double yc, double theta, string outputFile1, string outputFile2) {
+void splitImage(int* pixelGrid, const int width, const int height, double xc, double yc, double theta, vector<int> &splitPart1, vector<int> &splitPart2) {
 		
-	ifstream infile(inputFile);
-	ofstream outfile1(outputFile1);
-	ofstream outfile2(outputFile2);
-
-
-	int width;
-	int height;
-	string dummy;
-	infile >> dummy >> width;
-	infile >> dummy >> height;
-
-	outfile1 << "w " << width << endl;
-	outfile1 << "h " << height << endl;
-
-	outfile2 << "w " << width << endl;
-	outfile2 << "h " << height << endl;
-
+	const int numPixels = width * height;
 
 	tuple<double, double> point1;
 	tuple<double, double> point2;
 
-	cout << "theta: " << theta << endl;
-	cout << "xc: " << xc << endl;
-	cout << "yc: " << yc << endl;
+	//cout << "theta: " << theta << endl;
+	//cout << "xc: " << xc << endl;
+	//cout << "yc: " << yc << endl;
 
 	//rotate 90 deg
 	theta += 1.57079;
@@ -76,32 +60,43 @@ void splitImage(string inputFile, double xc, double yc, double theta, string out
 		double tanTheta = tan(theta);
 		double t = yc - tanTheta*xc;
 
-		cout << "tanTheta: " << tanTheta << endl;
-		cout << "t: " << t << endl;
+		//cout << "tanTheta: " << tanTheta << endl;
+		//cout << "t: " << t << endl;
 
 		
 		int y1 = int(t);
 		point1 = make_tuple(0, y1);
-		cout << "point1: " << 0 << ", " << y1 << endl;
+		//cout << "point1: " << 0 << ", " << y1 << endl;
 
 		int y2 = int(tanTheta * width + t);
 		point2 = make_tuple(width, y2);
-		cout << "point2: " << width << ", " << y2 << endl;
+		//cout << "point2: " << width << ", " << y2 << endl;
 
 	}
 
+
 	double x, y;
-	while (infile >> x >> y) {
-		tuple<double, double> testPoint (x, y);
-		if (isLeftOf(testPoint, point1, point2)){
-			outfile1 << x << " " << y << endl;
-		}
-		else {
-			outfile2 << x << " " << y << endl;
+	for (int i = 0; i < width*height; i++) {
+		if (pixelGrid[i] != 0) {
+			y = i / width;
+			x = i % width;
+			tuple<double, double> testPoint(x, y);
+			if (isLeftOf(testPoint, point1, point2)){
+				splitPart1.at(i) = 100;
+			}
+			else {
+				splitPart2.at(i) = 100;
+			}
 		}
 	}
 
 }
+
+
+
+
+
+
 
 
 
@@ -184,3 +179,28 @@ void getContoursRonin(string inputFile, string contourFile) {
 	outfile << -1 << " " << -1 << endl;
 
 }
+
+
+
+
+
+std::vector<int> getContoursArray(int* inputPixelGrid, int width, int height) {
+	
+
+	int* reducedPixelGrid = input::reducePixels(inputPixelGrid, width, height, 100000, "test.png");
+
+	vector<int> contourVector;
+
+	for (int i = 0; i < width*height; i++) {
+		if (reducedPixelGrid[i] != 0) {
+			int y = i / width;
+			int x = i % width;
+			contourVector.emplace_back(x);
+			contourVector.emplace_back(y);
+		}
+	}
+
+	return std::move(contourVector);
+}
+
+

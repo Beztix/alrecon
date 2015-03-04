@@ -65,7 +65,7 @@ int prepareInputForAS(string inputImage, string reducedImgName, string outputFil
 	int height;
 	
 	//loading binary input image
-	int* pixels = input::loadPixelsFromImage(inputImage, &width, &height);
+	int* pixels = input::loadPixelsFromImage(inputImage, width, height);
 	if (pixels == nullptr){
 		return -1;
 	}

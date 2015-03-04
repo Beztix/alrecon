@@ -30,7 +30,7 @@ namespace input {
 	* The method additionally receives two pointers to int values, to store the width and the height of the loaded image.
 	*/
 
-	int* loadPixelsFromImage(string imageLocation, int *widthPtr, int *heightPtr) {
+	int* loadPixelsFromImage(string imageLocation, int &width, int &height) {
 		Mat image;
 
 		//CAREFUL: Appropriate OpenCV Library (debug or release) must be linked, according to current execution mode
@@ -46,12 +46,10 @@ namespace input {
 		cout << "correctly loaded image in loadPointFromImage()" << std::endl;
 
 		Size size = image.size();
-		*heightPtr = size.height;
-		*widthPtr = size.width;
-		int height = *heightPtr;
-		int width = *widthPtr;
-		cout << "Height: " << height << endl;
-		cout << "Width: " << width << endl;
+		height = size.height;
+		width = size.width;
+		//cout << "Height: " << height << endl;
+		//cout << "Width: " << width << endl;
 
 		unsigned char *input = (unsigned char*)(image.data);
 
@@ -135,25 +133,25 @@ namespace input {
 			}
 		}
 
-		// initializing reduced image
-		Mat reducedImage = Mat(height, width, CV_8UC3);
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				reducedImage.at<Vec3b>(Point(x, y)) = Vec3b(0, 0, 0);
-			}
-		}
+		//// initializing reduced image
+		//Mat reducedImage = Mat(height, width, CV_8UC3);
+		//for (int y = 0; y < height; y++) {
+		//	for (int x = 0; x < width; x++) {
+		//		reducedImage.at<Vec3b>(Point(x, y)) = Vec3b(0, 0, 0);
+		//	}
+		//}
 
-		// Write reduced pixels to color value array
-		for (int i = 0; i < height*width; i++) {
-			if (reducedPixels[i] != 0){
-				int y = i / width;
-				int x = i % width;
-				reducedImage.at<Vec3b>(Point(x, y)) = Vec3b(250, 250, 250);
-			}
-		}
+		//// Write reduced pixels to color value array
+		//for (int i = 0; i < height*width; i++) {
+		//	if (reducedPixels[i] != 0){
+		//		int y = i / width;
+		//		int x = i % width;
+		//		reducedImage.at<Vec3b>(Point(x, y)) = Vec3b(250, 250, 250);
+		//	}
+		//}
 
-		cout << "Writing reduced image to disc: " << reducedImgName << endl;
-		imwrite(reducedImgName, reducedImage);
+		//cout << "Writing reduced image to disc: " << reducedImgName << endl;
+		//imwrite(reducedImgName, reducedImage);
 
 		return reducedPixels;
 	}
