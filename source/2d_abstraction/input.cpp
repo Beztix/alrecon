@@ -160,5 +160,33 @@ namespace input {
 
 
 
+
+
+
+
+
+
+void renderImage(string name, int width, int height, int num, double data[1000]) {
+
+
+	Mat image = Mat(height, width, CV_8UC3);
+
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			image.at<Vec3b>(Point(x, y)) = Vec3b(0, 0, 0);
+		}
+	}
+
+
+	for (int i = 0; i < num; i++) {
+		Point point1 = Point(data[4 * i], data[4 * i + 1]);
+		Point point2 = Point(data[4 * i + 2], data[4 * i + 3]);
+		line(image, point1, point2, Scalar(255, 200, 20), 1, 8, 0);
+	}
+
+	imwrite(name, image);
+
+
 }
 
+}

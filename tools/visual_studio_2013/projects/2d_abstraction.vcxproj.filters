@@ -41,6 +41,9 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\convexHull.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\source\2d_abstraction\convexHullForC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\source\2d_abstraction\se_input.cpp">

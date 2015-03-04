@@ -74,7 +74,7 @@ void writePixelsToTextFileForCeres(string outputFile, int* pixels, int width, in
 
 
 
-int prepareInputForRonin(string inputImage, string reducedImgName, string outputFile, int reduction) {
+int prepareInputForRonin(string inputImage, string reducedImgName, string pixelFile, string contourFile, int reduction) {
 	int width;
 	int height;
 	
@@ -84,10 +84,12 @@ int prepareInputForRonin(string inputImage, string reducedImgName, string output
 		return -1;
 	}
 
+	writePixelsToTextFileForCeres(pixelFile, pixels, width, height);
+
 	//reducing pixels
 	int* reducedPixels = input::reducePixels(pixels, width, height, reduction, reducedImgName);
 
-	writePixelsToTextFileForRonin(outputFile, reducedPixels, width, height);
+	writePixelsToTextFileForRonin(contourFile, reducedPixels, width, height);
 	return 0;
 }
 
@@ -129,9 +131,9 @@ int pixFileToImage(string input, string output) {
 
 	// reading the first two lines (not needed here)
 	infile >> line;
-	cout << line << endl;
+	//cout << line << endl;
 	infile >> line >> i;
-	cout << line << i << endl;
+	//cout << line << i << endl;
 
 	int x;
 	int y;
@@ -140,7 +142,7 @@ int pixFileToImage(string input, string output) {
 
 	// reading pixels from textfile
 	while (infile >> x >> y) {
-		cout << x << " " << y << endl;
+		//cout << x << " " << y << endl;
 		if (x > width) {
 			width = x;
 		}
@@ -245,3 +247,11 @@ int pixelFileToImage(string input, string output) {
 	return 0;
 
 }
+
+
+
+
+
+
+
+

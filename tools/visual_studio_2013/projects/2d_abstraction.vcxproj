@@ -35,6 +35,7 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\as_cgal.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\as_gpu_input.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\convexHull.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\convexHullForC.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\ellipseFit.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\input.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_epsilon2_new.h" />

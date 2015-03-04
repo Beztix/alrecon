@@ -149,9 +149,9 @@ int processSuperellipsesFromTextfile(string input, string output) {
 	
  	// reading the first two lines (not needed here)
 	infile >> line;
-	cout << line << endl;
+	//cout << line << endl;
 	infile >> line >> i;
-	cout << line << i << endl;
+	//cout << line << i << endl;
 
 	
 	

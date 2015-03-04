@@ -9,6 +9,8 @@ namespace input {
 
 	int* reducePixels(int* pixels, int width, int height, int spacing, std::string reducedImgName);
 
+	void renderImage(std::string name, int width, int height, int num, double data[1000]);
+
 }
 
 

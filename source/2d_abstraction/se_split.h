@@ -9,5 +9,7 @@ void splitImage(std::string inputFile, double xc, double yc, double theta, std::
 
 void getContours(std::string inputFile, std::string contourFile);
 
+void getContoursRonin(std::string inputFile, std::string contourFile);
+
 
 #endif /* SE_SPLIT_H*/

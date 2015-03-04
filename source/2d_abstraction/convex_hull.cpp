@@ -61,14 +61,37 @@ extern "C" int external_convex_hull(double *p, int n, int *ch, int *p_nch, char 
 		inputPoints.emplace_back(point);
 	}
 
+	//printf("===================================== \n");
+	//printf("====  Internal: Input by C Call  ==== \n");
+	for (int i = 0; i < inputPoints.size(); i++) {
+		Point p = inputPoints.at(i);
+		//printf("%i %i\n", p.x, p.y);
+		//cout << p.x << " " << p.y << endl;
+	}
+	//printf("==================================== \n");
+
+
+
+	vector<Point> outputPoints = convex_hull(inputPoints);
+
+
+	//printf("==================================== \n");
+	//printf("====  Internal: Hull by C Call  ==== \n");
+	for (int i = 0; i < outputPoints.size(); i++) {
+		Point p = outputPoints.at(i);
+		//printf("%i %i \n", p.x, p.y);
+		//cout << p.x << " " << p.y << endl;
+	}
+	//printf("==================================== \n");
+
+
 
 	//==============================
 	// INEFFECTIVE:
 	//==============================
-	vector<Point> outputPoints = convex_hull(inputPoints);
 	for (int i = 0; i < outputPoints.size(); i++) {
 		for (int j = 0; j < inputPoints.size(); j++) {
-			if (outputPoints.at(i).x == inputPoints.at(j).x && outputPoints.at(i).x == inputPoints.at(j).x) {
+			if (outputPoints.at(i).x == inputPoints.at(j).x && outputPoints.at(i).y == inputPoints.at(j).y) {
 				ch[i] = j;
 				break;
 			}

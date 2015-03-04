@@ -4,7 +4,7 @@
 #include <iostream>
 
 
-int prepareInputForRonin(std::string inputImage, std::string reducedImgName, std::string outputFile, int reduction);
+int prepareInputForRonin(std::string inputImage, std::string reducedImgName, std::string pixelFile, std::string contourFile, int reduction);
 
 
 int prepareInputForCeres(std::string inputImage, std::string reducedImgName, std::string outputFile, int reduction);

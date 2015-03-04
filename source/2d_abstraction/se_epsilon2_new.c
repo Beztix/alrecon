@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "convexHull.h"
+#include "convexHullForC.h"
 
 #ifndef FALSE
 # define FALSE 0
@@ -75,13 +75,23 @@ int calculateEllipse2(char* inputFile, char* outputFile)
 
 		normalise_data(xc, yc, theta);
 
-		intersect(x2, y2, no_pixels, b, a, &xi1, &yi1, &xi2, &yi2);
+		newintersect(x2, y2, no_pixels, b, a, &xi1, &yi1, &xi2, &yi2);
+		//printf("intersect - xi1: %f yi1: %f xi2: %f yi2: %f", xi1, yi1, xi2, yi2);
+
 		eps[0] = 2 * log(a / ABS(xi1)) / log(2.0);
 		eps[1] = 2 * log(a / ABS(xi2)) / log(2.0);
 
-		intersect(x2, y2, no_pixels, -b, a, &xi1, &yi1, &xi2, &yi2);
+		//printf("%f\n", eps[0]);
+		//printf("%f\n", eps[1]);
+
+		newintersect(x2, y2, no_pixels, -b, a, &xi1, &yi1, &xi2, &yi2);
+		//printf("intersect - xi1: %f yi1: %f xi2: %f yi2: %f", xi1, yi1, xi2, yi2);
+
 		eps[2] = 2 * log(a / ABS(xi1)) / log(2.0);
 		eps[3] = 2 * log(a / ABS(xi2)) / log(2.0);
+
+		//printf("%f\n", eps[2]);
+		//printf("%f\n", eps[3]);
 
 		/* take median of estimates */
 		for (i = 0; i < 3; i++) {
@@ -151,6 +161,8 @@ int *endoffile;
 	no_pixels = j;
 }
 
+
+
 /* return intersection points of ray "y = p/q x" and polygon */
 intersect(xdata, ydata, no_points, p, q, xi1, yi1, xi2, yi2)
 double xdata[], ydata[];
@@ -180,6 +192,75 @@ double *xi1, *yi1, *xi2, *yi2;
 		}
 	}
 }
+
+
+
+
+
+
+
+/* return approximated intersection points of ray "y = p/q x" and polygon */
+/* approximation by finding the point closest to the ray and calculating the pedal point*/
+newintersect(xdata, ydata, no_points, p, q, xi1, yi1, xi2, yi2)
+double xdata[], ydata[];
+int no_points;
+double p, q;
+double *xi1, *yi1, *xi2, *yi2;
+{
+	int i, px, py, minpx_pos, minpy_pos, minpx_neg, minpy_neg;
+	double a, b, c, f, dist, mindist_pos, mindist_neg, pedalx_pos, pedaly_pos, pedalx_neg, pedaly_neg;
+	a = p / q;
+	b = -1.0;
+	double div = sqrt(a*a + b*b);
+	mindist_pos = 100000;
+	mindist_neg = 100000;
+	//get closest point to ray on positive and on engative x-axis
+	for (i = 0; i < no_points; i++) {
+		px = xdata[i]; py = ydata[i];
+		//get minimal distance from point to ray
+		dist = fabs((a*px + b*py)) / div;
+		//point on positive or negative x-axis?
+		if (px >= 0) {
+			if (dist < mindist_pos) {
+				mindist_pos = dist;
+				minpx_pos = px;
+				minpy_pos = py;
+			}
+		}
+		else {
+			if (dist < mindist_neg) {
+				mindist_neg = dist;
+				minpx_neg = px;
+				minpy_neg = py;
+			}
+		}
+	}
+
+	//calculate pedal point for positive x-axis
+	f = a*minpy_pos - b*minpx_pos;
+	pedaly_pos = (a*f) / (a*a + b*b);
+	pedalx_pos = (a*pedaly_pos - f) / b;
+
+	//calculate pedal point for negative x-axis
+	f = a*minpy_neg - b*minpx_neg;
+	pedaly_neg = (a*f) / (a*a + b*b);
+	pedalx_neg = (a*pedaly_neg - f) / b;
+
+	*xi1 = pedalx_pos;
+	*yi1 = pedaly_pos;
+	*xi2 = pedalx_neg;
+	*yi2 = pedaly_neg;
+}
+
+
+
+
+
+
+
+
+
+
 
 mbr(xct, yct, a, b, rot)
 double *xct, *yct, *a, *b, *rot;
@@ -214,7 +295,12 @@ double *xct, *yct, *a, *b, *rot;
 		y1 = y[n1];
 		x2 = x[n2];
 		y2 = y[n2];
-		printf("x1: %f, y1: %f  -  x2: %f, y2: %f \n", x1, y1, x2, y2);
+		//printf("x1: %f, y1: %f  -  x2: %f, y2: %f \n", x1, y1, x2, y2);
+
+
+		//printf("====== Convex Hull Edges ======\n");
+		//printf("%f,%f, %f,%f,\n", x1, y1, x2, y2);
+		//printf("===============================\n");
 		dx = x2 - x1; dy = y2 - y1;
 		theta = atan2(dy, dx);
 		cosine = cos(-theta);
@@ -229,12 +315,20 @@ double *xct, *yct, *a, *b, *rot;
 			y3 = y[n1] - y1;
 			x4 = cosine*x3 - sine*y3;
 			y4 = sine*x3 + cosine*y3;
+
+			//printf("%f,%f, %f,%f,\n", x3, y3, x4, y4);
+
 			min_x = MIN(min_x, x4);
 			min_y = MIN(min_y, y4);
 			max_x = MAX(max_x, x4);
 			max_y = MAX(max_y, y4);
+
+
 		}
 		area = (max_x - min_x) * (max_y - min_y);
+
+		//printf("%f\n", area);
+
 		if (area < min_area) {
 			min_area = area;
 			save_i = i;
@@ -268,6 +362,8 @@ double *xct, *yct, *a, *b, *rot;
 	cosine = cos(theta);
 	sine = sin(theta);
 	xo = x1; yo = y1;
+
+	//printf("%f, %f, %f, %f\n", cosine, sine, xo, yo);
 
 	/*** co-ords of MBR
 	x1 = cosine*min_x - sine*min_y;
