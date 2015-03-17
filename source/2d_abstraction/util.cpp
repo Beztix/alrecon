@@ -14,7 +14,12 @@
 #include <tuple>
 #include <algorithm>
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
 using namespace std;
+using namespace cv;
 
 namespace util {
 
@@ -149,12 +154,66 @@ namespace util {
 
 
 
+	std::vector<int> getContoursArray(int* inputPixelGrid, int width, int height) {
+
+
+		int* reducedPixelGrid = reducePixels(inputPixelGrid, width, height, 100000, "test.png");
+
+		vector<int> contourVector;
+
+		for (int i = 0; i < width*height; i++) {
+			if (reducedPixelGrid[i] != 0) {
+				int y = i / width;
+				int x = i % width;
+				contourVector.emplace_back(x);
+				contourVector.emplace_back(y);
+			}
+		}
+
+		return std::move(contourVector);
+	}
 
 
 
 
+	int* getFilledPixelGridFromContour(vector<cv::Point> contourPoints, int width, int height) {
+		//create an empty image
+		Mat image = Mat(height, width, CV_8UC3);
+
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				image.at<Vec3b>(Point(x, y)) = Vec3b(0, 0, 0);
+			}
+		}
+
+		//wrap the contour in a contours vector
+		vector<vector<cv::Point>> contours;
+		contours.push_back(contourPoints);
+
+		//draw the filled contour to the image
+		Scalar color(255, 255, 255);
+		drawContours(image, contours, -1, color, CV_FILLED, 8);
 
 
+		//imwrite("test.png", image);
+
+
+
+		unsigned char *input = (unsigned char*)(image.data);
+		int* pixels = new int[height * width];
+
+		// retrieve the pixel color values
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				Vec3b intensity = image.at<Vec3b>(y, x);
+				//sum um the rgb values
+				pixels[y*width + x] = intensity.val[0] + intensity.val[0] + intensity.val[0];
+			}
+		}
+
+		return pixels;
+
+	}
 
 
 }

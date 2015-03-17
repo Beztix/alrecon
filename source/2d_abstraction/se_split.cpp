@@ -183,24 +183,3 @@ void getContoursRonin(string inputFile, string contourFile) {
 
 
 
-
-std::vector<int> getContoursArray(int* inputPixelGrid, int width, int height) {
-	
-
-	int* reducedPixelGrid = util::reducePixels(inputPixelGrid, width, height, 100000, "test.png");
-
-	vector<int> contourVector;
-
-	for (int i = 0; i < width*height; i++) {
-		if (reducedPixelGrid[i] != 0) {
-			int y = i / width;
-			int x = i % width;
-			contourVector.emplace_back(x);
-			contourVector.emplace_back(y);
-		}
-	}
-
-	return std::move(contourVector);
-}
-
-

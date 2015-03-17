@@ -11,6 +11,7 @@
 
 #include "se_ronin_core.h"
 #include "se_split.h"
+#include "util.h"
 
 using namespace std;
 
@@ -90,8 +91,8 @@ vector<vector<double>> useRoninRecursive(int* pixelGrid, vector<int> contourVect
 		int* splitPixelGrid2 = &splitPixelPart2[0];
 
 		//get the two new contours from the splitted image
-		vector<int> contourVector1 = getContoursArray(splitPixelGrid1, width, height);
-		vector<int> contourVector2 = getContoursArray(splitPixelGrid2, width, height);
+		vector<int> contourVector1 = util::getContoursArray(splitPixelGrid1, width, height);
+		vector<int> contourVector2 = util::getContoursArray(splitPixelGrid2, width, height);
 
 		//use ronin recursive on the two new contours
 		vector<vector<double>> resultVector1 = useRoninRecursive(splitPixelGrid1, contourVector1, width, height);

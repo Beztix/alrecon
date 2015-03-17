@@ -11,6 +11,5 @@ void getContours(std::string inputFile, std::string contourFile);
 
 void getContoursRonin(std::string inputFile, std::string contourFile);
 
-std::vector<int> getContoursArray(int* inputPixelGrid, int width, int height);
 
 #endif /* SE_SPLIT_H*/

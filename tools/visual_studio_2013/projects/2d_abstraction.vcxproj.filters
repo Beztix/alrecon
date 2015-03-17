@@ -103,5 +103,8 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\text_input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\2d_abstraction\blob.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

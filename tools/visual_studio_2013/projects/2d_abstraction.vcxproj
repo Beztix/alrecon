@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\source\2d_abstraction\as_cgal.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\as_gpu_input.cpp" />
+    <ClCompile Include="..\..\..\source\2d_abstraction\blob.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\convex_hull.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\ellipseFit.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\image_output.cpp" />
