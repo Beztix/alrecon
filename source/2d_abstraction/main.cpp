@@ -19,6 +19,9 @@
 #include "image_output.h"
 #include "util.h"
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 // CGAL stuff
 #include "as_cgal.h"
@@ -40,6 +43,10 @@
 #include "convexHull.h"
 #include "convexHullForC.h"
 
+
+
+#include <Windows.h>
+
 using namespace std;
 
 
@@ -49,6 +56,7 @@ using namespace std;
 int main() {
 
 
+	//Sleep(10000);
 
 	bool USE_CGAL =					false;
 	bool USE_GPUALPHA =				false;
@@ -152,78 +160,109 @@ int main() {
 
 		if (RECURSIVE) {
 
-			auto startTime = chrono::high_resolution_clock::now();
+			LARGE_INTEGER frequency;        // ticks per second
+			LARGE_INTEGER t1, t2, t3, t4;	//ticks
+			// get ticks per second
+			QueryPerformanceFrequency(&frequency);
 
 
-			//load the pixels from image
-			int* pixelGrid = image_input::loadPixelsFromImage(inputImage, width, height);
-			if (pixelGrid == nullptr) {
-				return -1;
-			}
+			//load the separate connected components from the image
+			QueryPerformanceCounter(&t1);
+			vector<vector<cv::Point2i>> blobs = image_input::getBlobsFromImage(inputImage, width, height);
 
 
-			////extract the contours of the image using the own reduce function
-			//vector<int> contourVector = util::getContoursArray(pixelGrid, width, height);
-			//int no_contourPixels = int(contourVector.size() / 2);
-			//int* contourList = &contourVector[0];
-			//
-
-
-			//extract the contours of the image using OpenCV (implicitly perform connected components separation)
-			vector<vector<cv::Point>> contoursPointsVector = image_input::getContoursFromImage(inputImage, width, height);
-
-			int contoursCount = contoursPointsVector.size();
-			auto preCalculateTime = chrono::high_resolution_clock::now();
+			//fit superellipses for each connected component:
+			QueryPerformanceCounter(&t2);
 			vector<vector<double>> totalEllipsesVector;
+			for (int i = 0; i < blobs.size(); i++) {
+				vector<cv::Point2i> currentBlob = blobs.at(i);
 
-			//for each contour:
-			for (int i = 0; i < contoursCount; i++) {
+				//determine dimension of the connected component
+				int minX = INT_MAX;
+				int maxX = INT_MIN; 
+				int minY = INT_MAX;
+				int maxY = INT_MIN;
+				for (int j = 0; j < currentBlob.size(); j++) {
+					cv::Point2i currentPoint = currentBlob.at(j);
+					if (currentPoint.x < minX) {
+						minX = currentPoint.x;
+					}
+					if (currentPoint.x > maxX) {
+						maxX = currentPoint.x;
+					}
+					if (currentPoint.y < minY) {
+						minY = currentPoint.y;
+					}
+					if (currentPoint.y > maxY) {
+						maxY = currentPoint.y;
+					}
+				}
+				int sizeX = maxX - minX + 5;
+				int sizeY = maxY - minY + 5;
+				int offsetX = minX - 2;
+				int offsetY = minY - 2;
 
-				//transform the contoursPoints to a contourVector
-				vector<cv::Point> contourPoints = contoursPointsVector.at(i);
+
+				//create a pixelGrid and a Mat from the blob points
+				int* pixelGrid = new int[sizeX * sizeY];
+				fill_n(pixelGrid, sizeX*sizeY, 0);
+				cv::Mat blobMat = cv::Mat(sizeY, sizeX, CV_8UC3);
+				blobMat.setTo(cv::Scalar(0, 0, 0));
+				for (int j = 0; j < currentBlob.size(); j++) {
+					//add the points of the connected component to the pixelGrid / Mat
+					cv::Point2i currentPoint = currentBlob.at(j);
+					int x = currentPoint.x - offsetX;
+					int y = currentPoint.y - offsetY;
+					pixelGrid[y*sizeX + x] = 200;
+					blobMat.at<cv::Vec3b>(y, x) = cv::Vec3b(255, 255, 255);
+				}
+
+				//extract the contour of the connected component
+				vector<vector<cv::Point>> contours;
+				cv::Mat gray;
+				cv::cvtColor(blobMat, gray, CV_BGR2GRAY);
+				cv::findContours(gray, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
+				vector<cv::Point> contourPoints = contours.at(0);
 				vector<int> contourVector;
 				for (int j = 0; j < contourPoints.size(); j++) {
 					contourVector.push_back(contourPoints.at(j).x);
 					contourVector.push_back(contourPoints.at(j).y);
 				}
 
-				//draw the contour
-				//image_output::pixelVectorToImage(contourVector, width, height, to_string(i) + "contour.png");
-
-				int* pixelGrid = util::getFilledPixelGridFromContour(contourPoints, width, height);
-
-				//use Ronin to fit superellipses to the contour
-				vector<vector<double>> contourEllipsesVector = useRoninRecursive(pixelGrid, contourVector, width, height);
+				//use Ronin fitting to fit superellipses to the contour
+				vector<vector<double>> contourEllipsesVector = useRoninRecursive(pixelGrid, contourVector, sizeX, sizeY);
 				contourVector.clear();
 
 				//draw the fitted superellipses
 				//int err = processSuperellipsesFromVector(contourEllipsesVector, to_string(i) + ellipseImage, width, height);
 
+
+				//add the offset of the connected components to the calculated ellipses
+				for (int j = 0; j < contourEllipsesVector.size(); j++) {
+					contourEllipsesVector[j][0] = contourEllipsesVector[j][0] + offsetX;
+					contourEllipsesVector[j][1] = contourEllipsesVector[j][1] + offsetY;
+				}
+
+
 				//add the superellipses of this contour to the vector of all superellipses
 				totalEllipsesVector.insert(totalEllipsesVector.end(), contourEllipsesVector.begin(), contourEllipsesVector.end());
 			}
-
-
-
-
-			////recursively fit superellipses to the contours
-			//vector<vector<double>> ellipsesVector = useRoninRecursive(pixelGrid, contourVector, width, height);
-			auto postCalculateTime = chrono::high_resolution_clock::now();
+			QueryPerformanceCounter(&t3);
 
 
 			//render the fitted superellipses to an image file
 			int err = processSuperellipsesFromVector(totalEllipsesVector, ellipseImage, width, height);
-			auto postRenderTime = chrono::high_resolution_clock::now();
-
+			QueryPerformanceCounter(&t4);
 
 
 			//time measurement
-			auto prepareDuration = preCalculateTime - startTime;
-			auto calculateDuration = postCalculateTime - preCalculateTime;
-			auto renderDuration = postRenderTime - postCalculateTime;
-			cout << "prepareDuration:     " << double(chrono::duration_cast<chrono::microseconds>(prepareDuration).count())/1000000.0 << "s" << endl;
-			cout << "calculateDuration:   " << double(chrono::duration_cast<chrono::microseconds>(calculateDuration).count())/1000000.0 << "s" << endl;
-			cout << "renderDuration:      " << double(chrono::duration_cast<chrono::microseconds>(renderDuration).count())/1000000.0 << "s" << endl;
+			double prepareDuration = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
+			double computeDuration = (t3.QuadPart - t2.QuadPart) * 1000.0 / frequency.QuadPart;
+			double renderDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
+			cout << "prepareDuration:     " << prepareDuration << "ms" << endl;
+			cout << "calculateDuration:   " << computeDuration << "ms" << endl;
+			cout << "renderDuration:      " << renderDuration << "ms" << endl;
+
 		}
 
 
@@ -304,6 +343,7 @@ int main() {
 
 
 
+	//Sleep(10000);
 }
 
 

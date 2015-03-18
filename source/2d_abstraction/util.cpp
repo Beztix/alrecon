@@ -180,12 +180,9 @@ namespace util {
 		//create an empty image
 		Mat image = Mat(height, width, CV_8UC3);
 
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				image.at<Vec3b>(Point(x, y)) = Vec3b(0, 0, 0);
-			}
-		}
+		image.setTo(Scalar(0, 0, 0));
 
+		
 		//wrap the contour in a contours vector
 		vector<vector<cv::Point>> contours;
 		contours.push_back(contourPoints);

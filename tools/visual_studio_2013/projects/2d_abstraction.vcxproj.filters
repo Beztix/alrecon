@@ -56,6 +56,9 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\text_input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\source\2d_abstraction\blob.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\source\2d_abstraction\main.cpp">

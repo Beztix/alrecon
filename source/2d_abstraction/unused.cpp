@@ -606,3 +606,77 @@
 //	writePixelsToTextFileForCeres("allPixels", pixels, width, height);
 //	return 0;
 //}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//###########################################################################################################################################
+//###########################################################################################################################################
+//###########################################################################################################################################
+
+
+
+////load the pixels from image
+//int* pixelGrid = image_input::loadPixelsFromImage(inputImage, width, height);
+//if (pixelGrid == nullptr) {
+//	return -1;
+//}
+
+////extract the contours of the image using the own reduce function
+//vector<int> contourVector = util::getContoursArray(pixelGrid, width, height);
+//int no_contourPixels = int(contourVector.size() / 2);
+//int* contourList = &contourVector[0];
+//
+
+
+
+////extract the contours of the image using OpenCV (implicitly perform connected components separation)
+//vector<vector<cv::Point>> contoursPointsVector = image_input::getContoursFromImage(inputImage, width, height);
+
+
+//int contoursCount = contoursPointsVector.size();
+//vector<vector<double>> totalEllipsesVector;
+
+////for each contour:
+//for (int i = 0; i < contoursCount; i++) {
+
+//	//transform the contoursPoints to a contourVector
+//	vector<cv::Point> contourPoints = contoursPointsVector.at(i);
+//	vector<int> contourVector;
+//	for (int j = 0; j < contourPoints.size(); j++) {
+//		contourVector.push_back(contourPoints.at(j).x);
+//		contourVector.push_back(contourPoints.at(j).y);
+//	}
+
+//	//draw the contour
+//	//image_output::pixelVectorToImage(contourVector, width, height, to_string(i) + "contour.png");
+
+//	int* pixelGrid = util::getFilledPixelGridFromContour(contourPoints, width, height);
+
+//	//use Ronin to fit superellipses to the contour
+//	vector<vector<double>> contourEllipsesVector = useRoninRecursive(pixelGrid, contourVector, width, height);
+//	contourVector.clear();
+
+//	//draw the fitted superellipses
+//	//int err = processSuperellipsesFromVector(contourEllipsesVector, to_string(i) + ellipseImage, width, height);
+
+//	//add the superellipses of this contour to the vector of all superellipses
+//	totalEllipsesVector.insert(totalEllipsesVector.end(), contourEllipsesVector.begin(), contourEllipsesVector.end());
+//}
+
+
+
+
+////recursively fit superellipses to the contours
+//vector<vector<double>> ellipsesVector = useRoninRecursive(pixelGrid, contourVector, width, height);

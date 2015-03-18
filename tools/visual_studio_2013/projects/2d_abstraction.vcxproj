@@ -40,6 +40,7 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\Alpha_shape_2.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\as_cgal.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\as_gpu_input.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\blob.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\convexHull.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\convexHullForC.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\ellipseFit.h" />
