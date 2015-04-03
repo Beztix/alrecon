@@ -48,10 +48,10 @@ double x2[MAX_PIXELS], y2[MAX_PIXELS];
 
 /* use the fitting algorithm to fit one superellipse to the given contourPixels */
 
-void fitEllipseRonin2(int* contourPixels, int no_contourPixels, 
-		double *xcOut, double *ycOut, double *thetaOut, double *aOut, double *bOut, double *epsilonOut)
+void fitEllipseRonin2(int* contourPixels, int no_contourPixels,
+	double *xcOut, double *ycOut, double *thetaOut, double *aOut, double *bOut, double *epsilonOut)
 {
-	
+
 	int i, j;
 	double a, b, xc, yc, epsilon, t, theta;
 	double xi1, yi1, xi2, yi2;
@@ -77,6 +77,13 @@ void fitEllipseRonin2(int* contourPixels, int no_contourPixels,
 	eps[2] = 2 * log(a / ABS(xi1)) / log(2.0);
 	eps[3] = 2 * log(a / ABS(xi2)) / log(2.0);
 
+	printf("eps[0]: %f\n", eps[0]);
+	printf("eps[1]: %f\n", eps[1]);
+	printf("eps[2]: %f\n", eps[2]);
+	printf("eps[3]: %f\n", eps[3]);
+
+
+
 	/* take median of estimates */
 	for (i = 0; i < 3; i++) {
 		for (j = i + 1; j < 4; j++) {
@@ -87,7 +94,19 @@ void fitEllipseRonin2(int* contourPixels, int no_contourPixels,
 			}
 		}
 	}
-	epsilon = (eps[1] + eps[2]) / 2.0;
+
+	printf("eps[0] new: %f\n", eps[0]);
+	printf("eps[1] new: %f\n", eps[1]);
+	printf("eps[2] new: %f\n", eps[2]);
+	printf("eps[3] new: %f\n", eps[3]);
+
+	//epsilon = (eps[1] + eps[2]) / 2.0;
+	epsilon = eps[3];
+
+	//set a threshold to prevent epsilon == 0 (may cause numerical problems) 
+	if (epsilon < 0.0001) {
+		epsilon = 0.0001;
+	}
 
 	*xcOut = xc;
 	*ycOut = yc;
@@ -141,12 +160,12 @@ double *xi1, *yi1, *xi2, *yi2;
 	int i;
 	double px, py, minpx_pos, minpy_pos, minpx_neg, minpy_neg;
 	double a, b, f, dist, mindist_pos, mindist_neg, pedalx_pos, pedaly_pos, pedalx_neg, pedaly_neg;
-	a = p / q;
-	b = -1.0;
+	a = p;
+	b = -q;
 	double div = sqrt(a*a + b*b);
 	mindist_pos = 100000;
 	mindist_neg = 100000;
-	//get closest point to ray on positive and on engative x-axis
+	//get closest point to ray on positive and on negative x-axis
 	for (i = 0; i < no_points; i++) {
 		px = xdata[i]; py = ydata[i];
 		//get minimal distance from point to ray

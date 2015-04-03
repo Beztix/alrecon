@@ -177,7 +177,7 @@ int main() {
 			for (int i = 0; i < blobs.size(); i++) {
 				vector<cv::Point2i> currentBlob = blobs.at(i);
 
-				//determine dimension of the connected component
+				//determine dimension and offset of the connected component
 				int minX = INT_MAX;
 				int maxX = INT_MIN; 
 				int minY = INT_MAX;
@@ -197,10 +197,10 @@ int main() {
 						maxY = currentPoint.y;
 					}
 				}
-				int sizeX = maxX - minX + 5;
-				int sizeY = maxY - minY + 5;
-				int offsetX = minX - 2;
-				int offsetY = minY - 2;
+				int sizeX = maxX - minX + 3;
+				int sizeY = maxY - minY + 3;
+				int offsetX = minX - 1;
+				int offsetY = minY - 1;
 
 
 				//create a pixelGrid and a Mat from the blob points
@@ -230,7 +230,7 @@ int main() {
 				}
 
 				//use Ronin fitting to fit superellipses to the contour
-				vector<vector<double>> contourEllipsesVector = useRoninRecursive(pixelGrid, contourVector, sizeX, sizeY);
+				vector<vector<double>> contourEllipsesVector = useRoninRecursive(pixelGrid, contourVector, sizeX, sizeY, 50);
 				contourVector.clear();
 
 				//draw the fitted superellipses
@@ -242,7 +242,6 @@ int main() {
 					contourEllipsesVector[j][0] = contourEllipsesVector[j][0] + offsetX;
 					contourEllipsesVector[j][1] = contourEllipsesVector[j][1] + offsetY;
 				}
-
 
 				//add the superellipses of this contour to the vector of all superellipses
 				totalEllipsesVector.insert(totalEllipsesVector.end(), contourEllipsesVector.begin(), contourEllipsesVector.end());

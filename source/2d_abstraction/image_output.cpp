@@ -13,6 +13,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+#include "se_rendering.h"
+
 using namespace cv;
 using namespace std;
 
@@ -59,11 +61,7 @@ namespace image_output {
 
 	void pixelVectorToImage(vector<int> pixels, int width, int height, string imageName) {
 		Mat image = Mat(height, width, CV_8UC3);
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				image.at<Vec3b>(Point(x, y)) = Vec3b(0, 0, 0);
-			}
-		}
+		image.setTo(cv::Scalar(0, 0, 0));
 		int x, y;
 		Point point;
 		for (int i = 0; i < int(pixels.size() / 2); i++) {
@@ -75,6 +73,32 @@ namespace image_output {
 
 		imwrite(imageName, image);
 	}
+
+
+
+
+
+
+	void pixelGridToImage(int* pixelGrid, int width, int height, string imageName) {
+		Mat image = Mat(height, width, CV_8UC3);
+		image.setTo(cv::Scalar(0, 0, 0));
+
+		Point point;
+		int y;
+		int x;
+		for (int i = 0; i < width*height; i++) {
+			if (pixelGrid[i] != 0) {
+				y = i / width;
+				x = i % width;
+				point = Point(x, y);
+				image.at<Vec3b>(point) = Vec3b(255, 255, 255);
+			}
+		}
+
+		imwrite(imageName, image);
+	}
+
+
 
 
 
@@ -133,6 +157,17 @@ namespace image_output {
 		imwrite(imgName, image);
 	}
 
+
+
+
+	void renderSuperEllipseToImage(string imgName, int imgWidth, int imgHeight, double xc, double yc, double theta, double a, double b, double epsilon) {
+		vector<double> superellipse = { xc, yc, theta, a, b, epsilon };
+		vector<vector<double>> ellipsesVector;
+		ellipsesVector.emplace_back(superellipse);
+
+		processSuperellipsesFromVector(ellipsesVector, imgName, imgWidth, imgHeight);
+	
+	}
 
 
 

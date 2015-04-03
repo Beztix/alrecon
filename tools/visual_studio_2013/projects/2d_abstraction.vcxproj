@@ -110,11 +110,11 @@
     <Import Project="..\props\build_type_app.props" />
     <Import Project="..\props\build_mode_release.props" />
     <Import Project="..\props\build_app_console.props" />
-    <Import Project="..\props\build_opencv_x64_release.props" />
     <Import Project="..\props\build_cgal_x64_release.props" />
     <Import Project="..\props\build_boost_x64_release.props" />
     <Import Project="..\props\build_ceres_x64_release.props" />
     <Import Project="..\props\build_eigen_x64_release.props" />
+    <Import Project="..\props\build_opencv_x64_release.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />

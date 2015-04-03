@@ -100,11 +100,8 @@ namespace image_input {
 		RNG rng(12345);
 		Mat output = Mat(height, width, CV_8UC3);
 		//initialize image as black
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				image.at<Vec3b>(Point(x, y)) = Vec3b(0, 0, 0);
-			}
-		}
+		output.setTo(cv::Scalar(0, 0, 0));
+		
 		//draw the lines given by the input
 		for (int i = 0; i < contours.size(); i++) {
 			vector<Point> contour = contours.at(i);
@@ -143,6 +140,11 @@ namespace image_input {
 		threshold(img, binary, 0.0, 1.0, cv::THRESH_BINARY);
 
 		blob::FindBlobs(binary, blobs);
+
+		int type1 = img.type();
+		int type2 = binary.type();
+
+
 
 		return blobs;
 	}
