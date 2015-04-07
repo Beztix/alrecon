@@ -154,15 +154,21 @@ int main() {
 
 		string inputImage = "images/" + inputName + ".png";
 		string ellipseImage = "se_ronin_" + inputName + "_ellipseImage.png";
+		string combinedImage = "se_ronin_" + inputName + "_combined.png";
 
 		int width;
 		int height;
+
+
+
+
+
+
 
 		if (RECURSIVE) {
 
 			LARGE_INTEGER frequency;        // ticks per second
 			LARGE_INTEGER t1, t2, t3, t4;	//ticks
-			// get ticks per second
 			QueryPerformanceFrequency(&frequency);
 
 
@@ -184,18 +190,10 @@ int main() {
 				int maxY = INT_MIN;
 				for (int j = 0; j < currentBlob.size(); j++) {
 					cv::Point2i currentPoint = currentBlob.at(j);
-					if (currentPoint.x < minX) {
-						minX = currentPoint.x;
-					}
-					if (currentPoint.x > maxX) {
-						maxX = currentPoint.x;
-					}
-					if (currentPoint.y < minY) {
-						minY = currentPoint.y;
-					}
-					if (currentPoint.y > maxY) {
-						maxY = currentPoint.y;
-					}
+					if (currentPoint.x < minX) minX = currentPoint.x;
+					if (currentPoint.x > maxX) maxX = currentPoint.x;
+					if (currentPoint.y < minY) minY = currentPoint.y;
+					if (currentPoint.y > maxY) maxY = currentPoint.y;
 				}
 				int sizeX = maxX - minX + 3;
 				int sizeY = maxY - minY + 3;
@@ -217,6 +215,7 @@ int main() {
 					blobMat.at<cv::Vec3b>(y, x) = cv::Vec3b(255, 255, 255);
 				}
 
+
 				//extract the contour of the connected component
 				vector<vector<cv::Point>> contours;
 				cv::Mat gray;
@@ -229,12 +228,10 @@ int main() {
 					contourVector.push_back(contourPoints.at(j).y);
 				}
 
-				//use Ronin fitting to fit superellipses to the contour
-				vector<vector<double>> contourEllipsesVector = useRoninRecursive(pixelGrid, contourVector, sizeX, sizeY, 50);
+				
+				//use recursive Ronin fitting to fit superellipses to the contour
+				vector<vector<double>> contourEllipsesVector = useRoninRecursive(pixelGrid, contourVector, sizeX, sizeY, 100);
 				contourVector.clear();
-
-				//draw the fitted superellipses
-				//int err = processSuperellipsesFromVector(contourEllipsesVector, to_string(i) + ellipseImage, width, height);
 
 
 				//add the offset of the connected components to the calculated ellipses
@@ -242,6 +239,11 @@ int main() {
 					contourEllipsesVector[j][0] = contourEllipsesVector[j][0] + offsetX;
 					contourEllipsesVector[j][1] = contourEllipsesVector[j][1] + offsetY;
 				}
+
+
+				//draw the fitted superellipses
+				//int err = processSuperellipsesFromVector(contourEllipsesVector, to_string(i) + ellipseImage, width, height);
+
 
 				//add the superellipses of this contour to the vector of all superellipses
 				totalEllipsesVector.insert(totalEllipsesVector.end(), contourEllipsesVector.begin(), contourEllipsesVector.end());
@@ -252,6 +254,10 @@ int main() {
 			//render the fitted superellipses to an image file
 			int err = processSuperellipsesFromVector(totalEllipsesVector, ellipseImage, width, height);
 			QueryPerformanceCounter(&t4);
+
+
+			//combine the original and the ellipse image
+			image_output::combineOriginalAndEllipseImage(inputImage, ellipseImage, combinedImage);
 
 
 			//time measurement
@@ -266,18 +272,10 @@ int main() {
 
 
 
-		if (RECURSIVE_WITH_OUTPUT) {
-			//load the pixels from image
-			int* pixelGrid = image_input::loadPixelsFromImage(inputImage, width, height);
 
 
-			//extract the contours of the image
-			vector<int> contourVector = util::getContoursArray(pixelGrid, width, height);
-			int no_contourPixels = int(contourVector.size() / 2);
-			int* contourList = &contourVector[0];
 
 
-		}
 
 
 

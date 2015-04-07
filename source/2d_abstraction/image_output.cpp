@@ -174,6 +174,44 @@ namespace image_output {
 
 
 
+	void combineOriginalAndEllipseImage(string originalImageLocation, string ellipseImageLocation, string outputImageLocation) {
+
+		Mat originalImage;
+		originalImage = imread(originalImageLocation, CV_LOAD_IMAGE_COLOR);
+
+		//get size of the image
+		Size size = originalImage.size();
+		int height = size.height;
+		int width = size.width;
+
+		Mat ellipseImage;
+		ellipseImage = imread(ellipseImageLocation, CV_LOAD_IMAGE_COLOR);
+
+
+
+		Mat outputImage = originalImage;
+
+		// retrieve the pixel color values
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				Point point = Point(x, y);
+				Vec3b intensity = ellipseImage.at<Vec3b>(point);
+				//sum um the rgb values
+				int colorValue = intensity.val[0] + intensity.val[0] + intensity.val[0];
+
+				//add ellipses to outputImage
+				if (colorValue != 0) {
+					outputImage.at<Vec3b>(point) = intensity;
+				}
+			}
+		}
+
+
+		imwrite(outputImageLocation, outputImage);
+
+	}
+
+
 
 
 

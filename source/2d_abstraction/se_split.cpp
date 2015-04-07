@@ -154,12 +154,6 @@ void splitImageToMats(int* pixelGrid, const int width, const int height, double 
 			}
 		}
 	}
-
-	imwrite("internPart1.png", internPart1);
-	imwrite("internPart2.png", internPart2);
-
-
-
 	splitPart1 = internPart1;
 	splitPart2 = internPart2;
 }

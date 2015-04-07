@@ -84,9 +84,7 @@ namespace util {
 
 		//initialize new pixel array
 		int* reducedPixels = new int[size];
-		for (int i = 0; i < size; i++) {
-			reducedPixels[i] = 0;
-		}
+		fill_n(reducedPixels, size, 0);
 
 		//Reduce the number of set Pixels on the interior
 		for (int i = 0; i < size; i++) {

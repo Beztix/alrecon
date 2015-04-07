@@ -77,10 +77,10 @@ void fitEllipseRonin2(int* contourPixels, int no_contourPixels,
 	eps[2] = 2 * log(a / ABS(xi1)) / log(2.0);
 	eps[3] = 2 * log(a / ABS(xi2)) / log(2.0);
 
-	printf("eps[0]: %f\n", eps[0]);
+	/*printf("eps[0]: %f\n", eps[0]);
 	printf("eps[1]: %f\n", eps[1]);
 	printf("eps[2]: %f\n", eps[2]);
-	printf("eps[3]: %f\n", eps[3]);
+	printf("eps[3]: %f\n", eps[3]);*/
 
 
 
@@ -95,17 +95,17 @@ void fitEllipseRonin2(int* contourPixels, int no_contourPixels,
 		}
 	}
 
-	printf("eps[0] new: %f\n", eps[0]);
+	/*printf("eps[0] new: %f\n", eps[0]);
 	printf("eps[1] new: %f\n", eps[1]);
 	printf("eps[2] new: %f\n", eps[2]);
-	printf("eps[3] new: %f\n", eps[3]);
+	printf("eps[3] new: %f\n", eps[3]);*/
 
 	//epsilon = (eps[1] + eps[2]) / 2.0;
-	epsilon = eps[3];
+	epsilon = (eps[1] + 2* eps[2] + 3*eps[3]) / 6.0;
 
 	//set a threshold to prevent epsilon == 0 (may cause numerical problems) 
-	if (epsilon < 0.0001) {
-		epsilon = 0.0001;
+	if (epsilon < 0.01) {
+		epsilon = 0.01;
 	}
 
 	*xcOut = xc;
