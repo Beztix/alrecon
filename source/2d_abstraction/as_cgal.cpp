@@ -63,7 +63,7 @@ OutputIterator out)
 
 ///converts set pixels represented by an integer array to a list of Point_2
 
-list<Point_2> convertPixelsToPoints(int* pixels, int width, int height) {
+list<Point_2> convertPixelsToPoints(vector<int> pixels, int width, int height) {
 	list<Point_2> points;
 
 	//create corresponding points to set pixels
@@ -162,7 +162,7 @@ int useCgal(string inputImage, string reducedImgName, string outputImage, int re
 
 
 	//reducing pixels
-	int* reducedPixels = util::reducePixels(pixels, width, height, reduction, reducedImgName);
+	vector<int> reducedPixels = util::reducePixels(pixels, width, height, reduction, reducedImgName);
 	auto reduceTime = chrono::high_resolution_clock::now();
 
 

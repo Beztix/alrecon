@@ -104,8 +104,8 @@ void fitEllipseRonin2(int* contourPixels, int no_contourPixels,
 	epsilon = (eps[1] + 2* eps[2] + 3*eps[3]) / 6.0;
 
 	//set a threshold to prevent epsilon == 0 (may cause numerical problems) 
-	if (epsilon < 0.01) {
-		epsilon = 0.01;
+	if (epsilon < 0.1) {
+		epsilon = 0.1;
 	}
 
 	*xcOut = xc;

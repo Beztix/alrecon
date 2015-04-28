@@ -79,7 +79,7 @@ namespace image_output {
 
 
 
-	void pixelGridToImage(int* pixelGrid, int width, int height, string imageName) {
+	void pixelGridToImage(vector<int> pixelGrid, int width, int height, string imageName) {
 		Mat image = Mat(height, width, CV_8UC3);
 		image.setTo(cv::Scalar(0, 0, 0));
 

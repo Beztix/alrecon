@@ -97,7 +97,7 @@ void splitImageToGrids(int* pixelGrid, const int width, const int height, double
 }
 
 
-void splitImageToMats(int* pixelGrid, const int width, const int height, double xc, double yc, double theta, Mat &splitPart1, Mat &splitPart2) {
+void splitImageToMats(vector<int> pixelGrid, const int width, const int height, double xc, double yc, double theta, Mat &splitPart1, Mat &splitPart2) {
 	Mat internPart1 = Mat(height, width, CV_8UC3);;
 	Mat internPart2 = Mat(height, width, CV_8UC3);;
 	internPart1.setTo(cv::Scalar(0, 0, 0));
@@ -188,7 +188,7 @@ void getContours(string inputFile, string contourFile) {
 		pixels[x + y*width] = 100;
 	}
 
-	int* reducedPixels = util::reducePixels(pixels, width, height, 1000, "test.png");
+	vector<int> reducedPixels = util::reducePixels(pixels, width, height, 1000, "test.png");
 
 
 	ofstream outfile(contourFile);
@@ -229,7 +229,7 @@ void getContoursRonin(string inputFile, string contourFile) {
 		pixels[x + y*width] = 100;
 	}
 
-	int* reducedPixels = util::reducePixels(pixels, width, height, 1000, "test.png");
+	vector<int> reducedPixels = util::reducePixels(pixels, width, height, 1000, "test.png");
 
 
 	ofstream outfile(contourFile);

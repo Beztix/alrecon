@@ -56,7 +56,7 @@ using namespace std;
 int main() {
 
 
-	//Sleep(10000);
+	Sleep(2000);
 
 	bool USE_CGAL =					false;
 	bool USE_GPUALPHA =				false;
@@ -162,7 +162,7 @@ int main() {
 
 
 
-
+		
 
 
 		if (RECURSIVE) {
@@ -171,101 +171,103 @@ int main() {
 			LARGE_INTEGER t1, t2, t3, t4;	//ticks
 			QueryPerformanceFrequency(&frequency);
 
-
-			//load the separate connected components from the image
-			QueryPerformanceCounter(&t1);
-			vector<vector<cv::Point2i>> blobs = image_input::getBlobsFromImage(inputImage, width, height);
-
-
-			//fit superellipses for each connected component:
-			QueryPerformanceCounter(&t2);
 			vector<vector<double>> totalEllipsesVector;
-			for (int i = 0; i < blobs.size(); i++) {
-				vector<cv::Point2i> currentBlob = blobs.at(i);
 
-				//determine dimension and offset of the connected component
-				int minX = INT_MAX;
-				int maxX = INT_MIN; 
-				int minY = INT_MAX;
-				int maxY = INT_MIN;
-				for (int j = 0; j < currentBlob.size(); j++) {
-					cv::Point2i currentPoint = currentBlob.at(j);
-					if (currentPoint.x < minX) minX = currentPoint.x;
-					if (currentPoint.x > maxX) maxX = currentPoint.x;
-					if (currentPoint.y < minY) minY = currentPoint.y;
-					if (currentPoint.y > maxY) maxY = currentPoint.y;
+			for (int i = 0; i < 100; i++) {
+				totalEllipsesVector.clear();
+
+				//load the separate connected components from the image
+				QueryPerformanceCounter(&t1);
+				vector<vector<cv::Point2i>> blobs = image_input::getBlobsFromImage(inputImage, width, height);
+
+				QueryPerformanceCounter(&t2);
+				double prepareDuration = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
+				cout << "prepareDuration:     " << prepareDuration << "ms" << endl;
+
+				//fit superellipses for each connected component:
+				for (int i = 0; i < blobs.size(); i++) {
+					vector<cv::Point2i> currentBlob = blobs.at(i);
+
+					//determine dimension and offset of the connected component
+					int minX = INT_MAX;
+					int maxX = INT_MIN;
+					int minY = INT_MAX;
+					int maxY = INT_MIN;
+					for (int j = 0; j < currentBlob.size(); j++) {
+						cv::Point2i currentPoint = currentBlob.at(j);
+						if (currentPoint.x < minX) minX = currentPoint.x;
+						if (currentPoint.x > maxX) maxX = currentPoint.x;
+						if (currentPoint.y < minY) minY = currentPoint.y;
+						if (currentPoint.y > maxY) maxY = currentPoint.y;
+					}
+					int sizeX = maxX - minX + 3;
+					int sizeY = maxY - minY + 3;
+					int offsetX = minX - 1;
+					int offsetY = minY - 1;
+
+
+					//create a pixelGrid and a Mat from the blob points
+					vector<int> pixelGrid (sizeX * sizeY);
+					std::fill(pixelGrid.begin(), pixelGrid.end(), 0);
+					cv::Mat blobMat = cv::Mat(sizeY, sizeX, CV_8UC3);
+					blobMat.setTo(cv::Scalar(0, 0, 0));
+					for (int j = 0; j < currentBlob.size(); j++) {
+						//add the points of the connected component to the pixelGrid / Mat
+						cv::Point2i currentPoint = currentBlob.at(j);
+						int x = currentPoint.x - offsetX;
+						int y = currentPoint.y - offsetY;
+						pixelGrid[y*sizeX + x] = 200;
+						blobMat.at<cv::Vec3b>(y, x) = cv::Vec3b(255, 255, 255);
+					}
+
+
+					//extract the contour of the connected component
+					vector<vector<cv::Point>> contours;
+					cv::Mat gray;
+					cv::cvtColor(blobMat, gray, CV_BGR2GRAY);
+					cv::findContours(gray, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
+					vector<cv::Point> contourPoints = contours.at(0);
+					vector<int> contourVector;
+					for (int j = 0; j < contourPoints.size(); j++) {
+						contourVector.push_back(contourPoints.at(j).x);
+						contourVector.push_back(contourPoints.at(j).y);
+					}
+
+
+					//use recursive Ronin fitting to fit superellipses to the contour
+					vector<vector<double>> contourEllipsesVector = useRoninRecursive(pixelGrid, contourVector, sizeX, sizeY, 300);
+					contourVector.clear();
+
+
+					//add the offset of the connected components to the calculated ellipses
+					for (int j = 0; j < contourEllipsesVector.size(); j++) {
+						contourEllipsesVector[j][0] = contourEllipsesVector[j][0] + offsetX;
+						contourEllipsesVector[j][1] = contourEllipsesVector[j][1] + offsetY;
+					}
+
+
+					//draw the fitted superellipses
+					//int err = processSuperellipsesFromVector(contourEllipsesVector, to_string(i) + ellipseImage, width, height);
+
+
+					//add the superellipses of this contour to the vector of all superellipses
+					totalEllipsesVector.insert(totalEllipsesVector.end(), contourEllipsesVector.begin(), contourEllipsesVector.end());
 				}
-				int sizeX = maxX - minX + 3;
-				int sizeY = maxY - minY + 3;
-				int offsetX = minX - 1;
-				int offsetY = minY - 1;
+				QueryPerformanceCounter(&t3);
+				double computeDuration = (t3.QuadPart - t2.QuadPart) * 1000.0 / frequency.QuadPart;
+				cout << "calculateDuration:   " << computeDuration << "ms" << endl;
 
-
-				//create a pixelGrid and a Mat from the blob points
-				int* pixelGrid = new int[sizeX * sizeY];
-				fill_n(pixelGrid, sizeX*sizeY, 0);
-				cv::Mat blobMat = cv::Mat(sizeY, sizeX, CV_8UC3);
-				blobMat.setTo(cv::Scalar(0, 0, 0));
-				for (int j = 0; j < currentBlob.size(); j++) {
-					//add the points of the connected component to the pixelGrid / Mat
-					cv::Point2i currentPoint = currentBlob.at(j);
-					int x = currentPoint.x - offsetX;
-					int y = currentPoint.y - offsetY;
-					pixelGrid[y*sizeX + x] = 200;
-					blobMat.at<cv::Vec3b>(y, x) = cv::Vec3b(255, 255, 255);
-				}
-
-
-				//extract the contour of the connected component
-				vector<vector<cv::Point>> contours;
-				cv::Mat gray;
-				cv::cvtColor(blobMat, gray, CV_BGR2GRAY);
-				cv::findContours(gray, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
-				vector<cv::Point> contourPoints = contours.at(0);
-				vector<int> contourVector;
-				for (int j = 0; j < contourPoints.size(); j++) {
-					contourVector.push_back(contourPoints.at(j).x);
-					contourVector.push_back(contourPoints.at(j).y);
-				}
-
-				
-				//use recursive Ronin fitting to fit superellipses to the contour
-				vector<vector<double>> contourEllipsesVector = useRoninRecursive(pixelGrid, contourVector, sizeX, sizeY, 100);
-				contourVector.clear();
-
-
-				//add the offset of the connected components to the calculated ellipses
-				for (int j = 0; j < contourEllipsesVector.size(); j++) {
-					contourEllipsesVector[j][0] = contourEllipsesVector[j][0] + offsetX;
-					contourEllipsesVector[j][1] = contourEllipsesVector[j][1] + offsetY;
-				}
-
-
-				//draw the fitted superellipses
-				//int err = processSuperellipsesFromVector(contourEllipsesVector, to_string(i) + ellipseImage, width, height);
-
-
-				//add the superellipses of this contour to the vector of all superellipses
-				totalEllipsesVector.insert(totalEllipsesVector.end(), contourEllipsesVector.begin(), contourEllipsesVector.end());
 			}
+
 			QueryPerformanceCounter(&t3);
-
-
 			//render the fitted superellipses to an image file
 			int err = processSuperellipsesFromVector(totalEllipsesVector, ellipseImage, width, height);
-			QueryPerformanceCounter(&t4);
-
 
 			//combine the original and the ellipse image
 			image_output::combineOriginalAndEllipseImage(inputImage, ellipseImage, combinedImage);
 
-
-			//time measurement
-			double prepareDuration = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
-			double computeDuration = (t3.QuadPart - t2.QuadPart) * 1000.0 / frequency.QuadPart;
+			QueryPerformanceCounter(&t4);
 			double renderDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
-			cout << "prepareDuration:     " << prepareDuration << "ms" << endl;
-			cout << "calculateDuration:   " << computeDuration << "ms" << endl;
 			cout << "renderDuration:      " << renderDuration << "ms" << endl;
 
 		}
@@ -340,7 +342,7 @@ int main() {
 
 
 
-	//Sleep(10000);
+	Sleep(2000);
 }
 
 

@@ -26,7 +26,7 @@ using namespace std;
 
 
 
-void writePixelsToTextFileForAS(string outputFile, int* pixels, int width, int height) {
+void writePixelsToTextFileForAS(string outputFile, vector<int> pixels, int width, int height) {
 	int totalNum = 0;
 
 	//calculate number of set pixels
@@ -72,7 +72,7 @@ int prepareInputForAS(string inputImage, string reducedImgName, string outputFil
 	}
 
 	//reducing pixels
-	int* reducedPixels = util::reducePixels(pixels, width, height, reduction, reducedImgName);
+	vector<int> reducedPixels = util::reducePixels(pixels, width, height, reduction, reducedImgName);
 
 	//write pixels to textfile in Format used by GPUAlpha
 	writePixelsToTextFileForAS(outputFile, reducedPixels, width, height);

@@ -18,6 +18,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
+#include "image_output.h"
+
 using namespace std;
 using namespace cv;
 
@@ -79,12 +81,13 @@ namespace util {
 	* The reduced image is written to disc as a png image using opencv.
 	*/
 
-	int* reducePixels(int* pixels, int width, int height, int spacing, string reducedImgName) {
+	vector<int> reducePixels(int* pixels, int width, int height, int spacing, string reducedImgName) {
 		int size = width* height;
 
 		//initialize new pixel array
-		int* reducedPixels = new int[size];
-		fill_n(reducedPixels, size, 0);
+		vector<int> reducedPixels;
+		reducedPixels.resize(size);
+		std::fill(reducedPixels.begin(), reducedPixels.end(), 0);
 
 		//Reduce the number of set Pixels on the interior
 		for (int i = 0; i < size; i++) {
@@ -103,7 +106,7 @@ namespace util {
 
 					//current pixel is an interior pixel: all pixels in 4-neighborhood are set too
 					if (pixels[left] != 0 && pixels[right] != 0 && pixels[above] != 0 && pixels[below] != 0) {
-						//reduce pixels to a grid with spacing 5
+						//reduce pixels to a grid with given spacing
 						int ymod = y % spacing;
 						int xmod = x % spacing;
 						if (ymod == 0 && xmod == 0) {
@@ -121,27 +124,6 @@ namespace util {
 				}
 			}
 		}
-
-		//// initializing reduced image
-		//Mat reducedImage = Mat(height, width, CV_8UC3);
-		//for (int y = 0; y < height; y++) {
-		//	for (int x = 0; x < width; x++) {
-		//		reducedImage.at<Vec3b>(Point(x, y)) = Vec3b(0, 0, 0);
-		//	}
-		//}
-
-		//// Write reduced pixels to color value array
-		//for (int i = 0; i < height*width; i++) {
-		//	if (reducedPixels[i] != 0){
-		//		int y = i / width;
-		//		int x = i % width;
-		//		reducedImage.at<Vec3b>(Point(x, y)) = Vec3b(250, 250, 250);
-		//	}
-		//}
-
-		//cout << "Writing reduced image to disc: " << reducedImgName << endl;
-		//imwrite(reducedImgName, reducedImage);
-
 		return reducedPixels;
 	}
 
@@ -151,22 +133,85 @@ namespace util {
 
 
 
+	void getContourPixels(vector<int> inputPixelGrid, vector<int> &contourPixelGrid, int width, int height) {
+		int size = width* height;
 
-	std::vector<int> getContoursArray(int* inputPixelGrid, int width, int height) {
+		std::fill(contourPixelGrid.begin(), contourPixelGrid.end(), 0);
 
+		int target_index = 0;
+		for (int y = 0; y < height; ++y) {
+			for (int x = 0; x < width; ++x) {
+				target_index = y*width + x;
+				//current pixel is set
+				if (inputPixelGrid[target_index] != 0) {
+					
+					//current pixel is not on the border of the image
+					if (y != 0 && y != height - 1 && x != 0 && x != width - 1) {
+						int left = target_index - 1;
+						int right = target_index + 1;
+						int above = (y - 1)*width + x;
+						int below = (y + 1)*width + x;
 
-		int* reducedPixelGrid = reducePixels(inputPixelGrid, width, height, 100000, "test.png");
+						//current pixel is a contour pixel (one or more pixels in the 4-neighborhood are not set)
+						if (inputPixelGrid[left] == 0 || inputPixelGrid[right] == 0 || inputPixelGrid[above] == 0 || inputPixelGrid[below] == 0) {
+							//-> set this pixel to 200
+							contourPixelGrid[target_index] = 200;
+						}
 
-		vector<int> contourVector;
+						////current pixel is not an interior pixel: not all pixels in 4-neighborhood are set
+						//else {
+						//	contourPixelGrid[target_index] = 200;
+						//}
+					}
+				}
 
-		for (int i = 0; i < width*height; i++) {
-			if (reducedPixelGrid[i] != 0) {
-				int y = i / width;
-				int x = i % width;
-				contourVector.emplace_back(x);
-				contourVector.emplace_back(y);
 			}
 		}
+		
+	}
+
+
+
+
+
+
+
+
+	std::vector<int> getContourVector(vector<int> inputPixelGrid, int width, int height) {
+		vector<int> contourVector;
+
+		int target_index = 0;
+		for (int y = 0; y < height; ++y) {
+			for (int x = 0; x < width; ++x) {
+				target_index = y*width + x;
+
+				//current pixel is set
+				if (inputPixelGrid[target_index] != 0) {
+					
+					//current pixel is not on the border of the image
+					if (y != 0 && y != height - 1 && x != 0 && x != width - 1) {
+						//calculate 4-neighborhood pixels
+						int left = target_index - 1;
+						int right = target_index + 1;
+						int above = (y - 1)*width + x;
+						int below = (y + 1)*width + x;
+
+						//current pixel is a contour pixel (one or more pixels in the 4-neighborhood are not set)
+						if (inputPixelGrid[left] == 0 || inputPixelGrid[right] == 0 || inputPixelGrid[above] == 0 || inputPixelGrid[below] == 0) {
+							contourVector.push_back(x);
+							contourVector.push_back(y);
+						}
+					}
+				}
+
+			//end loops
+			}
+		}
+
+		image_output::pixelVectorToImage(contourVector, width, height, "deb_contourVector.png");
+		image_output::pixelGridToImage(inputPixelGrid, width, height, "deb_inputPixelGrid.png");
+
+
 
 		return std::move(contourVector);
 	}
