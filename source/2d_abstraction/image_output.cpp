@@ -101,7 +101,67 @@ namespace image_output {
 
 
 
+	void renderContourColored(std::string name, int width, int height, std::vector<cv::Point> contourPoints) {
+		Mat image = Mat(height, width, CV_8UC3);
+		image.setTo(cv::Scalar(0, 0, 0));
 
+		int a = 0;
+		int b = 0;
+		int c = 250;
+
+		bool boolA = false;
+		bool boolB = false;
+		bool boolC = true;
+
+		int speed = 2;
+
+		for (int i = 0; i < contourPoints.size(); i++) {
+			Point point = contourPoints.at(i);
+			image.at<Vec3b>(point) = Vec3b(c, b, a);
+
+			if (i == 0) {
+				image.at<Vec3b>(point) = Vec3b(255, 255, 255);
+			}
+
+			if (boolA == true) {
+				if (a > 5) {
+					a = a - speed;
+					b = b + speed;
+				}
+				else {
+					boolA = false;
+					boolB = true;
+				}
+			}
+
+			if (boolB == true) {
+				if (b > 5) {
+					b = b - speed;
+					c = c + speed;
+				}
+				else {
+					boolB = false;
+					boolC = true;
+				}
+			}
+
+			if (boolC == true) {
+				if (c > 5) {
+					c = c - speed;
+					a = a + speed;
+				}
+				else {
+					boolC = false;
+					boolA = true;
+				}
+
+			}
+
+		}
+
+		imwrite(name, image);
+
+	}
 
 
 	/// renders a vector of pixels representing superellipses as blue ellipses on black background

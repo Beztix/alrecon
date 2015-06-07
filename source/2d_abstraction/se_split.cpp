@@ -97,11 +97,19 @@ void splitImageToGrids(int* pixelGrid, const int width, const int height, double
 }
 
 
+
+/**
+* This method splits a pixelGrid given as input into two binary Mats (1 channel, uchar) along a line given by a point xc,yc and an angle theta.
+*
+*
+*/
+
+
 void splitImageToMats(vector<int> pixelGrid, const int width, const int height, double xc, double yc, double theta, Mat &splitPart1, Mat &splitPart2) {
-	Mat internPart1 = Mat(height, width, CV_8UC3);;
-	Mat internPart2 = Mat(height, width, CV_8UC3);;
-	internPart1.setTo(cv::Scalar(0, 0, 0));
-	internPart2.setTo(cv::Scalar(0, 0, 0));
+	Mat internPart1 = Mat(height, width, CV_8UC1);
+	Mat internPart2 = Mat(height, width, CV_8UC1);
+	internPart1.setTo((uchar)0);
+	internPart2.setTo((uchar)0);
 
 	const int numPixels = width * height;
 
@@ -147,10 +155,10 @@ void splitImageToMats(vector<int> pixelGrid, const int width, const int height, 
 			Point point = Point(x, y);
 			tuple<double, double> testPoint(x, y);
 			if (isLeftOf(testPoint, point1, point2)){
-				internPart1.at<Vec3b>(point) = Vec3b(255, 255, 255);
+				internPart1.at<uchar>(point) = (uchar)1;
 			}
 			else {
-				internPart2.at<Vec3b>(point) = Vec3b(255, 255, 255);
+				internPart2.at<uchar>(point) = (uchar)1;
 			}
 		}
 	}

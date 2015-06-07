@@ -208,9 +208,9 @@ namespace util {
 			}
 		}
 
-		image_output::pixelVectorToImage(contourVector, width, height, "deb_contourVector.png");
+		/*image_output::pixelVectorToImage(contourVector, width, height, "deb_contourVector.png");
 		image_output::pixelGridToImage(inputPixelGrid, width, height, "deb_inputPixelGrid.png");
-
+*/
 
 
 		return std::move(contourVector);

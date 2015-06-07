@@ -227,7 +227,9 @@ int main() {
 					cv::cvtColor(blobMat, gray, CV_BGR2GRAY);
 					cv::findContours(gray, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
 					vector<cv::Point> contourPoints = contours.at(0);
-					vector<int> contourVector;
+					if (contourPoints.size() > 50) {
+						image_output::renderContourColored("contour.png", 500, 500, contourPoints);
+					}vector<int> contourVector;
 					for (int j = 0; j < contourPoints.size(); j++) {
 						contourVector.push_back(contourPoints.at(j).x);
 						contourVector.push_back(contourPoints.at(j).y);

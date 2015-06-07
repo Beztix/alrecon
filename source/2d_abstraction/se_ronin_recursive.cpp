@@ -294,12 +294,8 @@ vector<vector<double>> useRoninRecursive(vector<int> pixelGrid, vector<int> cont
 
 
 		//find the connected components in split part 1
-		cv::Mat part1gray;
-		cvtColor(part1, part1gray, CV_BGR2GRAY);
-		cv::Mat binaryPart1;
-		threshold(part1gray, binaryPart1, 0.0, 1.0, cv::THRESH_BINARY);
 		vector<vector<cv::Point2i>> blobsPart1;
-		blob::FindBlobs(binaryPart1, blobsPart1);
+		blob::FindBlobs(part1, blobsPart1);
 
 		vector<vector<double>> totalResultVector1;
 
@@ -341,12 +337,8 @@ vector<vector<double>> useRoninRecursive(vector<int> pixelGrid, vector<int> cont
 
 
 		//find the connected components in split part 1
-		cv::Mat part2gray;
-		cvtColor(part2, part2gray, CV_BGR2GRAY);
-		cv::Mat binaryPart2;
-		threshold(part2gray, binaryPart2, 0.0, 1.0, cv::THRESH_BINARY);
 		vector<vector<cv::Point2i>> blobsPart2;
-		blob::FindBlobs(binaryPart2, blobsPart2);
+		blob::FindBlobs(part2, blobsPart2);
 
 		vector<vector<double>> totalResultVector2;
 

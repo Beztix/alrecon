@@ -5,10 +5,13 @@
 #include <vector>
 #include <tuple>
 
+#include <opencv2/core/core.hpp>
 
 namespace image_output {
 
 	void renderArrayOfLinesToImage(std::string name, int width, int height, int num, double data[1000]);
+
+	void renderContourColored(std::string name, int width, int height, std::vector<cv::Point> contourPoints);
 
 	void pixelVectorToImage(std::vector<int> pixels, int width, int height, std::string imageName);
 
