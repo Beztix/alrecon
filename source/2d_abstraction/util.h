@@ -15,6 +15,12 @@ namespace util {
 	
 	int* getFilledPixelGridFromContour(std::vector<cv::Point> contourPoints, int width, int height);
 
+	std::vector<cv::Point> bresenhamLine(const cv::Point p1, const cv::Point p2);
+
+	int testSegmentsIntersection(cv::Point a1, cv::Point a2, cv::Point b1, cv::Point b2);
+
+	cv::Point2d intersectLines(cv::Point a1, cv::Point a2, cv::Point b1, cv::Point b2);
+
 }
 
 

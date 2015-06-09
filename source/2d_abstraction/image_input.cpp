@@ -93,6 +93,7 @@ namespace image_input {
 		findContours(gray, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, Point(0, 0));
 
 
+		/*
 		//========================
 		//TESTING
 		cout << "Number of contours: " << contours.size() << endl;
@@ -115,6 +116,8 @@ namespace image_input {
 		}
 		imwrite("ContourTest.png", image);
 		//========================
+		*/
+
 
 		return contours;
 

@@ -11,6 +11,8 @@ void splitImageToGrids(int* pixelGrid, const int width, const int height, double
 
 void splitImageToMats(std::vector<int> pixelGrid, const int width, const int height, double xc, double yc, double theta, cv::Mat &splitPart1, cv::Mat &splitPart2);
 
+void splitContourToVectors(std::vector<cv::Point> contourPoints, const int width, const int height, const double xc, const double yc, const double theta, std::vector<cv::Point> &splitPart1, std::vector<cv::Point> &splitPart2);
+
 void getContours(std::string inputFile, std::string contourFile);
 
 void getContoursRonin(std::string inputFile, std::string contourFile);

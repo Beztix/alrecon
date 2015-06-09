@@ -256,5 +256,138 @@ namespace util {
 	}
 
 
+
+
+
+
+
+
+
+
+
+	vector<cv::Point> bresenhamLine(const cv::Point p1, const cv::Point p2) {
+		double x1 = p1.x;
+		double y1 = p1.y;
+		double x2 = p2.x;
+		double y2 = p2.y;
+
+		vector<cv::Point> line;
+
+		const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
+		if (steep)
+		{
+			std::swap(x1, y1);
+			std::swap(x2, y2);
+		}
+
+		if (x1 > x2)
+		{
+			std::swap(x1, x2);
+			std::swap(y1, y2);
+		}
+
+		const double dx = x2 - x1;
+		const double dy = fabs(y2 - y1);
+
+		double error = dx / 2.0f;
+		const int ystep = (y1 < y2) ? 1 : -1;
+		int y = (int)y1;
+
+		const int maxX = (int)x2;
+
+		for (int x = (int)x1; x<=maxX; x++)
+		{
+			if (steep)
+			{
+				line.push_back(Point(y, x));
+			}
+			else
+			{
+				line.push_back(Point(x, y));
+			}
+
+			error -= dy;
+			if (error < 0)
+			{
+				y += ystep;
+				error += dx;
+			}
+		}
+		return line;
+	}
+
+
+
+
+
+
+
+	int testSegmentsIntersection(cv::Point a1, cv::Point a2, cv::Point b1, cv::Point b2) {
+
+		double den = ((b2.y - b1.y)*(a2.x - a1.x) - (b2.x - b1.x)*(a2.y - a1.y));
+		double num1 = ((b2.x - b1.x)*(a1.y - b1.y) - (b2.y - b1.y)*(a1.x - b1.x));
+		double num2 = ((a2.x - a1.x)*(a1.y - b1.y) - (a2.y - a1.y)*(a1.x - b1.x));
+		double u1 = num1 / den;
+		double u2 = num2 / den;
+		
+		// the lines are coincidents
+		if (den == 0 && num1 == 0 && num2 == 0) {
+			return 10;
+		}
+		
+		//the two segments are parallel
+		if (den == 0) {
+			return 11;
+		}
+
+		//the two segments do not collide
+		if (u1 < 0 || u1 > 1 || u2 < 0 || u2 > 1) {
+			return 12;
+		}
+		
+		//the two segments do collide
+		return 13;
+	}
+
+
+
+	/**
+	* This method intersects two lines, if it is known they have an intersection!
+	* If they don't have an intersection the Point (0,0) is returned, but this is not intenden to be a valid test if the liens do intersect.
+	*
+	*/
+
+	cv::Point2d intersectLines(cv::Point a1, cv::Point a2, cv::Point b1, cv::Point b2) {
+		cv::Point2d x = b1 - a1;
+		cv::Point2d da = a2 - a1;
+		cv::Point2d db = b2 - b1;
+
+		double cross = da.x*db.y - da.y*db.x;
+
+		if (abs(cross) < 1e-8) {
+			cv::Point2d r = cv::Point2d(0.0, 0.0);
+			return r;
+		}
+		double t = (x.x * db.y - x.y * db.x) / cross;
+		cv::Point2d a1d = cv::Point2d(a1.x, a1.y);
+		cv::Point2d r = a1d + da*t;
+		return r;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 }
+
+
+
+
 

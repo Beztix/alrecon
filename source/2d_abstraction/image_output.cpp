@@ -14,6 +14,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include "se_rendering.h"
+#include "util.h"
 
 using namespace cv;
 using namespace std;
@@ -49,6 +50,19 @@ namespace image_output {
 		imwrite(name, image);
 	}
 
+
+	void renderLineToImage(string name, int width, int height, cv::Point p1, cv::Point p2) {
+		//create an image with given width and height
+		Mat image = Mat(height, width, CV_8UC3);
+
+		//initialize image as black
+		image.setTo(Vec3b(0, 0, 0));
+
+		//draw the line
+		line(image, p1, p2, (200, 200, 200), 1, 8, 0);
+
+		imwrite(name, image);
+	}
 
 
 
