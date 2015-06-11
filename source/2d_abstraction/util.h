@@ -21,6 +21,11 @@ namespace util {
 
 	cv::Point2d intersectLines(cv::Point a1, cv::Point a2, cv::Point b1, cv::Point b2);
 
+
+	void getContours(std::string inputFile, std::string contourFile);
+
+	void getContoursRonin(std::string inputFile, std::string contourFile);
+
 }
 
 

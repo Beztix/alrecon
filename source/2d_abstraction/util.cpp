@@ -385,6 +385,94 @@ namespace util {
 
 
 
+	void getContours(string inputFile, string contourFile) {
+		ifstream infile(inputFile);
+		int width, height;
+		string dummy;
+		infile >> dummy >> width;
+		infile >> dummy >> height;
+
+
+		int* pixels = new int[height * width];
+		for (int i = 0; i < height*width; i++) {
+			pixels[i] = 0;
+		}
+
+		int x, y;
+
+		while (infile >> x >> y) {
+			pixels[x + y*width] = 100;
+		}
+
+		vector<int> reducedPixels = util::reducePixels(pixels, width, height, 1000, "test.png");
+
+
+		ofstream outfile(contourFile);
+
+		outfile << "w " << width << endl;
+		outfile << "h " << height << endl;
+
+		for (int i = 0; i < width*height; i++) {
+			if (reducedPixels[i] != 0) {
+				int y = i / width;
+				int x = i % width;
+				outfile << x << " " << y << endl;
+			}
+		}
+
+	}
+
+
+
+
+
+	void getContoursRonin(string inputFile, string contourFile) {
+		ifstream infile(inputFile);
+		int width, height;
+		string dummy;
+		infile >> dummy >> width;
+		infile >> dummy >> height;
+
+
+		int* pixels = new int[height * width];
+		for (int i = 0; i < height*width; i++) {
+			pixels[i] = 0;
+		}
+
+		int x, y;
+
+		while (infile >> x >> y) {
+			pixels[x + y*width] = 100;
+		}
+
+		vector<int> reducedPixels = util::reducePixels(pixels, width, height, 1000, "test.png");
+
+
+		ofstream outfile(contourFile);
+
+		outfile << "pixel" << endl;
+		outfile << "list: 0" << endl;
+
+		for (int i = 0; i < width*height; i++) {
+			if (reducedPixels[i] != 0) {
+				int y = i / width;
+				int x = i % width;
+				outfile << x << " " << y << endl;
+			}
+		}
+		outfile << -1 << " " << -1 << endl;
+
+	}
+
+
+
+
+
+
+
+
+
+
 }
 
 

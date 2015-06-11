@@ -48,7 +48,7 @@ double x2[MAX_PIXELS], y2[MAX_PIXELS];
 
 /* use the fitting algorithm to fit one superellipse to the given contourPixels */
 
-void fitEllipseRonin2(int* contourPixels, int no_contourPixels,
+void fitEllipseRosin2(int* contourPixels, int no_contourPixels,
 	double *xcOut, double *ycOut, double *thetaOut, double *aOut, double *bOut, double *epsilonOut)
 {
 

@@ -1,7 +1,10 @@
 /**
 *************************************************************************
 *
-* @file se_ronin_recursive.cpp
+* @file se_rosin_recursive.cpp
+*
+* This file contains all methods to use the superellipse fitting with the method provided by Paul Rosin to fit superellipses recuresively
+* to given contours.
 *
 * 
 *
@@ -13,22 +16,24 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "se_ronin_core.h"
+#include "se_rosin_core.h"
 #include "se_split.h"
 #include "util.h"
 #include "image_output.h"
 #include "blob.h"
 #include "image_input.h"
 
+#include <Windows.h>
+
 using namespace std;
 
 
 
 
-/// evaluates the quality of a superellipsefit by returning a fitValue, the lower the better
+/// evaluates the quality of a superellipsefit using the implicid superellipse equation, lower fitValue is better
 /**
 * This method uses the contour and the parameters of the superellipse fitted to that contour to calculate a quality of the fit (fitValue).
-* The fitValue is calculated as the sum of the values received by putting the points of the contourn in the implicid superellipse equation
+* The fitValue is calculated as the sum of the values received by putting the points of the contour in the implicid superellipse equation.
 */
 
 double evaluateFitImplicid(vector<int> contourVector, double xc, double yc, double theta, double a, double b, double epsilon) {
@@ -89,10 +94,13 @@ double evaluateFitImplicid(vector<int> contourVector, double xc, double yc, doub
 
 
 
-
-
-
-
+/// evaluates the quality of a superellipsefit using the euclidean distance between contour points and superellipses, lower fitValue is better
+/**
+* This method uses the contour and the parameters of the superellipse fitted to that contour to calculate a quality of the fit (fitValue).
+* The fitValue is calculated as the sum of the euclidean distances between the points of the contour and the superellipse along a line through the
+* contour point and the center of the superellipse.
+* For larger contours, not every contour point is evaluated, but instead an appropriate stepsize is chosen.
+*/
 
 double evaluateFitEuclidean(vector<int> contourVector, double xc, double yc, double theta, double a, double b, double epsilon) {
 	int no_contourPixels = int(contourVector.size()) / 2;
@@ -180,6 +188,13 @@ double evaluateFitEuclidean(vector<int> contourVector, double xc, double yc, dou
 
 
 
+
+/// checks if the fit of a superellipse to a contour is conservative, i.e. every point of the contour lies on or inside of the superellipse
+/**
+* This method uses the contour and the parameters of the superellipse fitted to that contour to calculate if the fit is conservative.
+* This is achieved by checking for each point of the contour, if the point lies inside of or on the superellipse.
+*/
+
 bool isFitConservative(vector<int> contourVector, double xc, double yc, double theta, double a, double b, double epsilon){
 	int no_contourPixels = int(contourVector.size()) / 2;
 	int* contourList = &contourVector[0];
@@ -244,13 +259,14 @@ bool isFitConservative(vector<int> contourVector, double xc, double yc, double t
 
 //#define DEBUG
 
-/// uses the ronin fitting of superellipses in a recursive way to fit mutliple superellipses to a contour until a certain quality level is reached
+/// uses the rosin fitting of superellipses in a recursive way to fit multiple superellipses to a contour until a certain quality level is reached
 /**
-* This method is called to recursively fit superellipses to a given contour, returning the fitted superellipse if the fit is of high quality
-* and splitting the input to fit two separate superellipses if the fit by one superellipse is of low quality.
+* This method recursively fits superellipse a superellipse to a given contour, returning the fitted superellipse if the fit is of high quality
+* and splitting the input to fit two separate superellipses if the fit by one superellipse is of low quality. The splitting process is followed by recursive calls,
+* so the contour is splitted until the fits achieve the desired quality.
 */
 
-vector<vector<double>> useRoninRecursive(vector<cv::Point> contourPoints, int offsetX, int offsetY, const int width, const int height, const int qualityValue) {
+vector<vector<double>> useRosinRecursive(vector<cv::Point> contourPoints, int offsetX, int offsetY, const int width, const int height, const int qualityValue) {
 	
 	//fit one ellipse to the contour
 	vector<int> contourVector;
@@ -262,11 +278,11 @@ vector<vector<double>> useRoninRecursive(vector<cv::Point> contourPoints, int of
 	int* contourList = &contourVector[0];
 
 	double xc, yc, theta, a, b, epsilon;
-	fitEllipseRonin2(contourList, no_contourPixels, &xc, &yc, &theta, &a, &b, &epsilon);
+	fitEllipseRosin2(contourList, no_contourPixels, &xc, &yc, &theta, &a, &b, &epsilon);
+
 	#ifdef DEBUG
 	image_output::pixelVectorToImage(contourVector, width, height, "initialContour.png");
 	#endif
-
 
 	//make "a" the larger axis of the fitted superellipse
 	if (a < b) {
@@ -294,14 +310,15 @@ vector<vector<double>> useRoninRecursive(vector<cv::Point> contourPoints, int of
 		vector<cv::Point> part2;
 		splitContourToVectors(contourPoints, width, height, xc, yc, theta, part1, part2);
 
-		//image_output::renderContourColored("originalContour.png", width, height, contourPoints);
-		
-		//image_output::renderContourColored("part1.png", width, height, part1);
-		//image_output::renderContourColored("part2.png", width, height, part2);
+		#ifdef DEBUG
+		image_output::renderContourColored("originalContour.png", width, height, contourPoints);
+		image_output::renderContourColored("contourPart1.png", width, height, part1);
+		image_output::renderContourColored("contourPart2.png", width, height, part2);
+		#endif
 
-
-		// ========= part 1 =========
-
+		// --------------------------
+		// ---        part 1       --
+		// --------------------------
 		cv::Mat part1Mat = cv::Mat(height, width, CV_8UC1);
 		part1Mat.setTo(0);
 		for (int i = 0; i < part1.size(); i++) {
@@ -355,8 +372,8 @@ vector<vector<double>> useRoninRecursive(vector<cv::Point> contourPoints, int of
 			}
 			//image_output::renderContourColored("part1_" + to_string(i) + "_offset.png", sizeX, sizeY, currentContourWithOffset);
 
-			//use ronin recursive on the new contour
-			vector<vector<double>> resultVector1 = useRoninRecursive(currentContourWithOffset, newOffsetX, newOffsetY, sizeX, sizeY, qualityValue);
+			//use rosin recursive on the new contour
+			vector<vector<double>> resultVector1 = useRosinRecursive(currentContourWithOffset, newOffsetX, newOffsetY, sizeX, sizeY, qualityValue);
 			
 			//add the offset to the calculated ellipses
 			for (int j = 0; j < resultVector1.size(); j++) {
@@ -365,10 +382,12 @@ vector<vector<double>> useRoninRecursive(vector<cv::Point> contourPoints, int of
 			}
 			totalResultVector1.insert(totalResultVector1.end(), resultVector1.begin(), resultVector1.end());
 		}
-		// ===== end of part 1 =====
+		// ------- end of part 1 -------
 
 
-		// ========= part 2 =========
+		// --------------------------
+		// ---        part 2       --
+		// --------------------------
 
 		cv::Mat part2Mat = cv::Mat(height, width, CV_8UC1);
 		part2Mat.setTo(0);
@@ -420,8 +439,8 @@ vector<vector<double>> useRoninRecursive(vector<cv::Point> contourPoints, int of
 				currentContourWithOffset.at(j) = newPoint;
 			}
 
-			//use ronin recursive on the new contour
-			vector<vector<double>> resultVector2 = useRoninRecursive(currentContourWithOffset, newOffsetX, newOffsetY, sizeX, sizeY, qualityValue);
+			//use rosin recursive on the new contour
+			vector<vector<double>> resultVector2 = useRosinRecursive(currentContourWithOffset, newOffsetX, newOffsetY, sizeX, sizeY, qualityValue);
 
 			//add the offset to the calculated ellipses
 			for (int j = 0; j < resultVector2.size(); j++) {
@@ -430,7 +449,7 @@ vector<vector<double>> useRoninRecursive(vector<cv::Point> contourPoints, int of
 			}
 			totalResultVector2.insert(totalResultVector2.end(), resultVector2.begin(), resultVector2.end());
 		}
-		// ===== end of part 2 =====
+		// ------- end of part 2 -------
 	
 		//combine the fitted ellipses from the recursive calls and return them
 		totalResultVector1.insert(totalResultVector1.end(), totalResultVector2.begin(), totalResultVector2.end());
@@ -462,4 +481,71 @@ vector<vector<double>> useRoninRecursive(vector<cv::Point> contourPoints, int of
 		return std::move(resultVector);
 	}
 	
+}
+
+
+
+
+
+
+
+/// this method seperates the given contours and resizes the image to the contour dimensions, then calls useRosinRecursive() on each contour 
+/**
+* This method is used to start the recursive fitting of superellipses to the given contours.
+* It clips the surrounding image of each contour to the contour dimension and calculates the corresponding offset, to achieve a significant performance optimization.
+* Then useRosonRecursive() is used to recursively fit superellipse to each of the contours.
+* All of the fitted superellipses are returned together.
+*/
+
+vector<vector<double>> startRosinRecursive(vector<vector<cv::Point>> contours, int &width, int &height, int quality) {
+	vector<vector<double>> totalEllipsesVector;
+
+	//for each contour:
+	for (int i = 0; i < contours.size(); i++) {
+		vector<cv::Point> currentContour = contours.at(i);
+
+		//determine dimension and offset of the contour
+		int minX = INT_MAX;
+		int maxX = INT_MIN;
+		int minY = INT_MAX;
+		int maxY = INT_MIN;
+		for (int j = 0; j < currentContour.size(); j++) {
+			cv::Point currentPoint = currentContour.at(j);
+			if (currentPoint.x < minX) minX = currentPoint.x;
+			if (currentPoint.x > maxX) maxX = currentPoint.x;
+			if (currentPoint.y < minY) minY = currentPoint.y;
+			if (currentPoint.y > maxY) maxY = currentPoint.y;
+		}
+		int sizeX = maxX - minX + 3;
+		int sizeY = maxY - minY + 3;
+		int offsetX = minX - 1;
+		int offsetY = minY - 1;
+
+
+		//substract the offset from the contour points
+		vector<cv::Point> currentContourWithOffset(currentContour.size());
+		for (int j = 0; j < currentContour.size(); j++) {
+			cv::Point currentPoint = currentContour.at(j);
+			cv::Point newPoint = cv::Point(currentPoint.x - offsetX, currentPoint.y - offsetY);
+			currentContourWithOffset.at(j) = newPoint;
+		}
+
+
+
+		//use recursive Rosin fitting to fit superellipses to the contour
+		vector<vector<double>> contourEllipsesVector = useRosinRecursive(currentContourWithOffset, offsetX, offsetY, sizeX, sizeY, quality);
+
+
+		//draw the fitted superellipses
+		//int err = processSuperellipsesFromVector(contourEllipsesVector, to_string(i) + ellipseImage, width, height);
+
+
+		//add the superellipses of this contour to the vector of all superellipses
+		totalEllipsesVector.insert(totalEllipsesVector.end(), contourEllipsesVector.begin(), contourEllipsesVector.end());
+	}
+	
+	return totalEllipsesVector;
+
+
+
 }

@@ -680,3 +680,116 @@
 
 ////recursively fit superellipses to the contours
 //vector<vector<double>> ellipsesVector = useRoninRecursive(pixelGrid, contourVector, width, height);
+
+
+
+
+
+
+
+
+
+
+//void splitContourToVectorsOld(vector<cv::Point> contourPoints, const int width, const int height, const double xc, const double yc, const double theta, vector<cv::Point> &splitPart1, vector<cv::Point> &splitPart2) {
+//
+//	const int numPixels = width * height;
+//
+//	cv::Point point1;
+//	cv::Point point2;
+//
+//
+//	//rotate 90 deg to split orthogonal to the ellipse orientation
+//	double newTheta = theta + 1.57079;
+//
+//
+//	//split line is horizontal
+//	if (newTheta == 0) {
+//		point1 = cv::Point(0, yc);
+//		point2 = cv::Point(width, yc);
+//	}
+//	//split line is vertical
+//	else if (theta < 0.001) {
+//		point1 = cv::Point(xc, 0);
+//		point2 = cv::Point(xc, height);
+//	}
+//	else {
+//		//use y = m*x +t:
+//		double m = tan(newTheta);	//m is tan(theta)
+//		double t = yc - m*xc;		//calculate t by using the known point xc,yc
+//
+//		//calculate point1 on the left side of the image
+//		int y1 = int(t);
+//
+//		//point1 is above the image -> calculate point1 on the top of the image
+//		if (y1 > height) {
+//			double x1d = (height - t) / m;
+//			int x1 = (int)x1d;
+//			point1 = cv::Point(x1, height);
+//		}
+//		//point1 is below the image -> calculate point1 on the bottom of the image
+//		else if (y1 < 0) {
+//			double x1d = (0 - t) / m;
+//			int x1 = (int)x1d;
+//			point1 = cv::Point(x1, 0);
+//		}
+//		//point1 is fine
+//		else {
+//			point1 = cv::Point(0, y1);
+//		}
+//
+//
+//
+//		//calculate point2 on the right side of the image
+//		int y2 = int(m * width + t);
+//
+//		//point2 is above the image -> calculate point2 on the top of the image
+//		if (y2 > height) {
+//			double x2d = (height - t) / m;
+//			int x2 = (int)x2d;
+//			point2 = cv::Point(x2, height);
+//		}
+//		//point2 is below the image -> calculate point2 on the bottom of the image
+//		else if (y2 < 0) {
+//			double x2d = (0 - t) / m;
+//			int x2 = (int)x2d;
+//			point2 = cv::Point(x2, 0);
+//		}
+//		//point2 is fine
+//		else {
+//			point2 = cv::Point(width, y2);
+//		}
+//
+//	}
+//
+//	//test each contour point against the split line and add it to the corresponding split part
+//	for (int i = 0; i < contourPoints.size(); i++) {
+//		cv::Point testPoint = contourPoints.at(i);
+//
+//		if (isLeftOf(testPoint, point1, point2)){
+//			splitPart1.push_back(testPoint);
+//		}
+//		else {
+//			splitPart2.push_back(testPoint);
+//		}
+//	}
+//
+//	//rasterize the split line
+//	vector<cv::Point> splitLine = util::bresenhamLine(point1, point2);
+//
+//	//test for each point of the splitLine if it is contained in the original contour
+//	for (int i = 0; i < splitLine.size(); i++) {
+//		cv::Point testPoint = splitLine.at(i);
+//		double val = cv::pointPolygonTest(contourPoints, testPoint, false);
+//		//point is inside or on the edge of the contour
+//		if (val >= 0) {
+//			//add the contained points of the split line to both splitParts
+//			splitPart1.push_back(testPoint);
+//			splitPart2.push_back(testPoint);
+//		}
+//	}
+//
+//}
+
+
+
+

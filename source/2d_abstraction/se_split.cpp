@@ -15,22 +15,27 @@ using ceres::Solver;
 
 
 
-
+/// sort method to sort two cv::Point by x-coordinate
 bool sortPointsByX(cv::Point2d &p1, cv::Point2d &p2) {
 	return p1.x < p2.x;
 }
 
+
+/// sort method to sort two cv::Point by y-coordinate
 bool sortPointsByY(cv::Point2d &p1, cv::Point2d &p2) {
 	return p1.y < p2.y;
 }
 
 
-
+/// utility method to test if testPoint is left of the line from point1 to point2 - All points given as double-tuples
+/**
+* This method tests if the point testPoint lies left of the line from point1 to point2 by determinant evaluation.
+* Returns true if left of, false if right of or on the line.
+*/
 bool isLeftOf(tuple<double, double> testPoint, tuple<double, double> point1, tuple<double, double> point2) {
 
 	double det = (get<0>(point2) -get<0>(point1))*(get<1>(testPoint) - get<1>(point1)) - (get<0>(testPoint) -get<0>(point1))*(get<1>(point2) -get<1>(point1));
 	
-
 	if (det > 0) {
 		return true;
 	}
@@ -40,11 +45,15 @@ bool isLeftOf(tuple<double, double> testPoint, tuple<double, double> point1, tup
 }
 
 
+/// utility method to test if testPoint is left of the line from point1 to point2 - All points given as cv::Point
+/**
+* This method tests if the point testPoint lies left of the line from point1 to point2 by determinant evaluation.
+* Returns true if left of, false if right of or on the line.
+*/
 bool isLeftOf(cv::Point testPoint, cv::Point point1, cv::Point point2) {
 
 	double det = (point2.x - point1.x)*(testPoint.y - point1.y) - (testPoint.x - point1.x)*(point2.y - point1.y);
 
-
 	if (det > 0) {
 		return true;
 	}
@@ -57,29 +66,17 @@ bool isLeftOf(cv::Point testPoint, cv::Point point1, cv::Point point2) {
 
 
 
+/// This method splits an image given as a pixelGrid by using a split line to two vectors containing the coordinates of the points
 
-
-
-
-
-
-
-
-
-void splitImageToGrids(int* pixelGrid, const int width, const int height, double xc, double yc, double theta, vector<int> &splitPart1, vector<int> &splitPart2) {
+void splitImagegridToCoordinatevectors(int* pixelGrid, const int width, const int height, double xc, double yc, double theta, vector<int> &splitPart1, vector<int> &splitPart2) {
 		
 	const int numPixels = width * height;
 
 	tuple<double, double> point1;
 	tuple<double, double> point2;
 
-	//cout << "theta: " << theta << endl;
-	//cout << "xc: " << xc << endl;
-	//cout << "yc: " << yc << endl;
-
 	//rotate 90 deg
 	theta += 1.57079;
-
 
 	if (theta == 0) {
 		point1 = make_tuple(0, yc);
@@ -88,21 +85,13 @@ void splitImageToGrids(int* pixelGrid, const int width, const int height, double
 	else {
 		double tanTheta = tan(theta);
 		double t = yc - tanTheta*xc;
-
-		//cout << "tanTheta: " << tanTheta << endl;
-		//cout << "t: " << t << endl;
-
 		
 		int y1 = int(t);
 		point1 = make_tuple(0, y1);
-		//cout << "point1: " << 0 << ", " << y1 << endl;
 
 		int y2 = int(tanTheta * width + t);
 		point2 = make_tuple(width, y2);
-		//cout << "point2: " << width << ", " << y2 << endl;
-
 	}
-
 
 	double x, y;
 	for (int i = 0; i < width*height; i++) {
@@ -118,19 +107,14 @@ void splitImageToGrids(int* pixelGrid, const int width, const int height, double
 			}
 		}
 	}
-
 }
 
 
 
-/**
-* This method splits a pixelGrid given as input into two binary Mats (1 channel, uchar) along a line given by a point xc,yc and an angle theta.
-*
-*
-*/
 
+/// This method splits an image given as a pixelGrid by using a split line to two Mats
 
-void splitImageToMats(vector<int> pixelGrid, const int width, const int height, double xc, double yc, double theta, Mat &splitPart1, Mat &splitPart2) {
+void splitImagegridToMats(vector<int> pixelGrid, const int width, const int height, double xc, double yc, double theta, Mat &splitPart1, Mat &splitPart2) {
 	Mat internPart1 = Mat(height, width, CV_8UC1);
 	Mat internPart2 = Mat(height, width, CV_8UC1);
 	internPart1.setTo((uchar)0);
@@ -140,10 +124,6 @@ void splitImageToMats(vector<int> pixelGrid, const int width, const int height, 
 
 	tuple<double, double> point1;
 	tuple<double, double> point2;
-
-	//cout << "theta: " << theta << endl;
-	//cout << "xc: " << xc << endl;
-	//cout << "yc: " << yc << endl;
 
 	//rotate 90 deg
 	theta += 1.57079;
@@ -157,18 +137,11 @@ void splitImageToMats(vector<int> pixelGrid, const int width, const int height, 
 		double tanTheta = tan(theta);
 		double t = yc - tanTheta*xc;
 
-		//cout << "tanTheta: " << tanTheta << endl;
-		//cout << "t: " << t << endl;
-
-
 		int y1 = int(t);
 		point1 = make_tuple(0, y1);
-		//cout << "point1: " << 0 << ", " << y1 << endl;
 
 		int y2 = int(tanTheta * width + t);
 		point2 = make_tuple(width, y2);
-		//cout << "point2: " << width << ", " << y2 << endl;
-
 	}
 
 
@@ -194,14 +167,7 @@ void splitImageToMats(vector<int> pixelGrid, const int width, const int height, 
 
 
 
-
-
-/**
-* This method splits a contour along a line given by a point xc,yc and an angle theta.
-*
-*
-*/
-
+/// This method splits an contour given as a vector of cv::Point by using a split line to two new contours given as vectors of cv::Point
 
 void splitContourToVectors(vector<cv::Point> contourPoints, const int width, const int height, const double xc, const double yc, const double theta, vector<cv::Point> &splitPart1, vector<cv::Point> &splitPart2) {
 
@@ -288,10 +254,6 @@ void splitContourToVectors(vector<cv::Point> contourPoints, const int width, con
 			splitPart2.push_back(testPoint);
 		}
 	}
-
-	//image_output::renderContourColored("testContour.png", width, height, contourPoints);
-	//image_output::renderLineToImage("testSplitLine.png", width, height, point1, point2);
-
 
 
 	//=======================================================================
@@ -385,207 +347,6 @@ void splitContourToVectors(vector<cv::Point> contourPoints, const int width, con
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-void splitContourToVectorsOld(vector<cv::Point> contourPoints, const int width, const int height, const double xc, const double yc, const double theta, vector<cv::Point> &splitPart1, vector<cv::Point> &splitPart2) {
-
-	const int numPixels = width * height;
-
-	cv::Point point1;
-	cv::Point point2;
-
-
-	//rotate 90 deg to split orthogonal to the ellipse orientation
-	double newTheta = theta + 1.57079;
-
-
-	//split line is horizontal
-	if (newTheta == 0) {
-		point1 = cv::Point(0, yc);
-		point2 = cv::Point(width, yc);
-	}
-	//split line is vertical
-	else if (theta < 0.001) {
-		point1 = cv::Point(xc, 0);
-		point2 = cv::Point(xc, height);
-	}
-	else {
-		//use y = m*x +t:
-		double m = tan(newTheta);	//m is tan(theta)
-		double t = yc - m*xc;		//calculate t by using the known point xc,yc
-
-		//calculate point1 on the left side of the image
-		int y1 = int(t);
-
-		//point1 is above the image -> calculate point1 on the top of the image
-		if (y1 > height) {
-			double x1d = (height - t) / m;
-			int x1 = (int)x1d;
-			point1 = cv::Point(x1, height);
-		}
-		//point1 is below the image -> calculate point1 on the bottom of the image
-		else if (y1 < 0) {
-			double x1d = (0 - t) / m;
-			int x1 = (int)x1d;
-			point1 = cv::Point(x1, 0);
-		}
-		//point1 is fine
-		else {
-			point1 = cv::Point(0, y1);
-		}
-
-
-
-		//calculate point2 on the right side of the image
-		int y2 = int(m * width + t);
-
-		//point2 is above the image -> calculate point2 on the top of the image
-		if (y2 > height) {
-			double x2d = (height - t) / m;
-			int x2 = (int)x2d;
-			point2 = cv::Point(x2, height);
-		}
-		//point2 is below the image -> calculate point2 on the bottom of the image
-		else if (y2 < 0) {
-			double x2d = (0 - t) / m;
-			int x2 = (int)x2d;
-			point2 = cv::Point(x2, 0);
-		}
-		//point2 is fine
-		else {
-			point2 = cv::Point(width, y2);
-		}
-
-	}
-
-	//test each contour point against the split line and add it to the corresponding split part
-	for (int i = 0; i < contourPoints.size(); i++) {
-		cv::Point testPoint = contourPoints.at(i);
-
-		if (isLeftOf(testPoint, point1, point2)){
-			splitPart1.push_back(testPoint);
-		}
-		else {
-			splitPart2.push_back(testPoint);
-		}
-	}
-
-	//rasterize the split line
-	vector<cv::Point> splitLine = util::bresenhamLine(point1, point2);
-
-	//test for each point of the splitLine if it is contained in the original contour
-	for (int i = 0; i < splitLine.size(); i++) {
-		cv::Point testPoint = splitLine.at(i);
-		double val = cv::pointPolygonTest(contourPoints, testPoint, false);
-		//point is inside or on the edge of the contour
-		if (val >= 0) {
-			//add the contained points of the split line to both splitParts
-			splitPart1.push_back(testPoint);
-			splitPart2.push_back(testPoint);
-		}
-	}
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-void getContours(string inputFile, string contourFile) {
-	ifstream infile(inputFile);
-	int width, height;
-	string dummy;
-	infile >> dummy >> width;
-	infile >> dummy >> height;
-
-
-	int* pixels = new int[height * width];
-	for (int i = 0; i < height*width; i++) {
-		pixels[i] = 0;
-	}
-
-	int x, y;
-
-	while (infile >> x >> y) {
-		pixels[x + y*width] = 100;
-	}
-
-	vector<int> reducedPixels = util::reducePixels(pixels, width, height, 1000, "test.png");
-
-
-	ofstream outfile(contourFile);
-
-	outfile << "w " << width << endl;
-	outfile << "h " << height << endl;
-
-	for (int i = 0; i < width*height; i++) {
-		if (reducedPixels[i] != 0) {
-			int y = i / width;
-			int x = i % width;
-			outfile << x << " " << y << endl;
-		}
-	}
-
-}
-
-
-
-
-
-void getContoursRonin(string inputFile, string contourFile) {
-	ifstream infile(inputFile);
-	int width, height;
-	string dummy;
-	infile >> dummy >> width;
-	infile >> dummy >> height;
-
-
-	int* pixels = new int[height * width];
-	for (int i = 0; i < height*width; i++) {
-		pixels[i] = 0;
-	}
-
-	int x, y;
-
-	while (infile >> x >> y) {
-		pixels[x + y*width] = 100;
-	}
-
-	vector<int> reducedPixels = util::reducePixels(pixels, width, height, 1000, "test.png");
-
-
-	ofstream outfile(contourFile);
-
-	outfile << "pixel" << endl;
-	outfile << "list: 0" << endl;
-
-	for (int i = 0; i < width*height; i++) {
-		if (reducedPixels[i] != 0) {
-			int y = i / width;
-			int x = i % width;
-			outfile << x << " " << y << endl;
-		}
-	}
-	outfile << -1 << " " << -1 << endl;
-
-}
-
 
 
 

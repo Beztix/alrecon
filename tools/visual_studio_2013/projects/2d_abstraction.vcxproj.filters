@@ -38,12 +38,6 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\source\2d_abstraction\se_ronin_core.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\source\2d_abstraction\se_ronin_recursive.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\source\2d_abstraction\image_output.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -57,6 +51,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\source\2d_abstraction\blob.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\2d_abstraction\se_rosin_core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\2d_abstraction\se_rosin_recursive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -88,12 +88,6 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\unused.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\source\2d_abstraction\se_ronin_core.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\source\2d_abstraction\se_ronin_recursive.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\source\2d_abstraction\image_output.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -107,6 +101,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\source\2d_abstraction\blob.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\2d_abstraction\se_rosin_core.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\2d_abstraction\se_rosin_recursive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
