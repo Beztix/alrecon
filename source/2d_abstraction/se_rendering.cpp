@@ -9,6 +9,7 @@
 
 #include "se_rendering.h"
 #include "image_output.h"
+#include "se_util.h"
 
 #define _USE_MATH_DEFINES
 
@@ -140,7 +141,7 @@ int processSuperellipsesFromArray(double* ellipses, string outputFile) {
 *
 */
 
-int processSuperellipsesFromVector(vector<vector<double>> superellipses, string outputFile, const int width, const int height) {
+int processSuperellipsesFromVector(vector<se::superellipse> superellipses, string outputFile, const int width, const int height) {
 
 	double xc, yc, a, b, epsilon, theta;
 
@@ -149,15 +150,9 @@ int processSuperellipsesFromVector(vector<vector<double>> superellipses, string 
 
 	// reading superellipse parameters
 	for (int i = 0; i < superellipses.size(); i++) {
-		vector<double> superellipse = superellipses.at(i);
-		xc =	superellipse.at(0);
-		yc =	superellipse.at(1);
-		theta = superellipse.at(2);
-		a =		superellipse.at(3);
-		b =		superellipse.at(4);
-		epsilon = superellipse.at(5);
+		se::superellipse superellipse = superellipses.at(i);
 
-		pointListOfEllipse = renderSuperellipseToPixelvector(xc, yc, a, b, epsilon, theta);
+		pointListOfEllipse = renderSuperellipseToPixelvector(superellipse.xc, superellipse.yc, superellipse.a, superellipse.b, superellipse.epsilon, superellipse.theta);
 		listOfEllipses.emplace_back(pointListOfEllipse);
 	}
 

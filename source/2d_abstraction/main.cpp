@@ -23,6 +23,7 @@
 #include "image_input.h"
 #include "image_output.h"
 #include "util.h"
+#include "se_util.h"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -133,27 +134,24 @@ int main() {
 	if (USE_SUPERELLIPSES_ROSIN) {
 
 		//++++++++++++++++++++++++++++
+		bool RECURSIVE =	true;
+		bool TREE =			false;
+
 		string inputName =	"image";
-		int quality =		 200;
+		int quality =		 50000;
 		int iterations =     100;
 		//++++++++++++++++++++++++++++
 
-
 		string inputImage = "images/" + inputName + ".png";
-		string ellipseImage = "se_rosin_" + inputName + "_ellipseImage.png";
-		string combinedImage = "se_rosin_" + inputName + "_combined.png";
 
 		int width;
 		int height;
-
-
 
 		LARGE_INTEGER frequency;        // ticks per second
 		LARGE_INTEGER t1, t2, t3, t4, t5, t6;	//ticks
 		QueryPerformanceFrequency(&frequency);
 		double totalComputeDuration = 0;
 
-		
 		//load the contours from the image
 		QueryPerformanceCounter(&t1);
 		vector<vector<cv::Point>> contours = image_input::getContoursFromImage(inputImage, width, height);
@@ -163,41 +161,75 @@ int main() {
 		cout << "prepareDuration:     " << prepareDuration << "ms" << endl;
 
 
-		vector<vector<double>> totalEllipsesVector;
 
-		
-		//use rosin fitting to fit superellipses to the contours
-		for (int i = 0; i < iterations; i++) {
-			totalEllipsesVector.clear();
+		if (RECURSIVE) {
+			string ellipseImage = "se_rosin_rec_" + inputName + "_ellipseImage_" + to_string(quality) + ".png";
+			string combinedImage = "se_rosin_rec_" + inputName + "_combined" + to_string(quality) + ".png";
 
-			QueryPerformanceCounter(&t3);
-			totalEllipsesVector = startRosinRecursive(contours, width, height, quality);
-				
-			QueryPerformanceCounter(&t4);
-			double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
-			cout << "computeDuration:     " << computeDuration << "ms" << endl;
-				
-			totalComputeDuration = totalComputeDuration + computeDuration;
+			vector<se::superellipse> totalEllipsesVector;
+
+			//do the whole computation multiple times (performance averageing)
+			for (int i = 0; i < iterations; i++) {
+				totalEllipsesVector.clear();
+
+				//use recursive rosin fitting to fit superellipses to the contours
+
+				QueryPerformanceCounter(&t3);
+				totalEllipsesVector = startRosinRecursive(contours, width, height, quality);
+
+				QueryPerformanceCounter(&t4);
+				double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
+				cout << "computeDuration:     " << computeDuration << "ms" << endl;
+
+				totalComputeDuration = totalComputeDuration + computeDuration;
+			}
+
+			cout << endl;
+			cout << "totalComputeDuration:         " << totalComputeDuration << "ms" << endl;
+			cout << "medium compute Duration:      " << totalComputeDuration / iterations << "ms" << endl;
+
+			cout << endl;
+			cout << "quality used:                 " << quality << endl;
+			cout << "number of superellipses:      " << totalEllipsesVector.size() << endl;
+
+			//render the fitted superellipses to an image file
+			QueryPerformanceCounter(&t5);
+			int err = processSuperellipsesFromVector(totalEllipsesVector, ellipseImage, width, height);
+
+			//combine the original and the ellipse image
+			image_output::combineOriginalAndEllipseImage(inputImage, ellipseImage, combinedImage);
+
+			QueryPerformanceCounter(&t6);
+			double renderDuration = (t6.QuadPart - t5.QuadPart) * 1000.0 / frequency.QuadPart;
+			cout << "renderDuration:               " << renderDuration << "ms" << endl;
 		}
 
-		cout << endl;
-		cout << "totalComputeDuration:         " << totalComputeDuration << "ms" << endl;
-		cout << "medium compute Duration:      " << totalComputeDuration / iterations << "ms" << endl;
 
-		cout << endl;
-		cout << "quality used:                 " << quality << endl;
-		cout << "number of supeellipses:       " << totalEllipsesVector.size() << endl;
 
-		//render the fitted superellipses to an image file
-		QueryPerformanceCounter(&t5);
-		int err = processSuperellipsesFromVector(totalEllipsesVector, ellipseImage, width, height);
+		if (TREE) {
+			string ellipseImage = "se_rosin_tree_" + inputName + "_ellipseImage_" + to_string(quality) + ".png";
+			string combinedImage = "se_rosin_tree_" + inputName + "_combined" + to_string(quality) + ".png";
 
-		//combine the original and the ellipse image
-		image_output::combineOriginalAndEllipseImage(inputImage, ellipseImage, combinedImage);
 
-		QueryPerformanceCounter(&t6);
-		double renderDuration = (t6.QuadPart - t5.QuadPart) * 1000.0 / frequency.QuadPart;
-		cout << "renderDuration:               " << renderDuration << "ms" << endl;
+			//do the whole computation multiple times (performance averageing)
+			for (int i = 0; i < iterations; i++) {
+
+				QueryPerformanceCounter(&t3);
+		
+
+
+
+
+				QueryPerformanceCounter(&t4);
+				double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
+				cout << "computeDuration:     " << computeDuration << "ms" << endl;
+
+				totalComputeDuration = totalComputeDuration + computeDuration;
+			}
+
+		}
+
+		
 
 	}
 

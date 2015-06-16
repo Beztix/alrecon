@@ -3,11 +3,12 @@
 
 #include <iostream>
 #include <vector>
+#include "se_util.h"
 
 
 int processSuperellipsesFromArray(double* ellipses, std::string outputFile);
 
-int processSuperellipsesFromVector(std::vector<std::vector<double>> superellipses, std::string outputFile, const int width, const int height);
+int processSuperellipsesFromVector(std::vector<se::superellipse> superellipses, std::string outputFile, const int width, const int height);
 
 
 #endif /* SE_RENDERING*/

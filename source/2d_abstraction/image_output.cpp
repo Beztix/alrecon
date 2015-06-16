@@ -235,8 +235,8 @@ namespace image_output {
 
 
 	void renderSuperEllipseToImage(string imgName, int imgWidth, int imgHeight, double xc, double yc, double theta, double a, double b, double epsilon) {
-		vector<double> superellipse = { xc, yc, theta, a, b, epsilon };
-		vector<vector<double>> ellipsesVector;
+		se::superellipse superellipse(xc, yc, theta, a, b, epsilon);
+		vector<se::superellipse> ellipsesVector;
 		ellipsesVector.emplace_back(superellipse);
 
 		processSuperellipsesFromVector(ellipsesVector, imgName, imgWidth, imgHeight);
