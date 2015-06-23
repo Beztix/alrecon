@@ -72,7 +72,7 @@ vector<se::superellipse> useRosinRecursive(vector<cv::Point> contourPoints, int 
 	#endif
 
 	//evaluate the fit
-	double currentQualityValue = se::evaluateFitEuclidean(contourVector, xc, yc, theta, a, b, epsilon);
+	double currentQualityValue = se::evaluateFitEuclidean(contourPoints, xc, yc, theta, a, b, epsilon);
 
 
 	//===========================================================
@@ -80,7 +80,7 @@ vector<se::superellipse> useRosinRecursive(vector<cv::Point> contourPoints, int 
 	//===========================================================
 	if (currentQualityValue > qualityValue) {
 
-		//split the pixel grid
+		//split the contour grid
 		vector<cv::Point> part1;
 		vector<cv::Point> part2;
 		splitContourToVectors(contourPoints, width, height, xc, yc, theta, part1, part2);
@@ -238,7 +238,7 @@ vector<se::superellipse> useRosinRecursive(vector<cv::Point> contourPoints, int 
 	//=====================================
 	else {
 		//test if the fit is already conservative
-		bool conservative = se::isFitConservative(contourVector, xc, yc, theta, a, b, epsilon);
+		bool conservative = se::isFitConservative(contourPoints, xc, yc, theta, a, b, epsilon);
 		
 		//if not conservative: enlarge the superellipse until it is conservative
 		while (!conservative) {
@@ -247,7 +247,7 @@ vector<se::superellipse> useRosinRecursive(vector<cv::Point> contourPoints, int 
 			if (epsilon > 2) {
 				epsilon -= 0.3;
 			}
-			conservative = se::isFitConservative(contourVector, xc, yc, theta, a, b, epsilon);
+			conservative = se::isFitConservative(contourPoints, xc, yc, theta, a, b, epsilon);
 		}
 
 		//return the fitted ellipse

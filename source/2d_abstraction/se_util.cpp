@@ -1,5 +1,7 @@
 
 #include <vector>
+#include <opencv2/core/core.hpp>
+
 
 
 using namespace std;
@@ -17,9 +19,7 @@ namespace se {
 	* The fitValue is calculated as the sum of the values received by putting the points of the contour in the implicid superellipse equation.
 	*/
 
-	double evaluateFitImplicid(vector<int> contourVector, double xc, double yc, double theta, double a, double b, double epsilon) {
-		int no_contourPixels = int(contourVector.size()) / 2;
-		int* contourList = &contourVector[0];
+	double evaluateFitImplicid(vector<cv::Point> contour, double xc, double yc, double theta, double a, double b, double epsilon) {
 		double cosine2 = cos(-theta);
 		double sine2 = sin(-theta);
 		double tx, ty;
@@ -29,9 +29,9 @@ namespace se {
 		double exponent = 2.0 / epsilon;
 
 		//for each point of the contour:
-		for (int i = 0; i < no_contourPixels; i++){
-			x = contourList[i * 2];
-			y = contourList[i * 2 + 1];
+		for (int i = 0; i < contour.size(); i++){
+			x = contour.at(i).x;
+			y = contour.at(i).y;
 
 			//transform coordinates in the coordinatesystem of the superellipse
 			tx = x - xc;
@@ -83,9 +83,7 @@ namespace se {
 	* For larger contours, not every contour point is evaluated, but instead an appropriate stepsize is chosen.
 	*/
 
-	double evaluateFitEuclidean(vector<int> contourVector, double xc, double yc, double theta, double a, double b, double epsilon) {
-		int no_contourPixels = int(contourVector.size()) / 2;
-		const int* contourList = &contourVector[0];
+	double evaluateFitEuclidean(vector<cv::Point> contour, double xc, double yc, double theta, double a, double b, double epsilon) {
 		double cosine2 = cos(-theta);
 		double sine2 = sin(-theta);
 		double x, y, xTrans, yTrans, xRel, yRel;
@@ -99,21 +97,21 @@ namespace se {
 
 		//calculate a stepsize
 		int stepsize;
-		if (no_contourPixels < 20) {
+		if (contour.size() < 20) {
 			stepsize = 1;
 		}
-		else if (no_contourPixels > 400) {
+		else if (contour.size() > 400) {
 			stepsize = 20;
 		}
 		else {
-			double stepsizeD = no_contourPixels / 20;
+			double stepsizeD = contour.size() / 20;
 			stepsize = (int)stepsizeD;
 		}
 
 		//for each point of the contour:
-		for (int i = 0; i < no_contourPixels; i += stepsize){
-			x = contourList[i * 2];
-			y = contourList[i * 2 + 1];
+		for (int i = 0; i < contour.size(); i += stepsize){
+			x = contour.at(i).x;
+			y = contour.at(i).y;
 
 			//transform coordinates to the coordinatesystem of the superellipse
 			xTrans = x - xc;
@@ -176,9 +174,7 @@ namespace se {
 	* This is achieved by checking for each point of the contour, if the point lies inside of or on the superellipse.
 	*/
 
-	bool isFitConservative(vector<int> contourVector, double xc, double yc, double theta, double a, double b, double epsilon){
-		int no_contourPixels = int(contourVector.size()) / 2;
-		int* contourList = &contourVector[0];
+	bool isFitConservative(vector<cv::Point> contour, double xc, double yc, double theta, double a, double b, double epsilon){
 		double cosine2 = cos(-theta);
 		double sine2 = sin(-theta);
 		double x, y, xTrans, yTrans, xRel, yRel;
@@ -191,9 +187,9 @@ namespace se {
 		double termOne = 1 / pow(a, exponent);
 
 		//for each point of the contour:
-		for (int i = 0; i < no_contourPixels; i++){
-			x = contourList[i * 2];
-			y = contourList[i * 2 + 1];
+		for (int i = 0; i < contour.size(); i++){
+			x = contour.at(i).x;
+			y = contour.at(i).y;
 
 			//transform coordinates to the coordinatesystem of the superellipse
 			xTrans = x - xc;

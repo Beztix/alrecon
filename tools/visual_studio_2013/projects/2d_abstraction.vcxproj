@@ -29,6 +29,7 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\main.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_rosin_core.c" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_rendering.cpp" />
+    <ClCompile Include="..\..\..\source\2d_abstraction\se_rosin_tree.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_rosin_recursive.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_util.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_split.cpp" />
@@ -49,12 +50,14 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\image_input.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_rosin_core.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_rendering.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\se_rosin_tree.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_rosin_recursive.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_util.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_split.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\text_input.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\text_output.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\tree.hh" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\tree_util.hh" />
     <ClInclude Include="..\..\..\source\2d_abstraction\util.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

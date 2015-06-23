@@ -15,6 +15,7 @@
 
 #include "se_rendering.h"
 #include "util.h"
+#include "se_util.h"
 
 using namespace cv;
 using namespace std;
@@ -235,7 +236,7 @@ namespace image_output {
 
 
 	void renderSuperEllipseToImage(string imgName, int imgWidth, int imgHeight, double xc, double yc, double theta, double a, double b, double epsilon) {
-		se::superellipse superellipse(xc, yc, theta, a, b, epsilon);
+		se::superellipse superellipse(xc, yc, theta, a, b, epsilon, -1);
 		vector<se::superellipse> ellipsesVector;
 		ellipsesVector.emplace_back(superellipse);
 

@@ -24,6 +24,8 @@
 #include "image_output.h"
 #include "util.h"
 #include "se_util.h"
+#include "tree.hh"
+#include "tree_util.hh"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -46,6 +48,7 @@
 #include "se_rendering.h"
 #include "se_rosin_core.h"
 #include "se_rosin_recursive.h"
+#include "se_rosin_tree.h"
 #include "se_split.h"
 #include "convexHull.h"
 #include "convexHullForC.h"
@@ -134,12 +137,13 @@ int main() {
 	if (USE_SUPERELLIPSES_ROSIN) {
 
 		//++++++++++++++++++++++++++++
-		bool RECURSIVE =	true;
-		bool TREE =			false;
+		bool RECURSIVE =	false;
+		bool TREE =			true;
 
-		string inputName =	"image";
-		int quality =		 50000;
-		int iterations =     100;
+		string inputName =		"image";
+		int quality =			200;
+		vector<int> qualityValues =	{ 50000 };
+		int iterations =		1;
 		//++++++++++++++++++++++++++++
 
 		string inputImage = "images/" + inputName + ".png";
@@ -211,14 +215,49 @@ int main() {
 			string combinedImage = "se_rosin_tree_" + inputName + "_combined" + to_string(quality) + ".png";
 
 
-			//do the whole computation multiple times (performance averageing)
+			//do the whole computation multiple times (performance averaging)
 			for (int i = 0; i < iterations; i++) {
 
 				QueryPerformanceCounter(&t3);
 		
 
+				tree<string> testTree;
+				tree<string>::iterator testTop;
+				testTop = testTree.begin();
+
+				testTree.insert(testTop, "eins");
 
 
+				for (int i = 0; i < 5; i++) {
+					tree<string>::iterator newTestTop;
+					newTestTop = testTree.begin();
+					testTree.append_child(newTestTop, to_string(i));
+				}
+
+				kptree::print_tree_bracketed(testTree, cout);
+
+
+
+
+				tree<se::contourAndSe> seTree;
+				tree<se::contourAndSe>::iterator top = seTree.begin();
+				se::contourAndSe rootEllipse = se::contourAndSe();
+				
+				seTree.insert(top, rootEllipse);
+
+				kptree::print_tree_bracketed(seTree);
+
+				startRosinTree(seTree, contours, width, height, qualityValues);
+
+				kptree::print_tree_bracketed(seTree);
+
+				int depth = seTree.max_depth();
+
+
+				vector<se::superellipse> ellipses1 = se::getEllipsesOfGivenDepth(seTree, 1);
+				int err = processSuperellipsesFromVector(ellipses1, "ellipses1.png" , width, height);
+
+			
 
 				QueryPerformanceCounter(&t4);
 				double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
