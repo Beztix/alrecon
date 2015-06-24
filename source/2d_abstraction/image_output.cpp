@@ -15,7 +15,6 @@
 
 #include "se_rendering.h"
 #include "util.h"
-#include "se_util.h"
 
 using namespace cv;
 using namespace std;

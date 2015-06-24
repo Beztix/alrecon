@@ -8,7 +8,9 @@
 #include "se_util.h"
 #include "se_split.h"
 #include "tree.hh"
+#include "tree_util.hh"
 #include "se_rosin_core.h"
+
 
 
 using namespace std;
@@ -53,6 +55,39 @@ namespace se {
 		return initialFit;
 	}
 
+
+
+
+	se::superellipse useRosinOnceConservative(vector<cv::Point> contourPoints, const int width, const int height) {
+	
+		//do the initial fit
+		se::superellipse fit = useRosinOnce(contourPoints, width, height);
+
+		float xc = fit.xc;
+		float yc = fit.yc;
+		float theta = fit.theta;
+		float a = fit.a;
+		float b = fit.b;
+		float epsilon = fit.epsilon;
+
+
+		//test if the fit is already conservative
+		bool conservative = se::isFitConservative(contourPoints, xc, yc, theta, a, b, epsilon);
+
+		//if not conservative: enlarge the superellipse until it is conservative
+		while (!conservative) {
+			a += 0.5;
+			b += 0.5;
+			if (epsilon > 2) {
+				epsilon -= 0.3;
+			}
+			conservative = se::isFitConservative(contourPoints, xc, yc, theta, a, b, epsilon);
+		}
+
+		//return the fitted ellipse
+		se::superellipse conservativeEllipse = se::superellipse(xc, yc, theta, a, b, epsilon, fit.quality);
+		return conservativeEllipse;
+	}
 
 
 
@@ -265,7 +300,7 @@ namespace se {
 
 
 		if (!initialNode.alreadyFitted) {
-			se::superellipse fit = useRosinOnce(initialNode.contour, initialNode.width, initialNode.height);
+			se::superellipse fit = useRosinOnceConservative(initialNode.contour, initialNode.width, initialNode.height);
 			initialNode.setEllipse(fit);
 		}
 
@@ -293,7 +328,7 @@ namespace se {
 
 
 
-	void startRosinTree(tree<contourAndSe> seTree, vector<vector<cv::Point>> contours, int width, int height, vector<int> qualityValues) {
+	void startRosinTree(tree<contourAndSe> &seTree, vector<vector<cv::Point>> contours, int width, int height, vector<int> qualityValues) {
 
 		tree<se::contourAndSe>::iterator top = seTree.begin();
 
@@ -334,17 +369,26 @@ namespace se {
 
 
 			//use Rosin fitting to fit a single superellipse to the contour
-			se::superellipse initialFit = useRosinOnce(currentContourWithOffset, sizeX, sizeY);
+			se::superellipse initialFit = useRosinOnceConservative(currentContourWithOffset, sizeX, sizeY);
 
 			//build a container for the fit
 			se::contourAndSe initialContainer = se::contourAndSe(currentContourWithOffset, sizeX, sizeY, offsetX, offsetY, initialFit);
 
-			int size1 = seTree.size();
+			//int size1 = seTree.size();
+			//cout << endl;
+			//cout << "tree at the beginning of startRosinTree() - iteration: " << i << " tree size: " << size1 << endl;
+			//kptree::print_tree_bracketed(seTree);
+			//cout << endl;
+
 			//add the initial fit to the seTree
 			seTree.append_child(top, initialContainer);
 
-			int size2 = seTree.size();
-			int dummy = 5;
+
+			//int size2 = seTree.size();
+			//cout << endl;
+			//cout << "tree at the beginning of startRosinTree() - iteration: " << i << " tree size: " << size2 << endl;
+			//kptree::print_tree_bracketed(seTree);
+			//cout << endl;
 		}
 
 

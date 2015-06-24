@@ -103,21 +103,20 @@ namespace se {
 			fittedEllipse = mfittedEllipse;
 		}
 
-		//friend ostream& operator<<(ostream& os, const contourAndSe& c);
+		friend std::ostream& operator<<(std::ostream& os, const se::contourAndSe& c)
+		{
+			os << c.offSetX << ',' << c.offSetY;
+			return os;
+		}
 
 
 	};
 
-
-
-	std::ostream& operator<<(std::ostream& os, const contourAndSe& c)
-	{
-		os << c.offSetX << ',' << c.offSetY;
-		return os;
-	}
-
-
 }
+
+
+
+
 
 
 

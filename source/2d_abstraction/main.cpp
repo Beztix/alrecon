@@ -142,8 +142,8 @@ int main() {
 
 		string inputName =		"image";
 		int quality =			200;
-		vector<int> qualityValues =	{ 50000 };
-		int iterations =		1;
+		vector<int> qualityValues =	{ 50000 , 10000 , 1000 , 200 ,};
+		int iterations =		100;
 		//++++++++++++++++++++++++++++
 
 		string inputImage = "images/" + inputName + ".png";
@@ -211,53 +211,33 @@ int main() {
 
 
 		if (TREE) {
-			string ellipseImage = "se_rosin_tree_" + inputName + "_ellipseImage_" + to_string(quality) + ".png";
-			string combinedImage = "se_rosin_tree_" + inputName + "_combined" + to_string(quality) + ".png";
+			string ellipseImagePart = "se_rosin_tree_" + inputName + "_ellipseImage_";
+			string combinedImagePart = "se_rosin_tree_" + inputName + "_combined_";
 
+			tree<se::contourAndSe> seTree;
 
 			//do the whole computation multiple times (performance averaging)
 			for (int i = 0; i < iterations; i++) {
+				seTree.clear();
 
 				QueryPerformanceCounter(&t3);
 		
-
-				tree<string> testTree;
-				tree<string>::iterator testTop;
-				testTop = testTree.begin();
-
-				testTree.insert(testTop, "eins");
-
-
-				for (int i = 0; i < 5; i++) {
-					tree<string>::iterator newTestTop;
-					newTestTop = testTree.begin();
-					testTree.append_child(newTestTop, to_string(i));
-				}
-
-				kptree::print_tree_bracketed(testTree, cout);
-
-
-
-
-				tree<se::contourAndSe> seTree;
+				//add root node to the tree
 				tree<se::contourAndSe>::iterator top = seTree.begin();
 				se::contourAndSe rootEllipse = se::contourAndSe();
-				
 				seTree.insert(top, rootEllipse);
-
-				kptree::print_tree_bracketed(seTree);
+				
+				//cout << endl;
+				//cout << "initial tree" << endl;
+				//kptree::print_tree_bracketed(seTree);
+				//cout << endl;
 
 				startRosinTree(seTree, contours, width, height, qualityValues);
 
-				kptree::print_tree_bracketed(seTree);
-
-				int depth = seTree.max_depth();
-
-
-				vector<se::superellipse> ellipses1 = se::getEllipsesOfGivenDepth(seTree, 1);
-				int err = processSuperellipsesFromVector(ellipses1, "ellipses1.png" , width, height);
-
-			
+				//cout << endl;
+				//cout << "final tree" << endl;
+				//kptree::print_tree_bracketed(seTree);
+				//cout << endl;
 
 				QueryPerformanceCounter(&t4);
 				double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
@@ -265,6 +245,36 @@ int main() {
 
 				totalComputeDuration = totalComputeDuration + computeDuration;
 			}
+
+			int depth = seTree.max_depth();
+
+			cout << endl;
+			cout << "totalComputeDuration:         " << totalComputeDuration << "ms" << endl;
+			cout << "medium compute Duration:      " << totalComputeDuration / iterations << "ms" << endl;
+
+			cout << endl;
+			cout << "quality used:                 " << quality << endl;
+			cout << "depth of tree:                " << depth << endl;
+
+			//render the fitted superellipses to image files
+			QueryPerformanceCounter(&t5);
+
+			for (int k = 1; k <= depth; k++) {
+				vector<se::superellipse> ellipses = se::getEllipsesOfGivenDepth(seTree, k);
+				processSuperellipsesFromVector(ellipses, ellipseImagePart + to_string(k) + ".png", width, height);
+
+				//combine the original and the ellipse image
+				image_output::combineOriginalAndEllipseImage(inputImage, ellipseImagePart + to_string(k) + ".png", combinedImagePart + to_string(k) + ".png");
+			}
+
+		
+
+			QueryPerformanceCounter(&t6);
+			double renderDuration = (t6.QuadPart - t5.QuadPart) * 1000.0 / frequency.QuadPart;
+			cout << "renderDuration:               " << renderDuration << "ms" << endl;
+
+
+
 
 		}
 
