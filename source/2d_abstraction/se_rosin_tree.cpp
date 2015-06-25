@@ -1,5 +1,7 @@
 
 
+#include "se_rosin_tree.h"
+
 #include <vector>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>

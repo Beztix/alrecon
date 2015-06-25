@@ -19,6 +19,7 @@
 #include <tuple>
 #include <algorithm>
 #include <chrono>
+#include <conio.h>
 
 #include "image_input.h"
 #include "image_output.h"
@@ -64,7 +65,9 @@ using namespace std;
 int main() {
 
 
-	Sleep(1000);
+	Sleep(10000);
+	timeBeginPeriod(1);
+
 
 	bool USE_CGAL =					false;
 	bool USE_GPUALPHA =				false;
@@ -139,6 +142,8 @@ int main() {
 		//++++++++++++++++++++++++++++
 		bool RECURSIVE =	false;
 		bool TREE =			true;
+		bool debug =		false;
+
 
 		string inputName =		"image";
 		int quality =			200;
@@ -227,18 +232,22 @@ int main() {
 				se::contourAndSe rootEllipse = se::contourAndSe();
 				seTree.insert(top, rootEllipse);
 				
-				//cout << endl;
-				//cout << "initial tree" << endl;
-				//kptree::print_tree_bracketed(seTree);
-				//cout << endl;
-
+				if (debug) {
+					cout << endl;
+					cout << "initial tree" << endl;
+					kptree::print_tree_bracketed(seTree);
+					cout << endl;
+				}
+				
 				startRosinTree(seTree, contours, width, height, qualityValues);
 
-				//cout << endl;
-				//cout << "final tree" << endl;
-				//kptree::print_tree_bracketed(seTree);
-				//cout << endl;
-
+				if (debug) {
+					cout << endl;
+					cout << "final tree" << endl;
+					kptree::print_tree_bracketed(seTree);
+					cout << endl;
+				}
+				
 				QueryPerformanceCounter(&t4);
 				double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
 				cout << "computeDuration:     " << computeDuration << "ms" << endl;
@@ -339,6 +348,7 @@ int main() {
 
 
 	Sleep(1000);
+	_getch();
 }
 
 

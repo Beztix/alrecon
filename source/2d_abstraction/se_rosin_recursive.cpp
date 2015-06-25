@@ -10,13 +10,14 @@
 *
 ************************************************************************/
 
+#include "se_rosin_core.h"
+
 #include <vector>
 #include <math.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "se_rosin_core.h"
 #include "se_split.h"
 #include "util.h"
 #include "se_util.h"

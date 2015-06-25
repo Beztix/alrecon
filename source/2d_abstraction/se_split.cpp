@@ -1,4 +1,6 @@
 
+#include "se_split.h"
+
 #include <string>
 #include <iostream>
 #include <ceres/ceres.h>

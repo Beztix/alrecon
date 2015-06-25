@@ -1,3 +1,5 @@
+#include "se_util.h"
+
 
 #include <vector>
 #include <opencv2/core/core.hpp>
@@ -229,6 +231,16 @@ namespace se {
 	}
 
 
+
+	//operator overload to allow for printing of the struct contourAndSe
+
+	std::ostream& operator<<(std::ostream& os, const se::contourAndSe& c)
+	{
+		os << c.offSetX << ',' << c.offSetY;
+
+		//os << "contour size: " << c.contour.size() << "  offset: " <<  c.offSetX << ',' << c.offSetY;
+		return os;
+	}
 
 
 

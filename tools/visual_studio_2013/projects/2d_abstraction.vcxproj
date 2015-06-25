@@ -140,6 +140,9 @@
     <CudaCompile>
       <CodeGeneration>compute_13,sm_20</CodeGeneration>
     </CudaCompile>
+    <Link>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PostBuildEvent>

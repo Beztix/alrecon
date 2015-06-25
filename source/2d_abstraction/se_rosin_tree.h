@@ -3,6 +3,7 @@
 
 
 #include "tree.hh"
+#include "se_util.h"
 
 namespace se {
 

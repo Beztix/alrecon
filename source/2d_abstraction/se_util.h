@@ -21,6 +21,7 @@ namespace se {
 
 
 
+
 	// a struct representing a single superellipse
 
 	struct superellipse {
@@ -102,17 +103,14 @@ namespace se {
 			alreadyFitted = true;
 			fittedEllipse = mfittedEllipse;
 		}
-
-		friend std::ostream& operator<<(std::ostream& os, const se::contourAndSe& c)
-		{
-			os << c.offSetX << ',' << c.offSetY;
-			return os;
-		}
-
-
 	};
 
+
+	std::ostream& operator<<(std::ostream& os, const se::contourAndSe& c);
+
+
 }
+
 
 
 
