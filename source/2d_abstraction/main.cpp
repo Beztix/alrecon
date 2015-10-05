@@ -27,6 +27,8 @@
 #include "se_util.h"
 #include "tree.hh"
 #include "tree_util.hh"
+#include "frustum_test.h"
+#include "frustum_util.h"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -65,16 +67,17 @@ using namespace std;
 int main() {
 
 
-	Sleep(10000);
-	timeBeginPeriod(1);
+	Sleep(5000);
+	//timeBeginPeriod(1);
 
 
 	bool USE_CGAL =					false;
 	bool USE_GPUALPHA =				false;
-	bool USE_SUPERELLIPSES_ROSIN =	true;
+	bool USE_SUPERELLIPSES_ROSIN =	false;
 	bool USE_SUPERELLIPSES_CERES =	false;
+	bool TEST_SECTION =				true;
 
-
+	/*
 
 	//############################################
 	//##########          CGAL          ##########       
@@ -347,8 +350,43 @@ int main() {
 
 
 
-	Sleep(1000);
-	_getch();
+
+
+
+
+	*/
+
+
+
+
+
+	//######################################################
+	//##########           Test Section           ##########       
+	//######################################################
+
+	if (TEST_SECTION) {
+	
+		frustum::frust firstFrust(cv::Point3f(0.0, -2.0, 0.0), cv::Point3f(2.0, -2.0, 0.0), cv::Point3f(2.0, 0.0, 0.0), cv::Point3f(0.0, 0.0, 0.0), 
+								  cv::Point3f(0.0, -2.0, 4.0), cv::Point3f(2.0, -2.0, 4.0), cv::Point3f(2.0, 0.0, 4.0), cv::Point3f(0.0, 0.0, 4.0));
+
+		frustum::frust secondFrust(cv::Point3f(11.0, -2.0, -2.0), cv::Point3f(13.0, -2.0, -2.0), cv::Point3f(13.0, 0.0, -2.0), cv::Point3f(11.0, 0.0, -2.0),
+							 	   cv::Point3f(11.0, -2.0, 2.0), cv::Point3f(13.0, -2.0, 2.0), cv::Point3f(13.0, 0.0, 2.0), cv::Point3f(11.0, 0.0, 2.0));
+
+
+		bool intersect = frustum::doFrustumsIntesect(firstFrust, secondFrust);
+
+		cout << intersect << endl;
+	
+	}
+
+
+
+
+
+
+
+	Sleep(5000);
+	//_getch();
 }
 
 

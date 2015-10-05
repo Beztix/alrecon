@@ -143,7 +143,7 @@ int processSuperellipsesFromArray(double* ellipses, string outputFile) {
 
 int processSuperellipsesFromVector(vector<se::superellipse> superellipses, string outputFile, const int width, const int height) {
 
-	double xc, yc, a, b, epsilon, theta;
+//	double xc, yc, a, b, epsilon, theta;
 
 	vector<tuple<double, double>> pointListOfEllipse;		//list of points rendered from one superellipse
 	vector<vector<tuple<double, double>>> listOfEllipses;	//list of all pointListOfEllipses

@@ -376,21 +376,9 @@ namespace se {
 			//build a container for the fit
 			se::contourAndSe initialContainer = se::contourAndSe(currentContourWithOffset, sizeX, sizeY, offsetX, offsetY, initialFit);
 
-			//int size1 = seTree.size();
-			//cout << endl;
-			//cout << "tree at the beginning of startRosinTree() - iteration: " << i << " tree size: " << size1 << endl;
-			//kptree::print_tree_bracketed(seTree);
-			//cout << endl;
-
 			//add the initial fit to the seTree
 			seTree.append_child(top, initialContainer);
 
-
-			//int size2 = seTree.size();
-			//cout << endl;
-			//cout << "tree at the beginning of startRosinTree() - iteration: " << i << " tree size: " << size2 << endl;
-			//kptree::print_tree_bracketed(seTree);
-			//cout << endl;
 		}
 
 
