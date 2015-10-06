@@ -8,7 +8,7 @@
 
 
 
-namespace frustum {
+namespace fr {
 
 
 
@@ -60,8 +60,8 @@ namespace frustum {
 			cv::Point3f normalBase;
 
 			//x_pos
-			vectorOne = points[frust::far_xpos_ypos] - points[frust::near_xpos_ypos];
-			vectorTwo = points[frust::near_xpos_yneg] - points[frust::near_xpos_ypos];
+			vectorOne = points[frust::near_xpos_yneg] - points[frust::near_xpos_ypos];
+			vectorTwo = points[frust::far_xpos_ypos] - points[frust::near_xpos_ypos];
 			planeNormals[frust::x_pos] = vectorOne.cross(vectorTwo);
 			planeNormalBases[frust::x_pos] = points[frust::near_xpos_ypos];
 

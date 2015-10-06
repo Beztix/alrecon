@@ -4,7 +4,7 @@
 
 #include "frustum_util.h"
 
-namespace frustum {
+namespace fr {
 
 	bool doFrustumsIntesect(frust firstFrustum, frust secondFrustum);
 

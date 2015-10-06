@@ -67,8 +67,8 @@ using namespace std;
 int main() {
 
 
-	Sleep(5000);
-	//timeBeginPeriod(1);
+	Sleep(2000);
+
 
 
 	bool USE_CGAL =					false;
@@ -77,7 +77,7 @@ int main() {
 	bool USE_SUPERELLIPSES_CERES =	false;
 	bool TEST_SECTION =				true;
 
-	/*
+	
 
 	//############################################
 	//##########          CGAL          ##########       
@@ -150,8 +150,8 @@ int main() {
 
 		string inputName =		"image";
 		int quality =			200;
-		vector<int> qualityValues =	{ 50000 , 10000 , 1000 , 200 ,};
-		int iterations =		100;
+		vector<int> qualityValues =	{ 50000 , 10000 , 1000 , 200 , 100};
+		int iterations =		10;
 		//++++++++++++++++++++++++++++
 
 		string inputImage = "images/" + inputName + ".png";
@@ -354,7 +354,7 @@ int main() {
 
 
 
-	*/
+	
 
 
 
@@ -366,14 +366,14 @@ int main() {
 
 	if (TEST_SECTION) {
 	
-		frustum::frust firstFrust(cv::Point3f(0.0, -2.0, 0.0), cv::Point3f(2.0, -2.0, 0.0), cv::Point3f(2.0, 0.0, 0.0), cv::Point3f(0.0, 0.0, 0.0), 
-								  cv::Point3f(0.0, -2.0, 4.0), cv::Point3f(2.0, -2.0, 4.0), cv::Point3f(2.0, 0.0, 4.0), cv::Point3f(0.0, 0.0, 4.0));
+		fr::frust firstFrust(cv::Point3f(0.0, 0.0, 0.0), cv::Point3f(2.0, 0.0, 0.0), cv::Point3f(2.0, -2.0, 0.0), cv::Point3f(0.0, -2.0, 0.0), 
+								  cv::Point3f(0.0, 0.0, 4.0), cv::Point3f(2.0, 0.0, 4.0), cv::Point3f(2.0, -2.0, 4.0), cv::Point3f(0.0, -2.0, 4.0));
 
-		frustum::frust secondFrust(cv::Point3f(11.0, -2.0, -2.0), cv::Point3f(13.0, -2.0, -2.0), cv::Point3f(13.0, 0.0, -2.0), cv::Point3f(11.0, 0.0, -2.0),
-							 	   cv::Point3f(11.0, -2.0, 2.0), cv::Point3f(13.0, -2.0, 2.0), cv::Point3f(13.0, 0.0, 2.0), cv::Point3f(11.0, 0.0, 2.0));
+		fr::frust secondFrust(cv::Point3f(-1.0, 0.0, -2.0), cv::Point3f(1.0, 0.0, -2.0), cv::Point3f(1.0, -2.0, -2.0), cv::Point3f(-1.0, -2.0, -2.0),
+							 	   cv::Point3f(-1.0, 0.0, 2.0), cv::Point3f(1.0, 0.0, 2.0), cv::Point3f(1.0, -2.0, 2.0), cv::Point3f(-1.0, -2.0, 2.0));
 
 
-		bool intersect = frustum::doFrustumsIntesect(firstFrust, secondFrust);
+		bool intersect = fr::doFrustumsIntesect(firstFrust, secondFrust);
 
 		cout << intersect << endl;
 	
@@ -385,8 +385,8 @@ int main() {
 
 
 
-	Sleep(5000);
-	//_getch();
+	Sleep(2000);
+
 }
 
 

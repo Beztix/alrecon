@@ -18,7 +18,7 @@
 using namespace std;
 
 
-namespace frustum{
+namespace fr {
 
 
 
