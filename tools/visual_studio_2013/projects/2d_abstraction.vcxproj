@@ -29,6 +29,7 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\image_output.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\image_input.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\main.cpp" />
+    <ClCompile Include="..\..\..\source\2d_abstraction\sensor.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_rosin_core.c" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_rendering.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_rosin_tree.cpp" />
@@ -53,6 +54,7 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\frustum_util.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\image_output.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\image_input.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\sensor.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_rosin_core.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_rendering.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_rosin_tree.h" />

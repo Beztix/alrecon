@@ -9,6 +9,10 @@
 # External built libraries
 external/
 
+
+# Assets
+assets/TeletubbiesStefan/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

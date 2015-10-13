@@ -21,6 +21,16 @@
 using namespace std;
 
 
+file_camera::file_camera
+(int index)
+:
+index(index), 
+distort_r1_(0), distort_r2_(0),
+distort_t1_(0), distort_t2_(0)
+{
+	//init_occlusion_mask();
+	init_calibration("../../assets/TeletubbiesStefan/calibrations/cam");
+}
 
 
 
@@ -31,11 +41,12 @@ void file_camera::init_calibration(string calibration_base_path)
 	cout << "Loading calibration data from: " + calibration_path << endl;
 
 	ifstream infile(calibration_path);
-	string line_lists[5][4];
+	float line_lists[5][4];
 	for (int i = 0; i < 5; i++) {
 		infile >> line_lists[i][0] >> line_lists[i][1] >> line_lists[i][2] >> line_lists[i][3];
 	}
 
+	image_size = viral_core::vector2i(line_lists[3][0], line_lists[3][1]);
 
 	// Read full projection matrix, then decompose
 	// into rotation, position, calibration matrix.
@@ -43,8 +54,8 @@ void file_camera::init_calibration(string calibration_base_path)
 	for (int y = 0; y < 3; ++y)
 		for (int x = 0; x < 4; ++x)
 		{
-			world_to_device_pinhole_distort_.c[y * 4 + x] = std::stof(line_lists[y][x]);
-			cv_projection_mem[y][x] = std::stof(line_lists[y][x]);
+			world_to_device_pinhole_distort_.c[y * 4 + x] = line_lists[y][x];
+			cv_projection_mem[y][x] = line_lists[y][x];
 		}
 
 	CvMat cv_projection = cvMat(3, 4, CV_64F, cv_projection_mem);
@@ -79,10 +90,10 @@ void file_camera::init_calibration(string calibration_base_path)
 	// Apply all camera parameters.
 	// world_to_device_pinhole_distort_ = calibrate * rotate * matrix::translate(pos);
 
-	distort_r1_ = std::stof(line_lists[4][0]);
-	distort_r2_ = std::stof(line_lists[4][1]);
-	distort_t1_ = std::stof(line_lists[4][2]);
-	distort_t2_ = std::stof(line_lists[4][3]);
+	distort_r1_ = line_lists[4][0];
+	distort_r2_ = line_lists[4][1];
+	distort_t1_ = line_lists[4][2];
+	distort_t2_ = line_lists[4][3];
 
 	pinhole_distort_focus_ = viral_core::vector2f(calibrate.c[0] / calibrate.c[10], calibrate.c[5] / calibrate.c[10]);
 	pinhole_distort_center_ = viral_core::vector2f(calibrate.c[2] / calibrate.c[10], calibrate.c[6] / calibrate.c[10]);

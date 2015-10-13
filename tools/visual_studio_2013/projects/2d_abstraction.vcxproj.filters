@@ -80,6 +80,9 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\frustum_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\source\2d_abstraction\sensor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\source\2d_abstraction\main.cpp">
@@ -140,6 +143,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\source\2d_abstraction\file_camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\2d_abstraction\sensor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
