@@ -58,19 +58,19 @@ void file_camera::init_calibration(string calibration_base_path)
 
 	// Read back from OpenCV into slim matrix class.
 	// Rescale to fit current scene scale.
-	matrix calibrate
+	viral_core::matrix calibrate
 		((float)cv_calibration->data.db[0], (float)cv_calibration->data.db[1], (float)cv_calibration->data.db[2], 0,
 		(float)cv_calibration->data.db[3], (float)cv_calibration->data.db[4], (float)cv_calibration->data.db[5], 0,
 		(float)cv_calibration->data.db[6], (float)cv_calibration->data.db[7], (float)cv_calibration->data.db[8], 0,
 		0, 0, 0, 1);
 
-	matrix rotate
+	viral_core::matrix rotate
 		((float)cv_rotation->data.db[0], (float)cv_rotation->data.db[1], (float)cv_rotation->data.db[2], 0,
 		(float)cv_rotation->data.db[3], (float)cv_rotation->data.db[4], (float)cv_rotation->data.db[5], 0,
 		(float)cv_rotation->data.db[6], (float)cv_rotation->data.db[7], (float)cv_rotation->data.db[8], 0,
 		0, 0, 0, 1);
 
-	vector pos
+	viral_core::vector pos
 		((float)cv_position->data.db[0] / (float)cv_position->data.db[3],
 		(float)cv_position->data.db[1] / (float)cv_position->data.db[3],
 		(float)cv_position->data.db[2] / (float)cv_position->data.db[3]);
@@ -84,9 +84,10 @@ void file_camera::init_calibration(string calibration_base_path)
 	distort_t1_ = std::stof(line_lists[4][2]);
 	distort_t2_ = std::stof(line_lists[4][3]);
 
-	pinhole_distort_focus_ = vector2f(calibrate.c[0] / calibrate.c[10], calibrate.c[5] / calibrate.c[10]);
-	pinhole_distort_center_ = vector2f(calibrate.c[2] / calibrate.c[10], calibrate.c[6] / calibrate.c[10]);
+	pinhole_distort_focus_ = viral_core::vector2f(calibrate.c[0] / calibrate.c[10], calibrate.c[5] / calibrate.c[10]);
+	pinhole_distort_center_ = viral_core::vector2f(calibrate.c[2] / calibrate.c[10], calibrate.c[6] / calibrate.c[10]);
 
 	cam_position_ = pos;
-	cam_orientation_ = rotation(rotate.x_axis(), rotate.y_axis(), rotate.z_axis());
+	cam_orientation_ = viral_core::rotation(rotate.x_axis(), rotate.y_axis(), rotate.z_axis());
 }
+

@@ -12,6 +12,8 @@
 *
 ************************************************************************/
 
+#define NOGDI
+
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -33,6 +35,22 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+
+
+// Viral
+#include <viral_core/engine.hpp>
+#include <viral_core/window.hpp>
+#include <viral_core/input.hpp>
+#include <viral_core/file.hpp>
+#include <viral_core/timer.hpp>
+#include <viral_core/image.hpp>
+
+#include <viral_core/render_resource.hpp>
+#include <viral_core/render_scene.hpp>
+#include <viral_core/render_process.hpp>
+#include <viral_core/render_command.hpp>
+#include <viral_core/render_task.hpp>
+#include <viral_core/render.hpp>
 
 
 // CGAL stuff
@@ -64,8 +82,91 @@ using namespace std;
 
 
 
+
+
+
+
+// utility method to update the camera according to user input
+void update_camera
+	(viral_core::window_context& window,
+	 viral_core::input_context& input,
+	 viral_core::camera& cam)
+{
+	using namespace viral_core;
+	typedef viral_core::vector vector;
+
+	vector2f window_pos(window.position());
+	vector2f window_size(window.size());
+
+
+	// Update camera transforms from user input.
+	bool mouse_in_window =
+		input.value_of(input_source::m_absolute_x) >= window_pos.x &&
+		input.value_of(input_source::m_absolute_y) >= window_pos.y &&
+		input.value_of(input_source::m_absolute_x) <= window_pos.x + window_size.x &&
+		input.value_of(input_source::m_absolute_y) <= window_pos.y + window_size.y;
+
+	input.freeze_mouse
+		(mouse_in_window &&
+		(input.is_active(input_source::m_button0) ||
+		input.is_active(input_source::m_button1)));
+
+	if (mouse_in_window)
+	{
+		if (input.is_active(input_source::m_button0))
+		{
+			cam.orientation *=
+				rotation(vector(0, 1, 0), input.value_of(input_source::m_axis0) * 0.1f);
+			cam.orientation *=
+				rotation(vector(1, 0, 0), input.value_of(input_source::m_axis1) * 0.1f);
+		}
+
+		cam.orientation *=
+			rotation(vector(0, 1, 0), input.value_of(input_source::j0_axis0) * 0.1f);
+		cam.orientation *=
+			rotation(vector(1, 0, 0), -input.value_of(input_source::j0_axis1) * 0.1f);
+		cam.orientation *=
+			rotation(vector(0, 0, 1), input.value_of(input_source::j0_button6) * 0.1f);
+		cam.orientation *=
+			rotation(vector(0, 0, 1), -input.value_of(input_source::j0_button7) * 0.1f);
+
+		vector movement
+			(vector(0, 0, 1) * input.value_of(input_source::j0_axis5) +
+			 vector(0, 0, -1) * input.value_of(input_source::j0_axis4) +
+			 vector(0, 0, 1) * input.value_of(input_source::k_w) +
+			 vector(0, 0, -1) * input.value_of(input_source::k_s) +
+			 vector(1, 0, 0) * input.value_of(input_source::j0_axis2) +
+			 vector(1, 0, 0) * input.value_of(input_source::k_d) +
+			 vector(-1, 0, 0) * input.value_of(input_source::k_a) +
+			 vector(0, 1, 0) * input.value_of(input_source::j0_axis3) +
+			 vector(0, 1, 0) * input.value_of(input_source::k_space) +
+			 vector(0, -1, 0) * input.value_of(input_source::k_c));
+
+		if (movement.length() > 0.0001f)
+		{
+			movement *= 0.1f;
+
+			if (movement.length() > 0.1f)
+				movement = movement.normalized() * 0.1f;
+
+			movement = cam.orientation * movement;
+			cam.position += movement;
+		}
+	}
+}
+
+
+
+
+
+
+
+
 int main() {
 
+
+
+	
 
 	Sleep(2000);
 
@@ -365,7 +466,9 @@ int main() {
 	//######################################################
 
 	if (TEST_SECTION) {
-	
+
+
+		/*
 		fr::frust firstFrust(cv::Point3f(0.0, 0.0, 0.0), cv::Point3f(2.0, 0.0, 0.0), cv::Point3f(2.0, -2.0, 0.0), cv::Point3f(0.0, -2.0, 0.0), 
 								  cv::Point3f(0.0, 0.0, 4.0), cv::Point3f(2.0, 0.0, 4.0), cv::Point3f(2.0, -2.0, 4.0), cv::Point3f(0.0, -2.0, 4.0));
 
@@ -376,6 +479,215 @@ int main() {
 		bool intersect = fr::doFrustumsIntesect(firstFrust, secondFrust);
 
 		cout << intersect << endl;
+
+
+		*/
+
+
+
+
+
+
+
+
+
+
+
+		///////// START RENDERING-DEMO
+
+		viral_core::engine e("alrecon");
+		viral_core::step_timer t(0.02f, 0.5f);
+
+
+		// Resourcen
+		viral_core::shared_pointer<viral_core::render_model_id> model_id
+			(new viral_core::render_model_id("my_model"));
+		viral_core::shared_pointer<viral_core::render_shader_id> shader_id
+			(new viral_core::render_shader_id("my_shader"));
+		viral_core::shared_pointer<viral_core::render_material_id> material_id
+			(new viral_core::render_material_id("my_material"));
+
+
+
+		// Scene
+		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_id
+			(new viral_core::render_puppet_id("my_puppet"));
+		viral_core::shared_pointer<viral_core::render_light_id> light_id
+			(new viral_core::render_light_id("my_light"));
+		viral_core::shared_pointer<viral_core::render_scene_id> scene_id
+			(new viral_core::render_scene_id("my_scene"));
+
+		// Process
+		viral_core::shared_pointer<viral_core::render_layer_id> layer_id
+			(new viral_core::render_layer_id("my_layer"));
+		viral_core::shared_pointer<viral_core::render_canvas_id> canvas_id
+			(new viral_core::render_canvas_id("my_canvas"));
+		viral_core::shared_pointer<viral_core::render_process_id> process_id
+			(new viral_core::render_process_id("my_process"));
+
+
+		// Put together geometry.
+		viral_core::auto_pointer<viral_core::mesh> geometry_mesh
+			(new viral_core::mesh());
+		geometry_mesh->allocate_vertices(4);
+		geometry_mesh->allocate_triangles(2);
+
+		geometry_mesh->vertices()[0] = viral_core::vector(-1, -1, 0);
+		geometry_mesh->vertices()[1] = viral_core::vector(1, -1, 0);
+		geometry_mesh->vertices()[2] = viral_core::vector(1, 1, 0);
+		geometry_mesh->vertices()[3] = viral_core::vector(-1, 1, 0);
+
+		geometry_mesh->triangles()[0] = viral_core::mesh_triangle(0, 2, 1);
+		geometry_mesh->triangles()[1] = viral_core::mesh_triangle(0, 3, 2);
+
+		viral_core::auto_pointer<viral_core::mesh_stream_vector> geometry_mesh_normals
+			(new viral_core::mesh_stream_vector());
+
+		geometry_mesh_normals->resize(4);
+		(*geometry_mesh_normals)[0] = viral_core::vector(0, 0, -1);
+		(*geometry_mesh_normals)[1] = viral_core::vector(0, 0, -1);
+		(*geometry_mesh_normals)[2] = viral_core::vector(0, 0, -1);
+		(*geometry_mesh_normals)[3] = viral_core::vector(0, 0, -1);
+
+		geometry_mesh->insert_vertex_stream
+			(viral_core::mesh_stream_registry::normal_stream_name,
+			geometry_mesh_normals);
+
+		viral_core::auto_pointer<viral_core::model> geometry
+			(new viral_core::model());
+		geometry->insert_group("model_group", geometry_mesh);
+		geometry->rebuild_boundings();
+		geometry->validate();
+
+
+		// Fill data structures for later render-side objects.
+		viral_core::render_model_data model_data;
+		model_data.geometry = geometry;
+
+		viral_core::render_shader_data shader_data;
+		shader_data.fragment_shader =
+			e.files().open_file("shaders/shader.glfs", viral_core::file::read_only)->read_text();
+		shader_data.vertex_shader =
+			e.files().open_file("shaders/shader.glvs", viral_core::file::read_only)->read_text();
+
+		viral_core::render_material_data material_data;
+		material_data.ambient_color = viral_core::color(0, 0, 0, 1);
+		material_data.diffuse_color = viral_core::color(0, 1, 1, 1);
+		material_data.cull = viral_core::render_material_data::cull_none;
+		material_data.shader = shader_id;
+
+		viral_core::render_puppet_data puppet_data;
+		puppet_data.position = viral_core::vector(0, 0, 16);
+		puppet_data.model = model_id;
+		puppet_data.materials.insert("model_group", material_id);
+
+		viral_core::render_light_data light_data;
+		light_data.emitter = viral_core::render_light_data::emitter_parallel;
+		light_data.orientation =
+			viral_core::rotation(viral_core::vector(1, 0, 0), -30) *
+			viral_core::rotation(viral_core::vector(0, 1, 0), 30);
+
+		viral_core::render_scene_data scene_data;
+		scene_data.objects.insert(puppet_id);
+		scene_data.objects.insert(light_id);
+
+		viral_core::render_layer_data layer_data;
+		layer_data.scene = scene_id;
+		layer_data.background_color = viral_core::color(0.2, 0, 0, 0);
+
+		viral_core::render_canvas_data canvas_data;
+		canvas_data.layers.insert(layer_id);
+		canvas_data.copy_to_window = true;
+
+		viral_core::render_process_data process_data;
+		process_data.canvases.insert(canvas_id);
+		process_data.show_results = true;
+
+
+		// Commit data structures to render-side objects with appropriate ID.
+		viral_core::auto_pointer<viral_core::render_command_queue> q
+			(new viral_core::render_command_queue());
+		q->commit(model_data, model_id);
+		q->commit(shader_data, shader_id);
+		q->commit(material_data, material_id);
+		q->commit(puppet_data, puppet_id);
+		q->commit(light_data, light_id);
+		q->commit(scene_data, scene_id);
+		q->commit(layer_data, layer_id);
+		q->commit(canvas_data, canvas_id);
+		q->commit(process_data, process_id);
+		e.renderer().execute(q);
+
+		e.window().set_display
+			(viral_core::vector2f(50, 50), viral_core::vector2f(800, 600), 0);
+
+		while (true)
+		{
+			t.try_sleep();
+			t.update();
+
+			if (!t.has_next_timestep())
+				continue;
+
+
+			// Logik
+			while (t.next_timestep())
+			{
+				e.window().update();
+				e.input().update();
+
+				if (e.window().close_flag())
+					return 0;
+
+				update_camera(e.window(), e.input(), layer_data.cam);
+
+				// Eigener LOGIK-CODE
+				// Hier sind (mindestens) t.timestep_seconds vergangen
+			}
+
+
+			// Rendering
+			if (!e.rtask().has_pending_queue())
+			{
+				// Put together render commands.
+				viral_core::auto_pointer<viral_core::render_command_queue> q
+					(new viral_core::render_command_queue());
+
+				layer_data.cam.aspect_y_to_x =
+					e.window().size().y /
+					e.window().size().x;
+				q->commit(layer_data, layer_id);
+
+				canvas_data.pixel_size =
+					canvas_data.target_window_pixels.size =
+					e.window().size().to_vector2i();
+				q->commit(canvas_data, canvas_id);
+
+				// Eigener RENDERING-CODE
+				// Hier sind (mindestens) t.timestep_seconds vergangen
+
+				q->render(process_id);
+				e.rtask().execute(q);
+			}
+		}
+
+
+
+
+
+		///////// END RENDERING-DEMO
+
+
+
+
+
+
+
+
+
+
+
+
 	
 	}
 

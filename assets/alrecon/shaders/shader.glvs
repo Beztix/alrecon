@@ -1,0 +1,19 @@
+#version 330
+
+uniform mat4 projection;
+uniform mat4 world_to_camera;
+uniform mat4 model_to_world;
+
+layout(location = 0) in vec3 vertex;
+layout(location = 1) in vec3 normals;
+
+out vec3 frag_position;
+out vec3 frag_normal;
+
+void main()
+{
+	frag_position = (model_to_world * vec4(vertex, 1)).xyz;
+	frag_normal = (model_to_world * vec4(normals, 0)).xyz;
+
+	gl_Position = projection * world_to_camera * vec4(frag_position, 1);
+}

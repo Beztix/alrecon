@@ -1,0 +1,121 @@
+#version 330
+
+
+#define MAX_LIGHTS 4
+
+
+#define EMITTER_POINT 0
+#define EMITTER_SPOT 1
+#define EMITTER_PARALLEL 2
+
+
+uniform vec3 camera_position;
+
+
+uniform vec4 material_ambient_color;
+uniform vec4 material_diffuse_color;
+uniform vec4 material_specular_color; 
+uniform float material_specular_exponent;
+
+
+uniform int light_emitter[MAX_LIGHTS];
+uniform vec3 light_position[MAX_LIGHTS];
+uniform vec3 light_direction[MAX_LIGHTS];
+
+uniform vec4 light_ambient_color[MAX_LIGHTS];
+uniform vec4 light_diffuse_color[MAX_LIGHTS];
+uniform vec4 light_specular_color[MAX_LIGHTS];
+
+uniform float light_intensity[MAX_LIGHTS];
+uniform float light_attenuation[MAX_LIGHTS];
+
+uniform float light_spot_cosine[MAX_LIGHTS];
+uniform float light_spot_exponent[MAX_LIGHTS];
+
+uniform int light_count;
+
+
+in vec3 frag_position;
+in vec3 frag_normal;
+
+
+out vec4 pixel_color;
+
+
+void main()
+{
+	vec3 final_color = vec3(0, 0, 0);
+
+
+	vec3 frag_normal_unit = normalize(frag_normal);
+	
+
+	for (int i = 0; i < light_count; ++i)
+	{
+		// Geometric relations
+		vec3 to_light_unit =
+			(light_emitter[i] == EMITTER_PARALLEL) ?
+			-light_direction[i] :
+			normalize(light_position[i] - frag_position);
+
+		float cos_frag_light =
+			dot(to_light_unit, frag_normal_unit);
+
+		vec3 to_camera_unit =
+			normalize(camera_position - frag_position);
+
+		vec3 specular_unit =			
+			2 * cos_frag_light * frag_normal_unit - to_light_unit;
+
+
+		// Transfer factors
+		float backside_factor =
+			step(0, cos_frag_light);
+
+		float distance_factor = 1;
+		if (light_emitter[i] != EMITTER_PARALLEL)
+		{
+			float light_distance =
+				length(light_position[i] - frag_position);
+
+			distance_factor /= 
+				(1 + light_attenuation[i] * (light_distance * light_distance));
+		}
+		
+		float diffuse_factor =
+			max(cos_frag_light, 0);
+
+		float specular_factor =
+			pow(max(dot(to_camera_unit, specular_unit), 0),
+				material_specular_exponent);
+						
+		float spot_factor = 1;
+		if (light_emitter[i] == EMITTER_SPOT)
+		{
+			spot_factor *=
+				pow(max(dot(to_light_unit, -light_direction[i]) - light_spot_cosine[i], 0)
+					/ (1 - light_spot_cosine[i]), light_spot_exponent[i]);			
+		}
+			
+
+		// Incoming and outgoing colors
+		vec3 ambient =
+			light_ambient_color[i].rgb *
+			distance_factor * spot_factor;
+		vec3 diffuse =
+			light_diffuse_color[i].rgb *
+			backside_factor * distance_factor * spot_factor * diffuse_factor;
+		vec3 specular =	
+			light_specular_color[i].rgb *
+			distance_factor * spot_factor * specular_factor;
+
+		final_color +=
+			light_intensity[i] * 
+			(material_ambient_color.rgb * ambient +
+			 material_diffuse_color.rgb * diffuse +
+			 material_specular_color.rgb * specular);
+	}
+	
+	pixel_color = 
+		vec4(final_color, 1);
+}
