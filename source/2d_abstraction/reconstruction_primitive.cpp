@@ -241,6 +241,132 @@ namespace reconstruct {
 
 
 
+	void createBoxWithCorners(viral_core::auto_pointer<viral_core::mesh> &geometry_mesh, 
+		viral_core::vector near_top_left, viral_core::vector near_top_right, viral_core::vector near_bot_left, viral_core::vector near_bot_right, 
+		viral_core::vector far_top_left, viral_core::vector far_top_right, viral_core::vector far_bot_left, viral_core::vector far_bot_right ) {
+
+
+		//8 corners, each contained 3 times for the three adjacent faces of the cube (each of the three gets a different normal)
+		geometry_mesh->allocate_vertices(24);
+
+		//2 triangles for each of the 6 faces of the cube
+		geometry_mesh->allocate_triangles(12);
+
+		//one normal for each vertex
+		viral_core::auto_pointer<viral_core::mesh_stream_vector> geometry_mesh_normals
+			(new viral_core::mesh_stream_vector());
+		geometry_mesh_normals->resize(24);
+
+
+		// === front face ===
+		geometry_mesh->vertices()[0] = viral_core::vector(near_top_left);	//near_top_left
+		geometry_mesh->vertices()[1] = viral_core::vector(near_top_right);	//near_top_right
+		geometry_mesh->vertices()[2] = viral_core::vector(near_bot_left);	//near_bot_left
+		geometry_mesh->vertices()[3] = viral_core::vector(near_bot_right);	//near_bot_right
+
+		geometry_mesh->triangles()[0] = viral_core::mesh_triangle(0, 2, 1);
+		geometry_mesh->triangles()[1] = viral_core::mesh_triangle(1, 2, 3);
+
+		(*geometry_mesh_normals)[0] = viral_core::vector(0, 0, -1).normalized();
+		(*geometry_mesh_normals)[1] = viral_core::vector(0, 0, -1).normalized();
+		(*geometry_mesh_normals)[2] = viral_core::vector(0, 0, -1).normalized();
+		(*geometry_mesh_normals)[3] = viral_core::vector(0, 0, -1).normalized();
+
+
+		// === right face ===
+		geometry_mesh->vertices()[4] = viral_core::vector(near_top_right);	//near_top_right
+		geometry_mesh->vertices()[5] = viral_core::vector(far_top_right);	//far_top_right
+		geometry_mesh->vertices()[6] = viral_core::vector(near_bot_right);	//near_bot_right
+		geometry_mesh->vertices()[7] = viral_core::vector(far_bot_right);	//far_bot_right
+
+		geometry_mesh->triangles()[2] = viral_core::mesh_triangle(4, 6, 5);
+		geometry_mesh->triangles()[3] = viral_core::mesh_triangle(5, 6, 7);
+
+		(*geometry_mesh_normals)[4] = viral_core::vector(1, 0, 0).normalized();
+		(*geometry_mesh_normals)[5] = viral_core::vector(1, 0, 0).normalized();
+		(*geometry_mesh_normals)[6] = viral_core::vector(1, 0, 0).normalized();
+		(*geometry_mesh_normals)[7] = viral_core::vector(1, 0, 0).normalized();
+
+
+		// === back face === 
+		geometry_mesh->vertices()[8] = viral_core::vector(far_top_right);	//far_top_right
+		geometry_mesh->vertices()[9] = viral_core::vector(far_top_left);	//far_top_left
+		geometry_mesh->vertices()[10] = viral_core::vector(far_bot_right);	//far_bot_right
+		geometry_mesh->vertices()[11] = viral_core::vector(far_bot_left);	//far_bot_left
+
+		geometry_mesh->triangles()[4] = viral_core::mesh_triangle(8, 10, 9);
+		geometry_mesh->triangles()[5] = viral_core::mesh_triangle(9, 10, 11);
+
+		(*geometry_mesh_normals)[8] = viral_core::vector(0, 0, 1).normalized();
+		(*geometry_mesh_normals)[9] = viral_core::vector(0, 0, 1).normalized();
+		(*geometry_mesh_normals)[10] = viral_core::vector(0, 0, 1).normalized();
+		(*geometry_mesh_normals)[11] = viral_core::vector(0, 0, 1).normalized();
+
+
+		// === left face === 
+		geometry_mesh->vertices()[12] = viral_core::vector(far_top_left);	//far_top_left
+		geometry_mesh->vertices()[13] = viral_core::vector(near_top_left);	//near_top_left
+		geometry_mesh->vertices()[14] = viral_core::vector(far_bot_left);	//far_bot_left
+		geometry_mesh->vertices()[15] = viral_core::vector(near_bot_left);	//near_bot_left
+
+		geometry_mesh->triangles()[6] = viral_core::mesh_triangle(12, 14, 13);
+		geometry_mesh->triangles()[7] = viral_core::mesh_triangle(13, 14, 15);
+
+		(*geometry_mesh_normals)[12] = viral_core::vector(-1, 0, 0).normalized();
+		(*geometry_mesh_normals)[13] = viral_core::vector(-1, 0, 0).normalized();
+		(*geometry_mesh_normals)[14] = viral_core::vector(-1, 0, 0).normalized();
+		(*geometry_mesh_normals)[15] = viral_core::vector(-1, 0, 0).normalized();
+
+
+		// === top face === 
+		geometry_mesh->vertices()[16] = viral_core::vector(far_top_left);	//far_top_left
+		geometry_mesh->vertices()[17] = viral_core::vector(far_top_right);	//far_top_right
+		geometry_mesh->vertices()[18] = viral_core::vector(near_top_left);	//near_top_left
+		geometry_mesh->vertices()[19] = viral_core::vector(near_top_right);	//near_top_right
+
+		geometry_mesh->triangles()[8] = viral_core::mesh_triangle(16, 18, 17);
+		geometry_mesh->triangles()[9] = viral_core::mesh_triangle(17, 18, 19);
+
+		(*geometry_mesh_normals)[16] = viral_core::vector(0, -1, 0).normalized();
+		(*geometry_mesh_normals)[17] = viral_core::vector(0, -1, 0).normalized();
+		(*geometry_mesh_normals)[18] = viral_core::vector(0, -1, 0).normalized();
+		(*geometry_mesh_normals)[19] = viral_core::vector(0, -1, 0).normalized();
+
+
+		// === bottom face === 
+		geometry_mesh->vertices()[20] = viral_core::vector(near_bot_left);	//near_bot_left
+		geometry_mesh->vertices()[21] = viral_core::vector(near_bot_right);	//near_bot_right
+		geometry_mesh->vertices()[22] = viral_core::vector(far_bot_left);	//far_bot_left
+		geometry_mesh->vertices()[23] = viral_core::vector(far_bot_right);	//far_bot_right
+
+		geometry_mesh->triangles()[10] = viral_core::mesh_triangle(20, 22, 21);
+		geometry_mesh->triangles()[11] = viral_core::mesh_triangle(21, 22, 23);
+
+		(*geometry_mesh_normals)[20] = viral_core::vector(0, 1, 0).normalized();
+		(*geometry_mesh_normals)[21] = viral_core::vector(0, 1, 0).normalized();
+		(*geometry_mesh_normals)[22] = viral_core::vector(0, 1, 0).normalized();
+		(*geometry_mesh_normals)[23] = viral_core::vector(0, 1, 0).normalized();
+
+
+
+
+
+		geometry_mesh->insert_vertex_stream
+			(viral_core::mesh_stream_registry::normal_stream_name,
+			geometry_mesh_normals);
+
+
+
+	}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -325,40 +451,48 @@ namespace reconstruct {
 					int x6 = (int)projVec_6.x;
 					int y6 = (int)projVec_6.y;
 
-					bool set_0 = false;
-					bool set_1 = false;
-					bool set_2 = false;
-					bool set_3 = false;
-					bool set_4 = false;
-					bool set_5 = false;
-					bool set_6 = false;
+					bool initial = true;
+					bool set_0 = initial;
+					bool set_1 = initial;
+					bool set_2 = initial;
+					bool set_3 = initial;
+					bool set_4 = initial;
+					bool set_5 = initial;
+					bool set_6 = initial;
 					
 
 					if (0 < x0 && x0 < width && 0 < y0 && y0 < height) {
+						set_0 = false;
 						if (pixels_0[(int)projVec_0.y*width + (int)projVec_0.x] != 0)
 							set_0 = true;
 					}
 					if (0 < x1 && x1 < width && 0 < y1 && y1 < height) {
+						set_1 = false;
 						if (pixels_1[(int)projVec_1.y*width + (int)projVec_1.x] != 0)
 							set_1 = true;
 					}
 					if (0 < x2 && x2 < width && 0 < y2 && y2 < height) {
+						set_2 = false;
 						if (pixels_2[(int)projVec_2.y*width + (int)projVec_2.x] != 0)
 							set_2 = true;
 					}
 					if (0 < x3 && x3 < width && 0 < y3 && y3 < height) {
+						set_3 = false;
 						if (pixels_3[(int)projVec_3.y*width + (int)projVec_3.x] != 0)
 							set_3 = true;
 					}
 					if (0 < x4 && x4 < width && 0 < y4 && y4 < height) {
+						set_4 = false;
 						if (pixels_4[(int)projVec_4.y*width + (int)projVec_4.x] != 0)
 							set_4 = true;
 					}
 					if (0 < x5 && x5 < width && 0 < y5 && y5 < height) {
+						set_5 = false;
 						if (pixels_5[(int)projVec_5.y*width + (int)projVec_5.x] != 0)
 							set_5 = true;
 					}
 					if (0 < x6 && x6 < width && 0 < y6 && y6 < height) {
+						set_6 = false;
 						if (pixels_6[(int)projVec_6.y*width + (int)projVec_6.x] != 0)
 							set_6 = true;
 					}
@@ -376,11 +510,13 @@ namespace reconstruct {
 		}
 		
 
-
-
-
-
-
+		delete [] pixels_0;
+		delete [] pixels_1;
+		delete [] pixels_2;
+		delete [] pixels_3;
+		delete [] pixels_4;
+		delete [] pixels_5;
+		delete [] pixels_6;
 
 
 
@@ -392,20 +528,21 @@ namespace reconstruct {
 
 
 		// Resourcen
-		viral_core::shared_pointer<viral_core::render_model_id> model_id
-			(new viral_core::render_model_id("my_model"));
+		viral_core::shared_pointer<viral_core::render_model_id> model_id_cube
+			(new viral_core::render_model_id("my_model_cube"));
+		viral_core::shared_pointer<viral_core::render_model_id> model_id_boundingBox
+			(new viral_core::render_model_id("my_model_boundingBox"));
 		viral_core::shared_pointer<viral_core::render_shader_id> shader_id
 			(new viral_core::render_shader_id("my_shader"));
 		viral_core::shared_pointer<viral_core::render_material_id> material_id
 			(new viral_core::render_material_id("my_material"));
-
-
+		viral_core::shared_pointer<viral_core::render_material_id> material_id_wireframe
+			(new viral_core::render_material_id("my_material_wireframe"));
 
 		// Scene
-		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_id
+		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_id_boundingBox
 			(new viral_core::render_puppet_id("my_puppet"));
-		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_id2
-			(new viral_core::render_puppet_id("my_puppet2"));
+		std::vector<viral_core::shared_pointer<viral_core::render_puppet_id>> puppet_ids;
 		viral_core::shared_pointer<viral_core::render_light_id> light_id
 			(new viral_core::render_light_id("my_light"));
 		viral_core::shared_pointer<viral_core::render_scene_id> scene_id
@@ -420,23 +557,51 @@ namespace reconstruct {
 			(new viral_core::render_process_id("my_process"));
 
 
-		// Put together geometry.
-		viral_core::auto_pointer<viral_core::mesh> geometry_mesh
+
+		// ======== Put together geometry ======== 
+
+		// cube
+		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_cube
 			(new viral_core::mesh());
 		
 		viral_core::vector testVec(0, 0, 0);
-		createCubeAroundVector(geometry_mesh, testVec, 10);
+		createCubeAroundVector(geometry_mesh_cube, testVec, 3);
 
-		viral_core::auto_pointer<viral_core::model> geometry
+		viral_core::auto_pointer<viral_core::model> geometry_cube
 			(new viral_core::model());
-		geometry->insert_group("model_group", geometry_mesh);
-		geometry->rebuild_boundings();
-		geometry->validate();
+		geometry_cube->insert_group("model_group", geometry_mesh_cube);
+		geometry_cube->rebuild_boundings();
+		geometry_cube->validate();
 
 
-		// Fill data structures for later render-side objects.
-		viral_core::render_model_data model_data;
-		model_data.geometry = geometry;
+		// box
+		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_boundingBox
+			(new viral_core::mesh());
+
+		viral_core::vector near_top_left(-200, -220, -88);
+		viral_core::vector near_top_right(220, -220, -88);
+		viral_core::vector near_bot_left(-200, 220, -88);
+		viral_core::vector near_bot_right(220, 220, -88);
+		viral_core::vector far_top_left(-200, -220, 160);
+		viral_core::vector far_top_right(220, -220, 160);
+		viral_core::vector far_bot_left(-200, 220, 160);
+		viral_core::vector far_bot_right(220, 220, 160);
+		createBoxWithCorners(geometry_mesh_boundingBox, near_top_left, near_top_right, near_bot_left, near_bot_right,
+			far_top_left, far_top_right, far_bot_left, far_bot_right);
+
+		viral_core::auto_pointer<viral_core::model> geometry_boundingBox
+			(new viral_core::model());
+		geometry_boundingBox->insert_group("model_group_boundingBox", geometry_mesh_boundingBox);
+		geometry_boundingBox->rebuild_boundings();
+		geometry_boundingBox->validate();
+
+
+		// ======== Fill data structures for later render-side objects  ======== 
+		viral_core::render_model_data model_data_cube;
+		model_data_cube.geometry = geometry_cube;
+
+		viral_core::render_model_data model_data_boundingBox;
+		model_data_boundingBox.geometry = geometry_boundingBox;
 
 		viral_core::render_shader_data shader_data;
 		shader_data.fragment_shader =
@@ -450,16 +615,29 @@ namespace reconstruct {
 		material_data.cull = viral_core::render_material_data::cull_none;
 		material_data.shader = shader_id;
 
-		viral_core::render_puppet_data puppet_data;
-		puppet_data.position = viral_core::vector(0, 0, 100);
-		puppet_data.model = model_id;
-		puppet_data.materials.insert("model_group", material_id);
+		viral_core::render_material_data material_data_wireframe;
+		material_data_wireframe.wireframe = true;
+		material_data_wireframe.cull = viral_core::render_material_data::cull_none;
+		material_data_wireframe.shader = shader_id;
 
-		viral_core::render_puppet_data puppet_data2;
-		puppet_data2.position = viral_core::vector(50, 0, 100);
-		puppet_data2.model = model_id;
-		puppet_data2.materials.insert("model_group", material_id);
+		viral_core::render_puppet_data puppet_data_boundingBox;
+		puppet_data_boundingBox.position = viral_core::vector(0, 0, 0);
+		puppet_data_boundingBox.model = model_id_boundingBox;
+		puppet_data_boundingBox.materials.insert("model_group_boundingBox", material_id_wireframe);
 
+		std::vector<viral_core::render_puppet_data> puppet_datas;
+		for (int i = 0; i < occupiedPositions.size(); i++) {
+			viral_core::shared_pointer<viral_core::render_puppet_id> current_puppet_id
+				(new viral_core::render_puppet_id("my_puppet_" + i));
+			viral_core::render_puppet_data current_puppet_data;
+			viral_core::vector positionVec(occupiedPositions.at(i).x/10, occupiedPositions.at(i).y/10, occupiedPositions.at(i).z/10);
+			current_puppet_data.position = positionVec;
+			current_puppet_data.model = model_id_cube;
+			current_puppet_data.materials.insert("model_group", material_id);
+			puppet_ids.emplace_back(current_puppet_id);
+			puppet_datas.emplace_back(current_puppet_data);
+		}
+		
 		viral_core::render_light_data light_data;
 		light_data.emitter = viral_core::render_light_data::emitter_parallel;
 		light_data.orientation =
@@ -467,8 +645,10 @@ namespace reconstruct {
 			viral_core::rotation(viral_core::vector(0, 1, 0), 30);
 
 		viral_core::render_scene_data scene_data;
-		scene_data.objects.insert(puppet_id);
-		scene_data.objects.insert(puppet_id2);
+		scene_data.objects.insert(puppet_id_boundingBox);
+		for (int i = 0; i < occupiedPositions.size(); i++) {
+			scene_data.objects.insert(puppet_ids[i]);
+		}
 		scene_data.objects.insert(light_id);
 
 		viral_core::render_layer_data layer_data;
@@ -484,14 +664,18 @@ namespace reconstruct {
 		process_data.show_results = true;
 
 
-		// Commit data structures to render-side objects with appropriate ID.
+		// ======== Commit data structures to render-side objects with appropriate ID  ======== 
 		viral_core::auto_pointer<viral_core::render_command_queue> q
 			(new viral_core::render_command_queue());
-		q->commit(model_data, model_id);
+		q->commit(model_data_boundingBox, model_id_boundingBox);
+		q->commit(model_data_cube, model_id_cube);
 		q->commit(shader_data, shader_id);
 		q->commit(material_data, material_id);
-		q->commit(puppet_data, puppet_id);
-		q->commit(puppet_data2, puppet_id2);
+		q->commit(material_data_wireframe, material_id_wireframe);
+		q->commit(puppet_data_boundingBox, puppet_id_boundingBox);
+		for (int i = 0; i < occupiedPositions.size(); i++) {
+			q->commit(puppet_datas[i], puppet_ids[i]);
+		}
 		q->commit(light_data, light_id);
 		q->commit(scene_data, scene_id);
 		q->commit(layer_data, layer_id);

@@ -474,7 +474,7 @@ int main() {
 	if (TEST_SECTION) {
 
 
-		/*
+		
 		fr::frust firstFrust(cv::Point3f(0.0, 0.0, 0.0), cv::Point3f(2.0, 0.0, 0.0), cv::Point3f(2.0, -2.0, 0.0), cv::Point3f(0.0, -2.0, 0.0), 
 								  cv::Point3f(0.0, 0.0, 4.0), cv::Point3f(2.0, 0.0, 4.0), cv::Point3f(2.0, -2.0, 4.0), cv::Point3f(0.0, -2.0, 4.0));
 
@@ -487,9 +487,9 @@ int main() {
 		cout << intersect << endl;
 
 
-		*/
+		
 
-
+		
 
 		file_camera cam(0);
 
@@ -498,42 +498,42 @@ int main() {
 		sens.set_pinhole_distort(cam.world_to_device_pinhole_distort_, cam.pinhole_distort_center_, cam.pinhole_distort_focus_, cam.distort_r1_, cam.distort_r2_, cam.distort_t1_, cam.distort_t2_);
 
 
-
+		
 		std::vector<viral_core::vector> projectedVectors;
 		std::vector<int> pixels;
 
 		for (int i = 0; i < (2200+2000)/20; i++) {
 			int x = -2000 + 20 * i;
-			viral_core::vector vec(x, 0, 0);
+			viral_core::vector vec((float)x, 0, 0);
 
 			viral_core::vector projVec = sens.project(vec);
 			projectedVectors.emplace_back(projVec);
-			pixels.emplace_back(projVec.x);
-			pixels.emplace_back(projVec.y);
+			pixels.emplace_back((int)projVec.x);
+			pixels.emplace_back((int)projVec.y);
 		}
 		image_output::pixelVectorToImage(pixels, 1000, 1000, "projectionTestx.png");
 
 
 		for (int i = 0; i < (2200 + 2200) / 20; i++) {
 			int y = -2200 + 20 * i;
-			viral_core::vector vec(0, y, 0);
+			viral_core::vector vec(0, (float)y, 0);
 
 			viral_core::vector projVec = sens.project(vec);
 			projectedVectors.emplace_back(projVec);
-			pixels.emplace_back(projVec.x);
-			pixels.emplace_back(projVec.y);
+			pixels.emplace_back((int)projVec.x);
+			pixels.emplace_back((int)projVec.y);
 		}
 		image_output::pixelVectorToImage(pixels, 1000, 1000, "projectionTesty.png");
 
 
 		for (int i = 0; i < (880 + 1600) / 20; i++) {
 			int z = -880 + 20 * i;
-			viral_core::vector vec(0, 0, z);
+			viral_core::vector vec(0, 0, (float)z);
 
 			viral_core::vector projVec = sens.project(vec);
 			projectedVectors.emplace_back(projVec);
-			pixels.emplace_back(projVec.x);
-			pixels.emplace_back(projVec.y);
+			pixels.emplace_back((int)projVec.x);
+			pixels.emplace_back((int)projVec.y);
 		}
 		image_output::pixelVectorToImage(pixels, 1000, 1000, "projectionTestz.png");
 		
@@ -542,16 +542,16 @@ int main() {
 		cout << "test" << endl;
 
 
-
+		
 
 
 		reconstruct::reconstruct();
 
-
-
-
+		
 
 		/*
+
+		
 
 
 		///////// START RENDERING-DEMO
@@ -654,7 +654,7 @@ int main() {
 
 		viral_core::render_layer_data layer_data;
 		layer_data.scene = scene_id;
-		layer_data.background_color = viral_core::color(0.2, 0, 0, 0);
+		layer_data.background_color = viral_core::color(0.2f, 0, 0, 0);
 
 		viral_core::render_canvas_data canvas_data;
 		canvas_data.layers.insert(layer_id);
@@ -740,9 +740,9 @@ int main() {
 
 
 
-
-
 		*/
+
+		
 		
 
 

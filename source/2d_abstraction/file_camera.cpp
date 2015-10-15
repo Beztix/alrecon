@@ -36,6 +36,7 @@ distort_t1_(0), distort_t2_(0)
 
 void file_camera::init_calibration(string calibration_base_path)
 {
+	
 	string calibration_path = calibration_base_path + std::to_string(index + 1) + ".cal";
 
 	cout << "Loading calibration data from: " + calibration_path << endl;
@@ -47,7 +48,7 @@ void file_camera::init_calibration(string calibration_base_path)
 	}
 
 	image_size = viral_core::vector2i(line_lists[3][0], line_lists[3][1]);
-
+	
 	// Read full projection matrix, then decompose
 	// into rotation, position, calibration matrix.
 	double cv_projection_mem[3][4];
@@ -58,12 +59,14 @@ void file_camera::init_calibration(string calibration_base_path)
 			cv_projection_mem[y][x] = line_lists[y][x];
 		}
 
+
+	
 	CvMat cv_projection = cvMat(3, 4, CV_64F, cv_projection_mem);
 	CvMat *cv_calibration = cvCreateMat(3, 3, CV_64F);
 	CvMat *cv_rotation = cvCreateMat(3, 3, CV_64F);
 	CvMat *cv_position = cvCreateMat(4, 1, CV_64F);
 
-
+	
 	cvDecomposeProjectionMatrix(&cv_projection, cv_calibration, cv_rotation, cv_position);
 
 
@@ -100,5 +103,10 @@ void file_camera::init_calibration(string calibration_base_path)
 
 	cam_position_ = pos;
 	cam_orientation_ = viral_core::rotation(rotate.x_axis(), rotate.y_axis(), rotate.z_axis());
+
+
+	cvReleaseMat(&cv_calibration);
+	cvReleaseMat(&cv_rotation);
+	cvReleaseMat(&cv_position);
 }
 
