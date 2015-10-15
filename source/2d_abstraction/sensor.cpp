@@ -68,9 +68,7 @@ viral_core::vector sensor::project(const viral_core::vector& v) const
 		/*
 		TODO Warning this is required for Stefan's projections,
 		which already include center and focus distortions in the world to device matrix.
-
 		*/
-
 		ud_x = (ud_x - pinhole_distort_center_.x) * pinhole_distort_focus_inv_.x;
 		ud_y = (ud_y - pinhole_distort_center_.y) * pinhole_distort_focus_inv_.y;
 		

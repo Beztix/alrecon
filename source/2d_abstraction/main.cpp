@@ -77,6 +77,10 @@
 #include "convexHullForC.h"
 
 
+// Render stuff
+#include "reconstruction_primitive.h"
+
+
 #include <Windows.h>
 
 
@@ -541,6 +545,11 @@ int main() {
 
 
 
+		reconstruct::reconstruct();
+
+
+
+
 
 		/*
 
@@ -733,8 +742,8 @@ int main() {
 
 
 
-
 		*/
+		
 
 
 
