@@ -83,7 +83,10 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\sensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\source\2d_abstraction\reconstruction_primitive.h">
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_trivial_reconstruction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_rendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -151,7 +154,10 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\sensor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\source\2d_abstraction\reconstruction_primitive.cpp">
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_trivial_reconstruction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_rendering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -77,8 +77,9 @@
 #include "convexHullForC.h"
 
 
-// Render stuff
-#include "reconstruction_primitive.h"
+// Reconstruciton stuff
+#include "rec_trivial_reconstruction.h"
+#include "rec_rendering.h"
 
 
 #include <Windows.h>
@@ -473,7 +474,7 @@ int main() {
 
 	if (TEST_SECTION) {
 
-
+		/*
 		
 		fr::frust firstFrust(cv::Point3f(0.0, 0.0, 0.0), cv::Point3f(2.0, 0.0, 0.0), cv::Point3f(2.0, -2.0, 0.0), cv::Point3f(0.0, -2.0, 0.0), 
 								  cv::Point3f(0.0, 0.0, 4.0), cv::Point3f(2.0, 0.0, 4.0), cv::Point3f(2.0, -2.0, 4.0), cv::Point3f(0.0, -2.0, 4.0));
@@ -542,11 +543,12 @@ int main() {
 		cout << "test" << endl;
 
 
-		
+		*/
 
 
-		reconstruct::reconstruct();
+		std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct(30);
 
+		rec::renderOccupiedPositions(occupiedWorldPositions, 15);
 		
 
 		/*
