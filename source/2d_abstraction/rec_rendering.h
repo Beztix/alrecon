@@ -6,7 +6,7 @@
 
 namespace rec {
 	
-	void renderOccupiedPositions(std::vector<viral_core::vector> occupiedPositions, float cubesize);
+	void renderOccupiedPositions(std::vector<viral_core::vector> occupiedPositions, float cubesize, float scale);
 
 }
 
