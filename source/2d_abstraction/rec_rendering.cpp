@@ -31,6 +31,7 @@
 
 #include "file_camera.h"
 #include "sensor.h"
+#include "rec_sampling.h"
 
 #include <vector>
 
@@ -113,6 +114,44 @@ namespace rec {
 
 
 
+
+	void addSquare(viral_core::auto_pointer<viral_core::mesh> &geometry_mesh,
+		viral_core::vector top_left, viral_core::vector top_right, viral_core::vector bot_left, viral_core::vector bot_right) {
+
+
+		int start_index = geometry_mesh->vertex_count();
+
+		viral_core::mesh::const_stream_iterator normals_it = geometry_mesh->find_vertex_stream
+			(viral_core::mesh_stream_registry::normal_stream_name);
+
+		if (!normals_it)
+		{
+			viral_core::auto_pointer<viral_core::mesh_stream_vector> new_normals
+				(new viral_core::mesh_stream_vector());
+
+			normals_it = geometry_mesh->insert_vertex_stream
+				(viral_core::mesh_stream_registry::normal_stream_name,
+				new_normals);
+		}
+
+		viral_core::mesh_stream_vector& normals =
+			static_cast<viral_core::mesh_stream_vector&>(*normals_it->value);
+
+		geometry_mesh->vertices().push_back(top_left);	//0, top_left
+		geometry_mesh->vertices().push_back(top_right);	//1, top_right
+		geometry_mesh->vertices().push_back(bot_left);	//2, bot_left
+		geometry_mesh->vertices().push_back(bot_right);	//3, bot_right
+
+		geometry_mesh->triangles().push_back(viral_core::mesh_triangle(start_index + 0, start_index + 2, start_index + 1));
+		geometry_mesh->triangles().push_back(viral_core::mesh_triangle(start_index + 1, start_index + 2, start_index + 3));
+
+		normals.push_back(viral_core::vector(0, 0, -1).normalized());
+		normals.push_back(viral_core::vector(0, 0, -1).normalized());
+		normals.push_back(viral_core::vector(0, 0, -1).normalized());
+		normals.push_back(viral_core::vector(0, 0, -1).normalized());
+
+	}
+	
 
 
 
@@ -356,7 +395,48 @@ namespace rec {
 
 
 
+	void addCoordinateSystem(viral_core::auto_pointer<viral_core::mesh> &geometry_mesh, float sizeX, float sizeY, float sizeZ) {
+		float size = 0.5;
 
+		// x-axis
+		viral_core::vector near_top_left(-size, -size, -size);
+		viral_core::vector near_top_right(sizeX, -size, -size);
+		viral_core::vector near_bot_left(-size, size, -size);
+		viral_core::vector near_bot_right(sizeX, size, -size);
+		viral_core::vector far_top_left(-size, -size, size);
+		viral_core::vector far_top_right(sizeX, -size, size);
+		viral_core::vector far_bot_left(-size, size, size);
+		viral_core::vector far_bot_right(sizeX, size, size);
+		addBoxWithCorners(geometry_mesh, near_top_left, near_top_right, near_bot_left, near_bot_right,
+			far_top_left, far_top_right, far_bot_left, far_bot_right);
+
+
+		// y-axis
+		near_top_left = viral_core::vector(-size, -size, -size);
+		near_top_right = viral_core::vector(size, -size, -size);
+		near_bot_left = viral_core::vector(-size, sizeY, -size);
+		near_bot_right = viral_core::vector(size, sizeY, -size);
+		far_top_left = viral_core::vector(-size, -size, size);
+		far_top_right = viral_core::vector(size, -size, size);
+		far_bot_left = viral_core::vector(-size, sizeY, size);
+		far_bot_right = viral_core::vector(size, sizeY, size);
+		addBoxWithCorners(geometry_mesh, near_top_left, near_top_right, near_bot_left, near_bot_right,
+			far_top_left, far_top_right, far_bot_left, far_bot_right);
+
+
+		// z-axis
+		near_top_left = viral_core::vector(-size, -size, -size);
+		near_top_right = viral_core::vector(size, -size, -size);
+		near_bot_left = viral_core::vector(-size, size, -size);
+		near_bot_right = viral_core::vector(size, size, -size);
+		far_top_left = viral_core::vector(-size, -size, sizeZ);
+		far_top_right = viral_core::vector(size, -size, sizeZ);
+		far_bot_left = viral_core::vector(-size, size, sizeZ);
+		far_bot_right = viral_core::vector(size, size, sizeZ);
+		addBoxWithCorners(geometry_mesh, near_top_left, near_top_right, near_bot_left, near_bot_right,
+			far_top_left, far_top_right, far_bot_left, far_bot_right);
+
+	}
 
 
 
@@ -379,20 +459,27 @@ namespace rec {
 		viral_core::step_timer t(0.02f, 0.5f);
 
 		// ======= Resources ======= 
-		std::vector<viral_core::shared_pointer<viral_core::render_model_id>> model_ids_cubes;
+		std::vector<viral_core::shared_pointer<viral_core::render_model_id>> model_cubes_ids;
 		for (int i = 0; i < nrOfPuppets; i++) {
 			viral_core::shared_pointer<viral_core::render_model_id> current_model_id
 				(new viral_core::render_model_id("my_model_" + i));
-			model_ids_cubes.emplace_back(current_model_id);
+			model_cubes_ids.emplace_back(current_model_id);
 		}  
-		viral_core::shared_pointer<viral_core::render_model_id> model_id_boundingBox
-			(new viral_core::render_model_id("my_model_boundingBox"));
+		viral_core::shared_pointer<viral_core::render_model_id> model_boundingBox_id
+			(new viral_core::render_model_id("my_boundingBox_model"));
+		viral_core::shared_pointer<viral_core::render_model_id> model_coordinateAxes_id
+			(new viral_core::render_model_id("my_coordinateAxes_model"));
+		viral_core::shared_pointer<viral_core::render_model_id> model_testSquare_id
+			(new viral_core::render_model_id("my_testSquare_model"));
 		viral_core::shared_pointer<viral_core::render_shader_id> shader_id
 			(new viral_core::render_shader_id("my_shader"));
 		viral_core::shared_pointer<viral_core::render_material_id> material_id
 			(new viral_core::render_material_id("my_material"));
-		viral_core::shared_pointer<viral_core::render_material_id> material_id_wireframe
-			(new viral_core::render_material_id("my_material_wireframe"));
+		viral_core::shared_pointer<viral_core::render_material_id> material_wireframe_id
+			(new viral_core::render_material_id("my_wireframe_material"));
+		viral_core::shared_pointer<viral_core::render_material_id> material_unlit_id
+			(new viral_core::render_material_id("my_unlit_material"));
+
 
 		// ======= Scene ======= 
 		std::vector<viral_core::shared_pointer<viral_core::render_puppet_id>> puppet_ids;
@@ -401,10 +488,16 @@ namespace rec {
 				(new viral_core::render_puppet_id("my_puppet_" + i));
 			puppet_ids.emplace_back(current_puppet_id);
 		}
-		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_id_boundingBox
-			(new viral_core::render_puppet_id("my_puppet"));
+		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_boundingBox_id
+			(new viral_core::render_puppet_id("my_boundingBox_puppet"));
+		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_coordinateAxes_id
+			(new viral_core::render_puppet_id("my_coordinateAxes_puppet"));
+		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_testSquare_id
+			(new viral_core::render_puppet_id("my_coordinateAxes_puppet"));
 		viral_core::shared_pointer<viral_core::render_light_id> light_id
 			(new viral_core::render_light_id("my_light"));
+		viral_core::shared_pointer<viral_core::render_light_id> light2_id
+			(new viral_core::render_light_id("my_light_2"));
 		viral_core::shared_pointer<viral_core::render_scene_id> scene_id
 			(new viral_core::render_scene_id("my_scene"));
 
@@ -420,6 +513,34 @@ namespace rec {
 
 
 		// ######################### Put together geometry ######################### 
+
+
+		//create the test square 
+		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_testSquare
+			(new viral_core::mesh());
+
+		for (int i = 0; i < 7; i++) {
+
+			file_camera current_cam(i);
+			sensor current_sensor(i, current_cam.image_size, sensor::projection_pinhole_distort);
+			current_sensor.set_pinhole_distort(current_cam.world_to_device_pinhole_distort_, current_cam.pinhole_distort_center_, current_cam.pinhole_distort_focus_, 
+				current_cam.distort_r1_, current_cam.distort_r2_, current_cam.distort_t1_, current_cam.distort_t2_);
+
+			std::vector<viral_core::vector> vectors = rec::sample_camera(current_cam, current_sensor, i);
+
+
+			addSquare(geometry_mesh_testSquare, vectors.at(0), vectors.at(1), vectors.at(2), vectors.at(3));
+		}
+
+		
+
+		viral_core::auto_pointer<viral_core::model> geometry_testSquare
+			(new viral_core::model());
+		geometry_testSquare->insert_group("model_group_testSquare", geometry_mesh_testSquare);
+		geometry_testSquare->rebuild_boundings();
+		geometry_testSquare->validate();
+
+
 
 
 		std::vector<viral_core::auto_pointer<viral_core::model>> geometry_cubes_container;
@@ -476,6 +597,17 @@ namespace rec {
 		geometry_boundingBox->validate();
 
 
+		//create the coordinate axes of the world space
+		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_coordinateAxes
+			(new viral_core::mesh());
+		addCoordinateSystem(geometry_mesh_coordinateAxes, 500, 500, 300);
+
+		viral_core::auto_pointer<viral_core::model> geometry_coordinateAxes
+			(new viral_core::model());
+		geometry_coordinateAxes->insert_group("model_group_coordinateAxes", geometry_mesh_coordinateAxes);
+		geometry_coordinateAxes->rebuild_boundings();
+		geometry_coordinateAxes->validate();
+
 
 
 		// ######################### Fill data structures for later render-side objects ######################### 
@@ -492,6 +624,12 @@ namespace rec {
 		viral_core::render_model_data model_data_boundingBox;
 		model_data_boundingBox.geometry = geometry_boundingBox;
 
+		viral_core::render_model_data model_data_testSquare;
+		model_data_testSquare.geometry = geometry_testSquare;
+
+		viral_core::render_model_data model_data_coordinateAxes;
+		model_data_coordinateAxes.geometry = geometry_coordinateAxes;
+
 		viral_core::render_shader_data shader_data;
 		shader_data.fragment_shader =
 			e.files().open_file("shaders/shader.glfs", viral_core::file::read_only)->read_text();
@@ -499,9 +637,10 @@ namespace rec {
 			e.files().open_file("shaders/shader.glvs", viral_core::file::read_only)->read_text();
 
 		viral_core::render_material_data material_data;
-		material_data.ambient_color = viral_core::color(0, 0, 0, 1);
-		material_data.diffuse_color = viral_core::color(0, 1, 1, 1);
-		material_data.cull = viral_core::render_material_data::cull_none;
+		material_data.ambient_color = viral_core::color(1, 1, 1, 1);
+		material_data.diffuse_color = viral_core::color(1, 1, 1, 1);
+		material_data.specular_color = viral_core::color(0, 0, 0, 1);
+		material_data.cull = viral_core::render_material_data::cull_back;
 		material_data.shader = shader_id;
 
 		viral_core::render_material_data material_data_wireframe;
@@ -509,37 +648,83 @@ namespace rec {
 		material_data_wireframe.cull = viral_core::render_material_data::cull_none;
 		material_data_wireframe.shader = shader_id;
 
+		viral_core::render_material_data material_data_unlit;
+		material_data_unlit.ambient_color = viral_core::color(1, 0.2, 0.2, 1);
+		material_data_unlit.diffuse_color = viral_core::color(1, 0.2, 0.2, 1);
+		material_data_unlit.specular_color = viral_core::color(0, 0, 0, 1);
+		material_data_unlit.unlit = true;
+		material_data_unlit.cull = viral_core::render_material_data::cull_none;
+		material_data_unlit.shader = shader_id;
+
+
+		//add the test square model to the render_puppet_data
+		viral_core::render_puppet_data puppet_data_testSquare;
+		puppet_data_testSquare.position = viral_core::vector(0, 0, 0);
+		puppet_data_testSquare.model = model_testSquare_id;
+		puppet_data_testSquare.materials.insert("model_group_testSquare", material_unlit_id);
+
+
 		//add the bounding box model to the render_puppet_data
 		viral_core::render_puppet_data puppet_data_boundingBox;
 		puppet_data_boundingBox.position = viral_core::vector(0, 0, 0);
-		puppet_data_boundingBox.model = model_id_boundingBox;
-		puppet_data_boundingBox.materials.insert("model_group_boundingBox", material_id_wireframe);
+		puppet_data_boundingBox.model = model_boundingBox_id;
+		puppet_data_boundingBox.materials.insert("model_group_boundingBox", material_wireframe_id);
+
+
+		//add the coordinate axes model to the render_puppet_data
+		viral_core::render_puppet_data puppet_data_coordinateAxes;
+		puppet_data_coordinateAxes.position = viral_core::vector(0, 0, 0);
+		puppet_data_coordinateAxes.model = model_coordinateAxes_id;
+		puppet_data_coordinateAxes.materials.insert("model_group_coordinateAxes", material_unlit_id);
+
+
 
 		//add the cube models to the render_puppet_data
 		std::vector<viral_core::render_puppet_data> puppet_data_cubes_container;
 		for (int i = 0; i < nrOfPuppets; i++) {
 			viral_core::render_puppet_data current_puppet_data;
 			current_puppet_data.position = viral_core::vector(0, 0, 0);
-			current_puppet_data.model = model_ids_cubes.at(i);
+			current_puppet_data.model = model_cubes_ids.at(i);
 			current_puppet_data.materials.insert("model_group", material_id);
 			puppet_data_cubes_container.emplace_back(current_puppet_data);
 		}
 
 		viral_core::render_light_data light_data;
 		light_data.emitter = viral_core::render_light_data::emitter_parallel;
+		light_data.ambient_color = viral_core::color(0.05, 0.3, 0.05, 1.f);
+		light_data.diffuse_color = viral_core::color(0.1, 0.7, 0.1, 1.f);
+		light_data.specular_color = viral_core::color(0, 0, 0, 1.f);
+		light_data.intensity = 0.5f;
 		light_data.orientation =
 			viral_core::rotation(viral_core::vector(1, 0, 0), -30) *
 			viral_core::rotation(viral_core::vector(0, 1, 0), 30);
 
+		viral_core::render_light_data light2_data;
+		light2_data.emitter = viral_core::render_light_data::emitter_parallel;
+		light2_data.ambient_color = viral_core::color(0.05, 0.05, 0.3, 1.f);
+		light2_data.diffuse_color = viral_core::color(0.1, 0.1, 0.7, 1.f);
+		light2_data.specular_color = viral_core::color(0, 0, 0, 1.f);
+		light2_data.intensity = 0.8f;
+		light2_data.orientation =
+			viral_core::rotation(viral_core::vector(1, 0, 0), -130) *
+			viral_core::rotation(viral_core::vector(0, 1, 0), 145);
+
 		//add the puppets to the render_scene_data
 		viral_core::render_scene_data scene_data;
-		scene_data.objects.insert(puppet_id_boundingBox);
+		scene_data.objects.insert(puppet_boundingBox_id);
+		scene_data.objects.insert(puppet_coordinateAxes_id);
+		scene_data.objects.insert(puppet_testSquare_id);
 		for (int i = 0; i < nrOfPuppets; i++) {
 			scene_data.objects.insert(puppet_ids[i]);
 		}
 		scene_data.objects.insert(light_id);
+		scene_data.objects.insert(light2_id);
 
 		viral_core::render_layer_data layer_data;
+		layer_data.cam.position = viral_core::vector(-500, 0, 0);
+		layer_data.cam.orientation =
+			viral_core::rotation(viral_core::vector(1, 0, 0), -90) * 
+			viral_core::rotation(viral_core::vector(0, 1, 0), 90);
 		layer_data.scene = scene_id;
 		layer_data.background_color = viral_core::color(0.02f, 0, 0, 0);
 
@@ -561,20 +746,26 @@ namespace rec {
 			(new viral_core::render_command_queue());
 
 		// commit models
-		q->commit(model_data_boundingBox, model_id_boundingBox);
+		q->commit(model_data_coordinateAxes, model_coordinateAxes_id);
+		q->commit(model_data_boundingBox, model_boundingBox_id);
+		q->commit(model_data_testSquare, model_testSquare_id);
 		for (int i = 0; i < nrOfPuppets; i++)
-			q->commit(model_data_cubes_container[i], model_ids_cubes[i]);
+			q->commit(model_data_cubes_container[i], model_cubes_ids[i]);
 
 		q->commit(shader_data, shader_id);
 		q->commit(material_data, material_id);
-		q->commit(material_data_wireframe, material_id_wireframe);
+		q->commit(material_data_wireframe, material_wireframe_id);
+		q->commit(material_data_unlit, material_unlit_id);
 		
 		// commit puppets
-		q->commit(puppet_data_boundingBox, puppet_id_boundingBox);
+		q->commit(puppet_data_coordinateAxes, puppet_coordinateAxes_id);
+		q->commit(puppet_data_boundingBox, puppet_boundingBox_id);
+		q->commit(puppet_data_testSquare, puppet_testSquare_id);
 		for (int i = 0; i < nrOfPuppets; i++)
 			q->commit(puppet_data_cubes_container[i], puppet_ids[i]);
 
 		q->commit(light_data, light_id);
+		q->commit(light2_data, light2_id);
 		q->commit(scene_data, scene_id);
 		q->commit(layer_data, layer_id);
 		q->commit(canvas_data, canvas_id);

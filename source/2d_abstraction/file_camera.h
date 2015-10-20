@@ -29,6 +29,7 @@ class file_camera
 
 		viral_core::vector cam_position_;
 		viral_core::rotation cam_orientation_;
+		viral_core::rotation cam_inv_orientation_;
 
 		viral_core::vector2i image_size;
 };

@@ -101,9 +101,13 @@ void file_camera::init_calibration(string calibration_base_path)
 	pinhole_distort_focus_ = viral_core::vector2f(calibrate.c[0] / calibrate.c[10], calibrate.c[5] / calibrate.c[10]);
 	pinhole_distort_center_ = viral_core::vector2f(calibrate.c[2] / calibrate.c[10], calibrate.c[6] / calibrate.c[10]);
 
+	
+
 	cam_position_ = pos;
 	cam_orientation_ = viral_core::rotation(rotate.x_axis(), rotate.y_axis(), rotate.z_axis());
 
+	viral_core::matrix inv_rotate = rotate.invert_rigid();
+	cam_inv_orientation_ = viral_core::rotation(inv_rotate.x_axis(), inv_rotate.y_axis(), inv_rotate.z_axis());
 
 	cvReleaseMat(&cv_calibration);
 	cvReleaseMat(&cv_rotation);

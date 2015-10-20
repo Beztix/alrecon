@@ -89,6 +89,9 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_rendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_sampling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\source\2d_abstraction\main.cpp">
@@ -158,6 +161,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_rendering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_sampling.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

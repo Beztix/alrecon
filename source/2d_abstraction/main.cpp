@@ -80,6 +80,7 @@
 // Reconstruciton stuff
 #include "rec_trivial_reconstruction.h"
 #include "rec_rendering.h"
+#include "rec_sampling.h"
 
 
 #include <Windows.h>
@@ -545,11 +546,20 @@ int main() {
 
 		*/
 
+		
+		
 
 		std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct(30);
 
 		rec::renderOccupiedPositions(occupiedWorldPositions, 15, 0.1);
 		
+		
+
+
+
+
+		
+
 
 		/*
 

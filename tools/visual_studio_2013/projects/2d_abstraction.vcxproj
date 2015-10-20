@@ -30,6 +30,7 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\image_input.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\main.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_rendering.cpp" />
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_sampling.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_trivial_reconstruction.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\sensor.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_rosin_core.c" />
@@ -57,6 +58,7 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\image_output.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\image_input.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_rendering.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_sampling.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_trivial_reconstruction.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\sensor.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_rosin_core.h" />
