@@ -1,5 +1,5 @@
-#ifndef FRUSTUM_UTIL_H
-#define FRUSTUM_UTIL_H
+#ifndef REC_FRUSTUM_UTIL_H
+#define REC_FRUSTUM_UTIL_H
 
 
 
@@ -8,7 +8,7 @@
 
 
 
-namespace fr {
+namespace rec {
 
 
 
@@ -110,4 +110,4 @@ namespace fr {
 
 
 
-#endif /* SE_UTIL_H*/
+#endif /* REC_FRUSTUM_UTIL_H*/

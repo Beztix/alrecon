@@ -1,16 +1,14 @@
 /**
 *************************************************************************
 *
-* @file frustum_test.cpp
+* @file rec_frustum_test.cpp
 *
 * 
 *
 ************************************************************************/
 
-#include "frustum_test.h"
-
-
-#include "frustum_util.h"
+#include "rec_frustum_test.h"
+#include "rec_frustum_util.h"
 
 #include <opencv2/core/core.hpp>
 
@@ -18,7 +16,7 @@
 using namespace std;
 
 
-namespace fr {
+namespace rec {
 
 
 

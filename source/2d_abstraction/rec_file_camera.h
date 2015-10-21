@@ -1,18 +1,18 @@
-#ifndef FILE_CAMERA_H
-#define FILE_CAMERA_H
+#ifndef REC_FILE_CAMERA_H
+#define REC_FILE_CAMERA_H
 
 #include <string>
 
 #include <viral_core/geo_3d.hpp>
 #include <viral_core/geo_2d.hpp>
 
+namespace rec {
 
-
-class file_camera
-{
+	class file_camera
+	{
 	public:
 
-		file_camera (int index);
+		file_camera(int index);
 
 		void init_calibration(std::string calibration_base_path);
 
@@ -32,8 +32,8 @@ class file_camera
 		viral_core::rotation cam_inv_orientation_;
 
 		viral_core::vector2i image_size;
-};
+	};
 
 
-
-#endif /*FILE_CAMERA_H*/
+}
+#endif /*REC_FILE_CAMERA_H*/

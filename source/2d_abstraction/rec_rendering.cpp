@@ -11,6 +11,7 @@
 
 
 #include "image_input.h"
+#include "text_input.h"
 
 // Viral
 #include <viral_core/engine.hpp>
@@ -29,8 +30,8 @@
 
 
 
-#include "file_camera.h"
-#include "sensor.h"
+#include "rec_file_camera.h"
+#include "rec_sensor.h"
 #include "rec_sampling.h"
 
 #include <vector>
@@ -519,6 +520,7 @@ namespace rec {
 		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_testSquare
 			(new viral_core::mesh());
 
+		//for each camera
 		for (int i = 0; i < 7; i++) {
 
 			file_camera current_cam(i);
@@ -526,14 +528,21 @@ namespace rec {
 			current_sensor.set_pinhole_distort(current_cam.world_to_device_pinhole_distort_, current_cam.pinhole_distort_center_, current_cam.pinhole_distort_focus_, 
 				current_cam.distort_r1_, current_cam.distort_r2_, current_cam.distort_t1_, current_cam.distort_t2_);
 
-			std::vector<viral_core::vector> vectors = rec::sample_camera(current_cam, current_sensor, i);
+			//sample the plane in front of the camera, receive the corners of the plane
+			std::vector<viral_core::vector> vectors = rec::sample_camera_to_image(current_cam, current_sensor);
 
+			//add the plane in front of the camera to the geometry
+			//addSquare(geometry_mesh_testSquare, vectors.at(0), vectors.at(1), vectors.at(2), vectors.at(3));
 
-			addSquare(geometry_mesh_testSquare, vectors.at(0), vectors.at(1), vectors.at(2), vectors.at(3));
+			std::vector<std::vector<viral_core::vector>> positionGrid = text_input::readPositionsGridFromTextfile("sampledPositions_cam" + std::to_string(i) + ".txt", 640, 480);
+
+			for (int y = 0; y < 479; y++) {
+				for (int x = 0; x < 639; x++) {
+					addSquare(geometry_mesh_testSquare, positionGrid.at(y).at(x)*scale, positionGrid.at(y).at(x+1)*scale, positionGrid.at(y+1).at(x)*scale, positionGrid.at(y+1).at(x+1)*scale);
+				}
+			}
+
 		}
-
-		
-
 		viral_core::auto_pointer<viral_core::model> geometry_testSquare
 			(new viral_core::model());
 		geometry_testSquare->insert_group("model_group_testSquare", geometry_mesh_testSquare);
@@ -649,8 +658,8 @@ namespace rec {
 		material_data_wireframe.shader = shader_id;
 
 		viral_core::render_material_data material_data_unlit;
-		material_data_unlit.ambient_color = viral_core::color(1, 0.2, 0.2, 1);
-		material_data_unlit.diffuse_color = viral_core::color(1, 0.2, 0.2, 1);
+		material_data_unlit.ambient_color = viral_core::color(1, 0.1f, 0, 1);
+		material_data_unlit.diffuse_color = viral_core::color(1, 0.1f, 0, 1);
 		material_data_unlit.specular_color = viral_core::color(0, 0, 0, 1);
 		material_data_unlit.unlit = true;
 		material_data_unlit.cull = viral_core::render_material_data::cull_none;
@@ -661,7 +670,7 @@ namespace rec {
 		viral_core::render_puppet_data puppet_data_testSquare;
 		puppet_data_testSquare.position = viral_core::vector(0, 0, 0);
 		puppet_data_testSquare.model = model_testSquare_id;
-		puppet_data_testSquare.materials.insert("model_group_testSquare", material_unlit_id);
+		puppet_data_testSquare.materials.insert("model_group_testSquare", material_wireframe_id);
 
 
 		//add the bounding box model to the render_puppet_data
@@ -691,8 +700,8 @@ namespace rec {
 
 		viral_core::render_light_data light_data;
 		light_data.emitter = viral_core::render_light_data::emitter_parallel;
-		light_data.ambient_color = viral_core::color(0.05, 0.3, 0.05, 1.f);
-		light_data.diffuse_color = viral_core::color(0.1, 0.7, 0.1, 1.f);
+		light_data.ambient_color = viral_core::color(0.05f, 0.3f, 0.05f, 1.f);
+		light_data.diffuse_color = viral_core::color(0.1f, 0.7f, 0.1f, 1.f);
 		light_data.specular_color = viral_core::color(0, 0, 0, 1.f);
 		light_data.intensity = 0.5f;
 		light_data.orientation =
@@ -701,8 +710,8 @@ namespace rec {
 
 		viral_core::render_light_data light2_data;
 		light2_data.emitter = viral_core::render_light_data::emitter_parallel;
-		light2_data.ambient_color = viral_core::color(0.05, 0.05, 0.3, 1.f);
-		light2_data.diffuse_color = viral_core::color(0.1, 0.1, 0.7, 1.f);
+		light2_data.ambient_color = viral_core::color(0.05f, 0.05f, 0.3f, 1.f);
+		light2_data.diffuse_color = viral_core::color(0.1f, 0.1f, 0.7f, 1.f);
 		light2_data.specular_color = viral_core::color(0, 0, 0, 1.f);
 		light2_data.intensity = 0.8f;
 		light2_data.orientation =
@@ -726,7 +735,7 @@ namespace rec {
 			viral_core::rotation(viral_core::vector(1, 0, 0), -90) * 
 			viral_core::rotation(viral_core::vector(0, 1, 0), 90);
 		layer_data.scene = scene_id;
-		layer_data.background_color = viral_core::color(0.02f, 0, 0, 0);
+		layer_data.background_color = viral_core::color(0, 0, 0, 0);
 
 		viral_core::render_canvas_data canvas_data;
 		canvas_data.layers.insert(layer_id);

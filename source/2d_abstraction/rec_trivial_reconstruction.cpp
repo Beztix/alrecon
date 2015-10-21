@@ -29,8 +29,8 @@
 
 
 
-#include "file_camera.h"
-#include "sensor.h"
+#include "rec_file_camera.h"
+#include "rec_sensor.h"
 
 #include <vector>
 

@@ -139,6 +139,31 @@ namespace text_input {
 
 
 
+	std::vector<std::vector<viral_core::vector>> readPositionsGridFromTextfile(string input, int dimX, int dimY) {
+
+		ifstream infile(input);
+		float xPos, yPos, zPos;
+
+		std::vector<std::vector<viral_core::vector>> positionsGrid(480, std::vector<viral_core::vector>(640, viral_core::vector()));
+		
+		for (int y = 0; y < dimY; y++) {
+			for (int x = 0; x < dimX; x++) {
+				infile >> xPos >> yPos >> zPos;
+				viral_core::vector currentVec(xPos, yPos, zPos);
+				positionsGrid[y][x] = currentVec;
+			}
+		}
+
+
+		infile.close();
+
+		return positionsGrid;
+
+	}
+
+
+
+
 
 
 

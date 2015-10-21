@@ -29,10 +29,6 @@
 #include "se_util.h"
 #include "tree.hh"
 #include "tree_util.hh"
-#include "frustum_test.h"
-#include "frustum_util.h"
-#include "file_camera.h"
-#include "sensor.h"
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -81,6 +77,10 @@
 #include "rec_trivial_reconstruction.h"
 #include "rec_rendering.h"
 #include "rec_sampling.h"
+#include "rec_frustum_test.h"
+#include "rec_frustum_util.h"
+#include "rec_file_camera.h"
+#include "rec_sensor.h"
 
 
 #include <Windows.h>
@@ -477,14 +477,14 @@ int main() {
 
 		/*
 		
-		fr::frust firstFrust(cv::Point3f(0.0, 0.0, 0.0), cv::Point3f(2.0, 0.0, 0.0), cv::Point3f(2.0, -2.0, 0.0), cv::Point3f(0.0, -2.0, 0.0), 
+		rec::frust firstFrust(cv::Point3f(0.0, 0.0, 0.0), cv::Point3f(2.0, 0.0, 0.0), cv::Point3f(2.0, -2.0, 0.0), cv::Point3f(0.0, -2.0, 0.0), 
 								  cv::Point3f(0.0, 0.0, 4.0), cv::Point3f(2.0, 0.0, 4.0), cv::Point3f(2.0, -2.0, 4.0), cv::Point3f(0.0, -2.0, 4.0));
 
-		fr::frust secondFrust(cv::Point3f(-1.0, 0.0, -2.0), cv::Point3f(1.0, 0.0, -2.0), cv::Point3f(1.0, -2.0, -2.0), cv::Point3f(-1.0, -2.0, -2.0),
+		rec::frust secondFrust(cv::Point3f(-1.0, 0.0, -2.0), cv::Point3f(1.0, 0.0, -2.0), cv::Point3f(1.0, -2.0, -2.0), cv::Point3f(-1.0, -2.0, -2.0),
 							 	   cv::Point3f(-1.0, 0.0, 2.0), cv::Point3f(1.0, 0.0, 2.0), cv::Point3f(1.0, -2.0, 2.0), cv::Point3f(-1.0, -2.0, 2.0));
 
 
-		bool intersect = fr::doFrustumsIntesect(firstFrust, secondFrust);
+		bool intersect = rec::doFrustumsIntesect(firstFrust, secondFrust);
 
 		cout << intersect << endl;
 
@@ -549,9 +549,9 @@ int main() {
 		
 		
 
-		std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct(30);
+		std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct(20);
 
-		rec::renderOccupiedPositions(occupiedWorldPositions, 15, 0.1);
+		rec::renderOccupiedPositions(occupiedWorldPositions, 10, 0.1);
 		
 		
 
