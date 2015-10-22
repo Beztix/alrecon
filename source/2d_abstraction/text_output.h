@@ -8,7 +8,9 @@
 namespace text_output {
 
 
-	void writePositionsGridToTextfile(std::vector<std::vector<viral_core::vector>>, int index);
+	void writePositionsGridToTextfile(std::string location, std::vector<std::vector<viral_core::vector>> positionsGrid);
+
+	void writePositionsGridToBinaryfile(std::string location, std::vector<std::vector<viral_core::vector>> positionsGrid);
 
 
 

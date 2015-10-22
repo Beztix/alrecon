@@ -471,6 +471,44 @@ namespace util {
 
 
 
+	/// A helper function to compute the line-line closest point.
+	/** This code is adapted from http://paulbourke.net/geometry/lineline3d/ .
+		   dmnop = (xm - xn)(xo - xp) + (ym - yn)(yo - yp) + (zm - zn)(zo - zp).
+		   @param v An array of four floats: [0]: line 0 start. [1]: line 0 end. [2]: line 1 start. [3]: line 1 end. */
+	float Dmnop(const float3 *v, int m, int n, int o, int p)
+	{
+		return (v[m].x - v[n].x) * (v[o].x - v[p].x) + (v[m].y - v[n].y) * (v[o].y - v[p].y) + (v[m].z - v[n].z) * (v[o].z - v[p].z);
+	}
+
+	/// Computes the closest point pair on two lines.
+	/** The first line is specified by two points start0 and end0. The second line is specified by
+			   two points start1 and end1.
+			   The implementation of this function follows http://paulbourke.net/geometry/lineline3d/ .
+			   @param d [out] If specified, receives the normalized distance of the closest point along the first line.
+			   This pointer may be left null.
+			   @param d2 [out] If specified, receives the normalized distance of the closest point along the second line.
+			   This pointer may be left null.
+			   @return Returns the closest point on line start0<->end0 to the second line.
+			   @note This is a low-level utility function. You probably want to use ClosestPoint() or Distance() instead.
+			   @see ClosestPoint(), Distance(). */
+	float3 ClosestPointLineLine(float3 start0, float3 end0, float3 start1, float3 end1)
+	{
+		const float3 v[4] = { start0, end0, start1, end1 };
+
+		float d0232 = Dmnop(v, 0, 2, 3, 2);
+		float d3210 = Dmnop(v, 3, 2, 1, 0);
+		float d3232 = Dmnop(v, 3, 2, 3, 2);
+		float mu = (d0232 * d3210 - Dmnop(v, 0, 2, 1, 0)*d3232) / (Dmnop(v, 1, 0, 1, 0)*Dmnop(v, 3, 2, 3, 2) - Dmnop(v, 3, 2, 1, 0)*Dmnop(v, 3, 2, 1, 0));
+		
+		return start0 + (end0 - start0) * mu;
+	}
+
+
+
+
+
+
+
 
 
 

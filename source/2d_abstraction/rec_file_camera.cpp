@@ -47,7 +47,7 @@ namespace rec {
 			infile >> line_lists[i][0] >> line_lists[i][1] >> line_lists[i][2] >> line_lists[i][3];
 		}
 
-		image_size = viral_core::vector2i(line_lists[3][0], line_lists[3][1]);
+		image_size = viral_core::vector2i((int)line_lists[3][0], (int)line_lists[3][1]);
 
 		// Read full projection matrix, then decompose
 		// into rotation, position, calibration matrix.

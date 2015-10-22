@@ -7,6 +7,38 @@
 namespace util {
 
 
+	struct float3 {
+		float x;
+		float y;
+		float z;
+
+		float3() {
+			x = 0;
+			y = 0;
+			z = 0;
+		}
+
+		float3(float mx, float my, float mz) {
+			x = mx;
+			y = my;
+			z = mz;
+		}
+
+		float3 operator+(const float3 f) {
+			return float3(x + f.x, y + f.y, z + f.z);
+		}
+
+		float3 operator-(const float3 f) {
+			return float3(x - f.x, y - f.y, z - f.z);
+		}
+
+		float3 operator*(const float f) {
+			return float3(x*f, y*f, z*f);
+		}
+	};
+
+
+
 	void sortPixelFile(std::string input, std::string output);
 
 	std::vector<int> reducePixels(int* pixels, int width, int height, int spacing, std::string reducedImgName);
@@ -25,6 +57,9 @@ namespace util {
 	void getContours(std::string inputFile, std::string contourFile);
 
 	void getContoursRonin(std::string inputFile, std::string contourFile);
+
+
+	float3 ClosestPointLineLine(float3 start0, float3 end0, float3 start1, float3 end1);
 
 }
 

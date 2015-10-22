@@ -551,7 +551,7 @@ int main() {
 
 		std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct(20);
 
-		rec::renderOccupiedPositions(occupiedWorldPositions, 10, 0.1);
+		rec::renderOccupiedPositions(occupiedWorldPositions, 10, 0.1f);
 		
 		
 

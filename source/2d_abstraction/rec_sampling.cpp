@@ -17,7 +17,7 @@
 namespace rec {
 
 
-	std::vector<viral_core::vector> sample_camera_to_image(file_camera f, sensor s) {
+	std::vector<viral_core::vector> sample_camera_to_image(file_camera f, sensor s, float distance) {
 
 		viral_core::vector positionVector = f.cam_position_;
 		viral_core::rotation rotation = f.cam_inv_orientation_;
@@ -28,9 +28,9 @@ namespace rec {
 		viral_core::vector rotationVectorZ = rotation * viral_core::vector(0, 0, 1);
 
 		//calculate a plane in front of the camera
-		viral_core::vector centralPlaneVector = positionVector + rotationVectorZ * 500;
-		float sizeX = 700;
-		float sizeY = 500;
+		viral_core::vector centralPlaneVector = positionVector + rotationVectorZ * distance;
+		float sizeX = distance*1.5;
+		float sizeY = distance;
 		viral_core::vector topLeftPlaneVector = centralPlaneVector - rotationVectorX * sizeX - rotationVectorY * sizeY;
 		viral_core::vector topRightPlaneVector = centralPlaneVector + rotationVectorX * sizeX - rotationVectorY * sizeY;
 		viral_core::vector botLeftPlaneVector = centralPlaneVector - rotationVectorX * sizeX + rotationVectorY * sizeY;
@@ -62,10 +62,10 @@ namespace rec {
 
 
 		std::vector<viral_core::vector> cornerVectors;
-		cornerVectors.emplace_back(topLeftPlaneVector*0.1);
-		cornerVectors.emplace_back(topRightPlaneVector*0.1);
-		cornerVectors.emplace_back(botLeftPlaneVector*0.1);
-		cornerVectors.emplace_back(botRightPlaneVector*0.1);
+		cornerVectors.emplace_back(topLeftPlaneVector*0.1f);
+		cornerVectors.emplace_back(topRightPlaneVector*0.1f);
+		cornerVectors.emplace_back(botLeftPlaneVector*0.1f);
+		cornerVectors.emplace_back(botRightPlaneVector*0.1f);
 
 		return cornerVectors;
 	}
@@ -73,7 +73,7 @@ namespace rec {
 
 
 
-	std::vector<std::vector<viral_core::vector>> sample_camera_for_inv_projection(file_camera f, sensor s) {
+	std::vector<std::vector<viral_core::vector>> sample_camera_for_inv_projection(file_camera f, sensor s, float distance) {
 
 		viral_core::vector positionVector = f.cam_position_;
 		viral_core::rotation rotation = f.cam_inv_orientation_;
@@ -84,9 +84,9 @@ namespace rec {
 		viral_core::vector rotationVectorZ = rotation * viral_core::vector(0, 0, 1);
 
 		//calculate a plane in front of the camera
-		viral_core::vector centralPlaneVector = positionVector + rotationVectorZ * 500;
-		float sizeX = 700;
-		float sizeY = 500;
+		viral_core::vector centralPlaneVector = positionVector + rotationVectorZ * distance;
+		float sizeX = distance*1.5;
+		float sizeY = distance;
 		viral_core::vector topLeftPlaneVector = centralPlaneVector - rotationVectorX * sizeX - rotationVectorY * sizeY;
 		viral_core::vector topRightPlaneVector = centralPlaneVector + rotationVectorX * sizeX - rotationVectorY * sizeY;
 		viral_core::vector botLeftPlaneVector = centralPlaneVector - rotationVectorX * sizeX + rotationVectorY * sizeY;
@@ -111,13 +111,13 @@ namespace rec {
 				viral_core::vector projVec = s.project(vec);
 				if (0 <= projVec.x && projVec.x < 640 && 0 <= projVec.y && projVec.y < 480) {
 					//add the positions which are projected into the image to the std::vector of positions of the corresponding pixel
-					pixelGridWithPositions.at(projVec.y).at(projVec.x).emplace_back(vec);
+					pixelGridWithPositions.at((int)projVec.y).at((int)projVec.x).emplace_back(vec);
 				}
 			}
-
 		}
 
 
+		//create the avergae sampled position for each pixel
 		std::vector<std::vector<viral_core::vector>> pixelGridWithAveragePosition(480, std::vector<viral_core::vector>(640, viral_core::vector()));
 		
 		for (int y = 0; y < 480; y++) {
@@ -129,16 +129,18 @@ namespace rec {
 				for (int i = 0; i < positionsOfCurrentPixel.size(); i++) {
 					totalPositionVector = totalPositionVector + positionsOfCurrentPixel.at(i);
 				}
-
-				viral_core::vector averagePosition = totalPositionVector / positionsOfCurrentPixel.size();
-
+				//calculate average
+				viral_core::vector averagePosition = totalPositionVector / (float)positionsOfCurrentPixel.size();
 				pixelGridWithAveragePosition[y][x] = averagePosition;
-
 			}
 		}
 
 
-		text_output::writePositionsGridToTextfile(pixelGridWithAveragePosition, f.index);
+		//write averages to file
+		std::string locationString = "../../assets/camera_inversion/sampledPositions_d" + std::to_string((int)distance) + "_cam" + std::to_string(f.index);
+
+		text_output::writePositionsGridToTextfile(locationString + ".txt", pixelGridWithAveragePosition);
+		text_output::writePositionsGridToBinaryfile(locationString + ".bin", pixelGridWithAveragePosition);
 
 		return pixelGridWithAveragePosition;
 

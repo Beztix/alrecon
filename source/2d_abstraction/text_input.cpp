@@ -164,6 +164,27 @@ namespace text_input {
 
 
 
+	std::vector<std::vector<viral_core::vector>> readPositionsGridFromBinaryfile(string input, int dimX, int dimY) {
+
+		ifstream infile(input, ios::binary);
+		
+
+		std::vector<std::vector<viral_core::vector>> positionsGrid(480, std::vector<viral_core::vector>(640, viral_core::vector()));
+
+		for (int y = 0; y < dimY; y++) {
+			for (int x = 0; x < dimX; x++) {
+				viral_core::vector currentVec;
+				infile.read((char *)&currentVec, sizeof(viral_core::vector));
+				positionsGrid[y][x] = currentVec;
+			}
+		}
+
+
+		infile.close();
+
+		return positionsGrid;
+
+	}
 
 
 

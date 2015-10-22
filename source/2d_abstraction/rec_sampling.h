@@ -8,9 +8,9 @@
 
 namespace rec {
 
-	std::vector<viral_core::vector> sample_camera_to_image(file_camera f, sensor s);
+	std::vector<viral_core::vector> sample_camera_to_image(file_camera f, sensor s, float distance);
 
-	std::vector<std::vector<viral_core::vector>> sample_camera_for_inv_projection(file_camera f, sensor s);
+	std::vector<std::vector<viral_core::vector>> sample_camera_for_inv_projection(file_camera f, sensor s, float distance);
 
 }
 

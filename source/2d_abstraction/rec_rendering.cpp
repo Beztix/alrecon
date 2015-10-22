@@ -12,6 +12,8 @@
 
 #include "image_input.h"
 #include "text_input.h"
+#include "text_output.h"
+#include "util.h"
 
 // Viral
 #include <viral_core/engine.hpp>
@@ -115,28 +117,44 @@ namespace rec {
 
 
 
+	void addLine(viral_core::auto_pointer<viral_core::mesh> &geometry_mesh,
+		viral_core::vector vec_one, viral_core::vector vec_two) {
+	
+		int start_index = geometry_mesh->vertex_count();
+
+		viral_core::mesh::const_stream_iterator normals_it = geometry_mesh->find_vertex_stream(viral_core::mesh_stream_registry::normal_stream_name);
+		if (!normals_it)
+		{
+			viral_core::auto_pointer<viral_core::mesh_stream_vector> new_normals(new viral_core::mesh_stream_vector());
+			normals_it = geometry_mesh->insert_vertex_stream(viral_core::mesh_stream_registry::normal_stream_name, new_normals);
+		}
+		viral_core::mesh_stream_vector& normals = static_cast<viral_core::mesh_stream_vector&>(*normals_it->value);
+
+		geometry_mesh->vertices().push_back(vec_one);	//0
+		geometry_mesh->vertices().push_back(vec_two);	//1
+
+		geometry_mesh->lines().push_back(viral_core::mesh_line(start_index + 0, start_index + 1));
+	
+		normals.push_back(viral_core::vector(0, 0, -1).normalized());
+		normals.push_back(viral_core::vector(0, 0, -1).normalized());
+	}
+
+
+
 
 	void addSquare(viral_core::auto_pointer<viral_core::mesh> &geometry_mesh,
 		viral_core::vector top_left, viral_core::vector top_right, viral_core::vector bot_left, viral_core::vector bot_right) {
 
-
 		int start_index = geometry_mesh->vertex_count();
 
-		viral_core::mesh::const_stream_iterator normals_it = geometry_mesh->find_vertex_stream
-			(viral_core::mesh_stream_registry::normal_stream_name);
-
+		viral_core::mesh::const_stream_iterator normals_it = geometry_mesh->find_vertex_stream(viral_core::mesh_stream_registry::normal_stream_name);
 		if (!normals_it)
 		{
-			viral_core::auto_pointer<viral_core::mesh_stream_vector> new_normals
-				(new viral_core::mesh_stream_vector());
-
-			normals_it = geometry_mesh->insert_vertex_stream
-				(viral_core::mesh_stream_registry::normal_stream_name,
-				new_normals);
+			viral_core::auto_pointer<viral_core::mesh_stream_vector> new_normals(new viral_core::mesh_stream_vector());
+			normals_it = geometry_mesh->insert_vertex_stream(viral_core::mesh_stream_registry::normal_stream_name, new_normals);
 		}
+		viral_core::mesh_stream_vector& normals = static_cast<viral_core::mesh_stream_vector&>(*normals_it->value);
 
-		viral_core::mesh_stream_vector& normals =
-			static_cast<viral_core::mesh_stream_vector&>(*normals_it->value);
 
 		geometry_mesh->vertices().push_back(top_left);	//0, top_left
 		geometry_mesh->vertices().push_back(top_right);	//1, top_right
@@ -470,8 +488,10 @@ namespace rec {
 			(new viral_core::render_model_id("my_boundingBox_model"));
 		viral_core::shared_pointer<viral_core::render_model_id> model_coordinateAxes_id
 			(new viral_core::render_model_id("my_coordinateAxes_model"));
-		viral_core::shared_pointer<viral_core::render_model_id> model_testSquare_id
-			(new viral_core::render_model_id("my_testSquare_model"));
+		viral_core::shared_pointer<viral_core::render_model_id> model_cameraPlanes_id
+			(new viral_core::render_model_id("my_cameraPlanes_model"));
+		viral_core::shared_pointer<viral_core::render_model_id> model_cameraRays_id
+			(new viral_core::render_model_id("my_cameraRays_model"));
 		viral_core::shared_pointer<viral_core::render_shader_id> shader_id
 			(new viral_core::render_shader_id("my_shader"));
 		viral_core::shared_pointer<viral_core::render_material_id> material_id
@@ -480,6 +500,8 @@ namespace rec {
 			(new viral_core::render_material_id("my_wireframe_material"));
 		viral_core::shared_pointer<viral_core::render_material_id> material_unlit_id
 			(new viral_core::render_material_id("my_unlit_material"));
+		viral_core::shared_pointer<viral_core::render_material_id> material_transparent_id
+			(new viral_core::render_material_id("my_transparent_material"));
 
 
 		// ======= Scene ======= 
@@ -493,8 +515,10 @@ namespace rec {
 			(new viral_core::render_puppet_id("my_boundingBox_puppet"));
 		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_coordinateAxes_id
 			(new viral_core::render_puppet_id("my_coordinateAxes_puppet"));
-		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_testSquare_id
-			(new viral_core::render_puppet_id("my_coordinateAxes_puppet"));
+		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_cameraPlanes_id
+			(new viral_core::render_puppet_id("my_cameraPlanes_puppet"));
+		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_cameraRays_id
+			(new viral_core::render_puppet_id("my_cameraRays_puppet"));
 		viral_core::shared_pointer<viral_core::render_light_id> light_id
 			(new viral_core::render_light_id("my_light"));
 		viral_core::shared_pointer<viral_core::render_light_id> light2_id
@@ -516,9 +540,14 @@ namespace rec {
 		// ######################### Put together geometry ######################### 
 
 
-		//create the test square 
-		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_testSquare
+		//create the camera planes
+		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_cameraPlanes
 			(new viral_core::mesh());
+
+		//create the camera rays
+		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_cameraRays
+			(new viral_core::mesh());
+
 
 		//for each camera
 		for (int i = 0; i < 7; i++) {
@@ -528,26 +557,102 @@ namespace rec {
 			current_sensor.set_pinhole_distort(current_cam.world_to_device_pinhole_distort_, current_cam.pinhole_distort_center_, current_cam.pinhole_distort_focus_, 
 				current_cam.distort_r1_, current_cam.distort_r2_, current_cam.distort_t1_, current_cam.distort_t2_);
 
-			//sample the plane in front of the camera, receive the corners of the plane
-			std::vector<viral_core::vector> vectors = rec::sample_camera_to_image(current_cam, current_sensor);
+			// ==== sample test (whole plane) ==== 
 
+			//sample the plane in front of the camera, receive the corners of the plane
+			//std::vector<viral_core::vector> vectors = rec::sample_camera_to_image(current_cam, current_sensor, 500);
 			//add the plane in front of the camera to the geometry
 			//addSquare(geometry_mesh_testSquare, vectors.at(0), vectors.at(1), vectors.at(2), vectors.at(3));
 
-			std::vector<std::vector<viral_core::vector>> positionGrid = text_input::readPositionsGridFromTextfile("sampledPositions_cam" + std::to_string(i) + ".txt", 640, 480);
 
-			for (int y = 0; y < 479; y++) {
-				for (int x = 0; x < 639; x++) {
-					addSquare(geometry_mesh_testSquare, positionGrid.at(y).at(x)*scale, positionGrid.at(y).at(x+1)*scale, positionGrid.at(y+1).at(x)*scale, positionGrid.at(y+1).at(x+1)*scale);
+			// ==== sampling to create files ====
+			//rec::sample_camera_for_inv_projection(current_cam, current_sensor, 700);
+
+			
+
+
+			// ==== load the positions for camera inversion from binary file for distance 500 ====
+			std::string locationString = "../../assets/camera_inversion/sampledPositions_d" + std::to_string(500) + "_cam" + std::to_string(i);
+			std::vector<std::vector<viral_core::vector>> positionGrid500 = text_input::readPositionsGridFromBinaryfile(locationString + ".bin", 640, 480);
+
+			//add the viewing plane of the camera
+			int rasterSize = 5;
+			for (int y = 0; y < 480-rasterSize; y+=rasterSize) {
+				for (int x = 0; x < 640-rasterSize; x+=rasterSize) {
+					addSquare(geometry_mesh_cameraPlanes, positionGrid500.at(y).at(x)*scale, 
+						positionGrid500.at(y).at(x + rasterSize)*scale, 
+						positionGrid500.at(y + rasterSize).at(x)*scale, 
+						positionGrid500.at(y + rasterSize).at(x + rasterSize)*scale);
 				}
 			}
 
+
+			
+			// ==== load the positions for camera inversion from binary file for distance 700 ====
+			locationString = "../../assets/camera_inversion/sampledPositions_d" + std::to_string(700) + "_cam" + std::to_string(i);
+			std::vector<std::vector<viral_core::vector>> positionGrid700 = text_input::readPositionsGridFromBinaryfile(locationString + ".bin", 640, 480);
+
+			/*
+			//add the viewing plane of the camera
+			rasterSize = 5;
+			for (int y = 0; y < 480 - rasterSize; y += rasterSize) {
+				for (int x = 0; x < 640 - rasterSize; x += rasterSize) {
+					addSquare(geometry_mesh_cameraPlanes, positionGrid700.at(y).at(x)*scale,
+						positionGrid700.at(y).at(x + rasterSize)*scale,
+						positionGrid700.at(y + rasterSize).at(x)*scale,
+						positionGrid700.at(y + rasterSize).at(x + rasterSize)*scale);
+				}
+			}
+			*/
+
+			util::float3 startOne;
+			util::float3 endOne;
+			util::float3 startTwo;
+			util::float3 endTwo;
+
+			//add rays
+			rasterSize = 100;
+			for (int y = 0; y < 480; y += rasterSize) {
+				for (int x = 0; x < 640; x += rasterSize) {
+					viral_core::vector startVec = positionGrid500.at(y).at(x)*scale;
+					viral_core::vector endVec = positionGrid700.at(y).at(x)*scale;
+
+					viral_core::vector direction = endVec - startVec;
+
+					viral_core::vector furtherStartVec = endVec + direction * 3;
+					viral_core::vector furtherEndVec = startVec - direction * 3;
+
+					addLine(geometry_mesh_cameraRays, furtherStartVec, furtherEndVec);
+					if (y == 0 && x == 0) {
+						startOne = util::float3(furtherStartVec.x, furtherStartVec.y, furtherStartVec.z);
+						endOne = util::float3(furtherEndVec.x, furtherEndVec.y, furtherEndVec.z);
+					}
+					if (y == rasterSize && x == rasterSize) {
+						startTwo = util::float3(furtherStartVec.x, furtherStartVec.y, furtherStartVec.z);
+						endTwo = util::float3(furtherEndVec.x, furtherEndVec.y, furtherEndVec.z);
+					}
+				}
+			}
+
+			//calculate camera position with ray intersection
+			util::float3 intersection = util::ClosestPointLineLine(startOne, endOne, startTwo, endTwo);
+
+			//add camera
+			addCubeAroundVector(geometry_mesh_cameraPlanes, viral_core::vector(intersection.x, intersection.y, intersection.z), 1.0f);
 		}
-		viral_core::auto_pointer<viral_core::model> geometry_testSquare
+
+		viral_core::auto_pointer<viral_core::model> geometry_cameraPlanes
 			(new viral_core::model());
-		geometry_testSquare->insert_group("model_group_testSquare", geometry_mesh_testSquare);
-		geometry_testSquare->rebuild_boundings();
-		geometry_testSquare->validate();
+		geometry_cameraPlanes->insert_group("model_group_cameraPlanes", geometry_mesh_cameraPlanes);
+		geometry_cameraPlanes->rebuild_boundings();
+		geometry_cameraPlanes->validate();
+
+
+		viral_core::auto_pointer<viral_core::model> geometry_cameraRays
+			(new viral_core::model());
+		geometry_cameraRays->insert_group("model_group_cameraRays", geometry_mesh_cameraRays);
+		geometry_cameraRays->rebuild_boundings();
+		geometry_cameraRays->validate();
 
 
 
@@ -633,8 +738,11 @@ namespace rec {
 		viral_core::render_model_data model_data_boundingBox;
 		model_data_boundingBox.geometry = geometry_boundingBox;
 
-		viral_core::render_model_data model_data_testSquare;
-		model_data_testSquare.geometry = geometry_testSquare;
+		viral_core::render_model_data model_data_cameraPlanes;
+		model_data_cameraPlanes.geometry = geometry_cameraPlanes;
+
+		viral_core::render_model_data model_data_cameraRays;
+		model_data_cameraRays.geometry = geometry_cameraRays;
 
 		viral_core::render_model_data model_data_coordinateAxes;
 		model_data_coordinateAxes.geometry = geometry_coordinateAxes;
@@ -658,19 +766,34 @@ namespace rec {
 		material_data_wireframe.shader = shader_id;
 
 		viral_core::render_material_data material_data_unlit;
-		material_data_unlit.ambient_color = viral_core::color(1, 0.1f, 0, 1);
-		material_data_unlit.diffuse_color = viral_core::color(1, 0.1f, 0, 1);
+		material_data_unlit.ambient_color = viral_core::color(1, 0.05f, 0.05f, 1);
+		material_data_unlit.diffuse_color = viral_core::color(1, 0.05f, 0.05f, 1);
 		material_data_unlit.specular_color = viral_core::color(0, 0, 0, 1);
 		material_data_unlit.unlit = true;
 		material_data_unlit.cull = viral_core::render_material_data::cull_none;
 		material_data_unlit.shader = shader_id;
 
+		viral_core::render_material_data material_transparent_data;
+		material_transparent_data.ambient_color = viral_core::color(0.05f, 0.5f, 0, 0.2f);
+		material_transparent_data.diffuse_color = viral_core::color(0.05f, 0.5f, 0, 0.2f);
+		material_transparent_data.specular_color = viral_core::color(0, 0, 0, 0.2f);
+		material_transparent_data.blend = viral_core::render_material_data::blend_alpha;
+		material_transparent_data.cull = viral_core::render_material_data::cull_none;
+		material_transparent_data.shader = shader_id;
 
-		//add the test square model to the render_puppet_data
-		viral_core::render_puppet_data puppet_data_testSquare;
-		puppet_data_testSquare.position = viral_core::vector(0, 0, 0);
-		puppet_data_testSquare.model = model_testSquare_id;
-		puppet_data_testSquare.materials.insert("model_group_testSquare", material_wireframe_id);
+
+		//add the cameraPlanes model to the render_puppet_data
+		viral_core::render_puppet_data puppet_data_cameraPlanes;
+		puppet_data_cameraPlanes.position = viral_core::vector(0, 0, 0);
+		puppet_data_cameraPlanes.model = model_cameraPlanes_id;
+		puppet_data_cameraPlanes.materials.insert("model_group_cameraPlanes", material_transparent_id);
+
+
+		//add the cameraRays model to the render_puppet_data
+		viral_core::render_puppet_data puppet_data_cameraRays;
+		puppet_data_cameraRays.position = viral_core::vector(0, 0, 0);
+		puppet_data_cameraRays.model = model_cameraRays_id;
+		puppet_data_cameraRays.materials.insert("model_group_cameraRays", material_transparent_id);
 
 
 		//add the bounding box model to the render_puppet_data
@@ -722,7 +845,8 @@ namespace rec {
 		viral_core::render_scene_data scene_data;
 		scene_data.objects.insert(puppet_boundingBox_id);
 		scene_data.objects.insert(puppet_coordinateAxes_id);
-		scene_data.objects.insert(puppet_testSquare_id);
+		scene_data.objects.insert(puppet_cameraPlanes_id);
+		scene_data.objects.insert(puppet_cameraRays_id);
 		for (int i = 0; i < nrOfPuppets; i++) {
 			scene_data.objects.insert(puppet_ids[i]);
 		}
@@ -757,7 +881,8 @@ namespace rec {
 		// commit models
 		q->commit(model_data_coordinateAxes, model_coordinateAxes_id);
 		q->commit(model_data_boundingBox, model_boundingBox_id);
-		q->commit(model_data_testSquare, model_testSquare_id);
+		q->commit(model_data_cameraPlanes, model_cameraPlanes_id);
+		q->commit(model_data_cameraRays, model_cameraRays_id);
 		for (int i = 0; i < nrOfPuppets; i++)
 			q->commit(model_data_cubes_container[i], model_cubes_ids[i]);
 
@@ -765,11 +890,13 @@ namespace rec {
 		q->commit(material_data, material_id);
 		q->commit(material_data_wireframe, material_wireframe_id);
 		q->commit(material_data_unlit, material_unlit_id);
+		q->commit(material_transparent_data, material_transparent_id);
 		
 		// commit puppets
 		q->commit(puppet_data_coordinateAxes, puppet_coordinateAxes_id);
 		q->commit(puppet_data_boundingBox, puppet_boundingBox_id);
-		q->commit(puppet_data_testSquare, puppet_testSquare_id);
+		q->commit(puppet_data_cameraPlanes, puppet_cameraPlanes_id);
+		q->commit(puppet_data_cameraRays, puppet_cameraRays_id);
 		for (int i = 0; i < nrOfPuppets; i++)
 			q->commit(puppet_data_cubes_container[i], puppet_ids[i]);
 
