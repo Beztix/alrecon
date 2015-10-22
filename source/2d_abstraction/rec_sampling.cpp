@@ -10,7 +10,7 @@
 #include "rec_sampling.h"
 #include "image_output.h"
 #include "text_output.h"
-
+#include "text_input.h"
 
 
 
@@ -151,6 +151,34 @@ namespace rec {
 
 
 
+
+	std::vector<std::vector<viral_core::vector>> calculateNormalizedDirectionvectors(viral_core::vector camPosition, int distance, int index) {
+
+
+		std::string locationString = "../../assets/camera_inversion/sampledPositions_d" + std::to_string(distance) + "_cam" + std::to_string(index) + ".bin";
+	
+	
+
+		std::vector<std::vector<viral_core::vector>> positionGrid = text_input::readPositionsGridFromBinaryfile(locationString, 640, 480);
+		
+
+		std::vector<std::vector<viral_core::vector>> directionsGrid(480, std::vector<viral_core::vector>(640, viral_core::vector()));
+
+		for (int y = 0; y < 480; y++) {
+			for (int x = 0; x < 640; x++) {
+				viral_core::vector direction = positionGrid.at(y).at(x) - camPosition;
+				direction = direction / distance;
+				directionsGrid[y][x] = direction;
+			}
+		}
+
+		std::string destString = "../../assets/camera_inversion/directions_distanceNormalized_cam" + std::to_string(index);
+
+		text_output::writePositionsGridToTextfile(destString + ".txt", directionsGrid);
+		text_output::writePositionsGridToBinaryfile(destString + ".bin", directionsGrid);
+
+		return directionsGrid;
+	}
 
 
 

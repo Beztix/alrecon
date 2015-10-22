@@ -169,7 +169,7 @@ namespace text_input {
 		ifstream infile(input, ios::binary);
 		
 
-		std::vector<std::vector<viral_core::vector>> positionsGrid(480, std::vector<viral_core::vector>(640, viral_core::vector()));
+		std::vector<std::vector<viral_core::vector>> positionsGrid(dimY, std::vector<viral_core::vector>(dimX, viral_core::vector()));
 
 		for (int y = 0; y < dimY; y++) {
 			for (int x = 0; x < dimX; x++) {
