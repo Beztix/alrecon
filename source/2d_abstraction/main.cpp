@@ -73,7 +73,7 @@
 #include "convexHullForC.h"
 
 
-// Reconstruciton stuff
+// Reconstruction stuff
 #include "rec_trivial_reconstruction.h"
 #include "rec_rendering.h"
 #include "rec_sampling.h"
@@ -87,83 +87,6 @@
 
 
 using namespace std;
-
-
-
-
-
-
-
-// utility method to update the camera according to user input
-void update_camera
-	(viral_core::window_context& window,
-	 viral_core::input_context& input,
-	 viral_core::camera& cam)
-{
-	using namespace viral_core;
-	typedef viral_core::vector vector;
-
-	vector2f window_pos(window.position());
-	vector2f window_size(window.size());
-
-
-	// Update camera transforms from user input.
-	bool mouse_in_window =
-		input.value_of(input_source::m_absolute_x) >= window_pos.x &&
-		input.value_of(input_source::m_absolute_y) >= window_pos.y &&
-		input.value_of(input_source::m_absolute_x) <= window_pos.x + window_size.x &&
-		input.value_of(input_source::m_absolute_y) <= window_pos.y + window_size.y;
-
-	input.freeze_mouse
-		(mouse_in_window &&
-		(input.is_active(input_source::m_button0) ||
-		input.is_active(input_source::m_button1)));
-
-	if (mouse_in_window)
-	{
-		if (input.is_active(input_source::m_button0))
-		{
-			cam.orientation *=
-				rotation(vector(0, 1, 0), input.value_of(input_source::m_axis0) * 0.1f);
-			cam.orientation *=
-				rotation(vector(1, 0, 0), input.value_of(input_source::m_axis1) * 0.1f);
-		}
-
-		cam.orientation *=
-			rotation(vector(0, 1, 0), input.value_of(input_source::j0_axis0) * 0.1f);
-		cam.orientation *=
-			rotation(vector(1, 0, 0), -input.value_of(input_source::j0_axis1) * 0.1f);
-		cam.orientation *=
-			rotation(vector(0, 0, 1), input.value_of(input_source::j0_button6) * 0.1f);
-		cam.orientation *=
-			rotation(vector(0, 0, 1), -input.value_of(input_source::j0_button7) * 0.1f);
-
-		vector movement
-			(vector(0, 0, 1) * input.value_of(input_source::j0_axis5) +
-			 vector(0, 0, -1) * input.value_of(input_source::j0_axis4) +
-			 vector(0, 0, 1) * input.value_of(input_source::k_w) +
-			 vector(0, 0, -1) * input.value_of(input_source::k_s) +
-			 vector(1, 0, 0) * input.value_of(input_source::j0_axis2) +
-			 vector(1, 0, 0) * input.value_of(input_source::k_d) +
-			 vector(-1, 0, 0) * input.value_of(input_source::k_a) +
-			 vector(0, 1, 0) * input.value_of(input_source::j0_axis3) +
-			 vector(0, 1, 0) * input.value_of(input_source::k_space) +
-			 vector(0, -1, 0) * input.value_of(input_source::k_c));
-
-		if (movement.length() > 0.0001f)
-		{
-			movement *= 0.1f;
-
-			if (movement.length() > 0.1f)
-				movement = movement.normalized() * 0.1f;
-
-			movement = cam.orientation * movement;
-			cam.position += movement;
-		}
-	}
-}
-
-
 
 
 
@@ -257,10 +180,10 @@ int main() {
 		bool debug =		false;
 
 
-		string inputName =		"image";
+		string inputName =		"occMask_1";
 		int quality =			200;
 		vector<int> qualityValues =	{ 50000 , 10000 , 1000 , 200 , 100};
-		int iterations =		10;
+		int iterations =		1;
 		//++++++++++++++++++++++++++++
 
 		string inputImage = "images/" + inputName + ".png";
@@ -384,6 +307,8 @@ int main() {
 				vector<se::superellipse> ellipses = se::getEllipsesOfGivenDepth(seTree, k);
 				processSuperellipsesFromVector(ellipses, ellipseImagePart + to_string(k) + ".png", width, height);
 
+				processSuperellipsesToBoundingBoxFromVector(ellipses, ellipseImagePart + to_string(k) + ".png", width, height);
+
 				//combine the original and the ellipse image
 				image_output::combineOriginalAndEllipseImage(inputImage, ellipseImagePart + to_string(k) + ".png", combinedImagePart + to_string(k) + ".png");
 			}
@@ -394,12 +319,7 @@ int main() {
 			double renderDuration = (t6.QuadPart - t5.QuadPart) * 1000.0 / frequency.QuadPart;
 			cout << "renderDuration:               " << renderDuration << "ms" << endl;
 
-
-
-
 		}
-
-		
 
 	}
 

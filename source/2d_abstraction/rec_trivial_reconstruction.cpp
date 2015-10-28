@@ -88,13 +88,13 @@ namespace rec {
 		//load images used for reconstruction
 		
 		int width, height;
-		int* pixels_0 = image_input::loadPixelsFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_1.png", width, height);
-		int* pixels_1 = image_input::loadPixelsFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_2.png", width, height);
-		int* pixels_2 = image_input::loadPixelsFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_3.png", width, height);
-		int* pixels_3 = image_input::loadPixelsFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_4.png", width, height);
-		int* pixels_4 = image_input::loadPixelsFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_5.png", width, height);
-		int* pixels_5 = image_input::loadPixelsFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_6.png", width, height);
-		int* pixels_6 = image_input::loadPixelsFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_7.png", width, height);
+		int* pixels_0 = image_input::loadPixelGridFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_1.png", width, height);
+		int* pixels_1 = image_input::loadPixelGridFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_2.png", width, height);
+		int* pixels_2 = image_input::loadPixelGridFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_3.png", width, height);
+		int* pixels_3 = image_input::loadPixelGridFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_4.png", width, height);
+		int* pixels_4 = image_input::loadPixelGridFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_5.png", width, height);
+		int* pixels_5 = image_input::loadPixelGridFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_6.png", width, height);
+		int* pixels_6 = image_input::loadPixelGridFromImage("../../assets/TeletubbiesStefan/segmentedScenes/occMask_7.png", width, height);
 
 
 

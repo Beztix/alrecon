@@ -93,6 +93,95 @@ vector<tuple<double, double>> renderSuperellipseToPixelvector(double xc, double 
 
 
 
+/// calculates the bounding box of the given superellipse, returns the corners in counter clockwise order
+/**
+*
+*/
+
+vector<tuple<double, double>> getBoundingboxOfSuperellipse(double xc, double yc, double a, double b, double epsilon, double theta) {
+
+	double halfPi = M_PI*0.5;
+
+	std::vector<std::tuple<double, double>> corners;
+
+	double xa = a * cos(theta);
+	double ya = a * sin(theta);
+	double xb = b * cos(theta + halfPi);
+	double yb = b * sin(theta + halfPi);
+
+	double cornerX;
+	double cornerY;
+
+
+	//corner "top right"
+	cornerX = xc + xa + xb;
+	cornerY = yc + ya + yb;
+	corners.emplace_back(std::tuple<double, double>(cornerX, cornerY));
+
+	//corner "top right"
+	cornerX = xc - xa + xb;
+	cornerY = yc - ya + yb;
+	corners.emplace_back(std::tuple<double, double>(cornerX, cornerY));
+
+	//corner "top right"
+	cornerX = xc - xa - xb;
+	cornerY = yc - ya - yb;
+	corners.emplace_back(std::tuple<double, double>(cornerX, cornerY));
+
+	//corner "top right"
+	cornerX = xc + xa - xb;
+	cornerY = yc + ya - yb;
+	corners.emplace_back(std::tuple<double, double>(cornerX, cornerY));
+
+
+	return corners;
+}
+
+
+
+
+vector<int> createBoundingBoxLinesFromCorners(vector<int> cornerPixels) {
+	vector<int> lineData;
+	int nrOfBoxes = cornerPixels.size() / 8;
+	int nrOfLines = nrOfBoxes * 4;
+
+	for (int i = 0; i < nrOfBoxes; i++) {
+		int x1 = cornerPixels.at(8 * i);
+		int y1 = cornerPixels.at(8 * i + 1);
+		int x2 = cornerPixels.at(8 * i + 2);
+		int y2 = cornerPixels.at(8 * i + 3);
+		int x3 = cornerPixels.at(8 * i + 4);
+		int y3 = cornerPixels.at(8 * i + 5);
+		int x4 = cornerPixels.at(8 * i + 6);
+		int y4 = cornerPixels.at(8 * i + 7);
+
+		lineData.emplace_back(x1);
+		lineData.emplace_back(y1);
+		lineData.emplace_back(x2);
+		lineData.emplace_back(y2);
+
+		lineData.emplace_back(x2);
+		lineData.emplace_back(y2);
+		lineData.emplace_back(x3);
+		lineData.emplace_back(y3);
+
+		lineData.emplace_back(x3);
+		lineData.emplace_back(y3);
+		lineData.emplace_back(x4);
+		lineData.emplace_back(y4);
+
+		lineData.emplace_back(x4);
+		lineData.emplace_back(y4);
+		lineData.emplace_back(x1);
+		lineData.emplace_back(y1);
+	}
+
+	return lineData;
+
+}
+
+
+
 
 
 
@@ -157,6 +246,40 @@ int processSuperellipsesFromVector(vector<se::superellipse> superellipses, strin
 	}
 
 	image_output::writeSuperellipsesToImage(listOfEllipses, outputFile, width, height);
+
+	return 0;
+}
+
+
+
+int processSuperellipsesToBoundingBoxFromVector(vector<se::superellipse> superellipses, string outputFile, const int width, const int height) {
+
+	vector<tuple<double, double>> corners;
+	vector<vector<tuple<double, double>>> listOfBoundingBoxes;
+
+	vector<int> cornerPixels;
+
+	// reading superellipse parameters
+	for (int i = 0; i < superellipses.size(); i++) {
+		se::superellipse superellipse = superellipses.at(i);
+
+		corners = getBoundingboxOfSuperellipse(superellipse.xc, superellipse.yc, superellipse.a, superellipse.b, superellipse.epsilon, superellipse.theta);
+		listOfBoundingBoxes.emplace_back(corners);
+
+		for (int j = 0; j < corners.size(); j++) {
+			tuple<double, double> corner = corners.at(j);
+			int x = (int)std::get<0>(corner);
+			int y = (int)std::get<1>(corner);
+
+			cornerPixels.emplace_back(x);
+			cornerPixels.emplace_back(y);
+		}
+	}
+
+	image_output::pixelVectorToImage(cornerPixels, 640, 480, "test_" + outputFile);
+
+	vector<int> lineData = createBoundingBoxLinesFromCorners(cornerPixels);
+	image_output::renderArrayOfLinesToImage("test2_" + outputFile, 640, 480, lineData);
 
 	return 0;
 }

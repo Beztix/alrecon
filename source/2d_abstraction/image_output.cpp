@@ -28,7 +28,7 @@ namespace image_output {
 	* 
 	*/
 
-	void renderArrayOfLinesToImage(string name, int width, int height, int num, int data[1000]) {
+	void renderArrayOfLinesToImage(string name, int width, int height, vector<int> data) {
 
 		//create an image with given width and height
 		Mat image = Mat(height, width, CV_8UC3);
@@ -41,10 +41,21 @@ namespace image_output {
 		}
 
 		//draw the lines given by the input
-		for (int i = 0; i < num; i++) {
+		for (int i = 0; i < data.size()/4; i++) {
 			Point point1 = Point(data[4 * i], data[4 * i + 1]);
 			Point point2 = Point(data[4 * i + 2], data[4 * i + 3]);
-			line(image, point1, point2, Scalar(255, 200, 20), 1, 8, 0);
+
+			bool clip = false;
+			clip = clipLine(cv::Size(width, height), point1, point2);
+			if (clip) {
+				line(image, point1, point2, Scalar(255, 200, 20), 1, 8, 0);
+			}
+			/*
+			if (point1.x >= 0 && point1.x < width && point1.y >= 0 && point1.y < height &&
+				point2.x >= 0 && point2.x < width && point2.y >= 0 && point2.y < height) {
+				line(image, point1, point2, Scalar(255, 200, 20), 1, 8, 0);
+			}
+			*/
 		}
 
 		imwrite(name, image);
@@ -81,8 +92,10 @@ namespace image_output {
 		for (int i = 0; i < int(pixels.size() / 2); i++) {
 			x = pixels.at(2 * i);
 			y = pixels.at(2 * i + 1);
-			point = Point(x, y);
-			image.at<Vec3b>(point) = Vec3b(255, 255, 255);
+			if (x >= 0 && x < width && y >= 0 && y < height) {
+				point = Point(x, y);
+				image.at<Vec3b>(point) = Vec3b(255, 255, 255);
+			}
 		}
 
 		imwrite(imageName, image);

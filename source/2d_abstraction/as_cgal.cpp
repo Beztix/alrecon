@@ -154,7 +154,7 @@ int useCgal(string inputImage, string reducedImgName, string outputImage, int re
 	auto startTime = chrono::high_resolution_clock::now();
 
 	//loading binary input image
-	int* pixels = image_input::loadPixelsFromImage(inputImage, width, height);
+	int* pixels = image_input::loadPixelGridFromImage(inputImage, width, height);
 	if (pixels == nullptr){
 		return -1;
 	}

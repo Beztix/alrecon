@@ -33,7 +33,7 @@ namespace image_input {
 	* The method additionally receives two pointers to int values, to store the width and the height of the loaded image.
 	*/
 
-	int* loadPixelsFromImage(string imageLocation, int &width, int &height) {
+	int* loadPixelGridFromImage(string imageLocation, int &width, int &height) {
 		Mat image;
 		image = imread(imageLocation, CV_LOAD_IMAGE_COLOR);
 

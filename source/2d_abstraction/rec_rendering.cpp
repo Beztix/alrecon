@@ -308,6 +308,27 @@ namespace rec {
 
 			viral_core::vector scaledCamPosition = current_cam.cam_position_*scale;
 
+			locationString = "test2_se_rosin_tree_occMask_" + std::to_string(i+1) + "_ellipseImage_1.png";
+			int width, height;
+			int* pixels = image_input::loadPixelGridFromImage(locationString, width, height);
+
+			
+			//add rays
+			rasterSize = 1;
+			for (int y = 0; y < 480; y += rasterSize) {
+				for (int x = 0; x < 640; x += rasterSize) {
+					int pixelValue = pixels[y*width + x];
+					if (pixelValue > 0) {
+						viral_core::vector direction = directionsGrid.at(y).at(x);
+						viral_core::vector endVec = scaledCamPosition + (direction * 500);
+
+						addLine(geometry_mesh_cameraRays, scaledCamPosition, endVec);
+					}
+				}
+			}
+
+
+			/*
 			//add rays
 			rasterSize = 50;
 			for (int y = 0; y < 480; y += rasterSize) {
@@ -318,6 +339,7 @@ namespace rec {
 					addLine(geometry_mesh_cameraRays, scaledCamPosition, endVec);
 				}
 			}
+			*/
 
 
 			//add camera
