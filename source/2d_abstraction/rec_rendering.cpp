@@ -149,6 +149,8 @@ namespace rec {
 			(new viral_core::render_model_id("my_cameraPlanes_model"));
 		viral_core::shared_pointer<viral_core::render_model_id> model_cameraRays_id
 			(new viral_core::render_model_id("my_cameraRays_model"));
+		viral_core::shared_pointer<viral_core::render_model_id> model_cameraDrawings2D_id
+			(new viral_core::render_model_id("my_cameraDrawings2D_model"));
 		viral_core::shared_pointer<viral_core::render_shader_id> shader_id
 			(new viral_core::render_shader_id("my_shader"));
 		viral_core::shared_pointer<viral_core::render_material_id> material_id
@@ -176,6 +178,8 @@ namespace rec {
 			(new viral_core::render_puppet_id("my_cameraPlanes_puppet"));
 		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_cameraRays_id
 			(new viral_core::render_puppet_id("my_cameraRays_puppet"));
+		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_cameraDrawings2D_id
+			(new viral_core::render_puppet_id("my_cameraDrawings2D_puppet"));
 		viral_core::shared_pointer<viral_core::render_light_id> light_id
 			(new viral_core::render_light_id("my_light"));
 		viral_core::shared_pointer<viral_core::render_light_id> light2_id
@@ -205,6 +209,10 @@ namespace rec {
 		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_cameraRays
 			(new viral_core::mesh());
 
+		//create the 2d drawings on the camera planes
+		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_cameraDrawings2D
+			(new viral_core::mesh());
+
 
 		//for each camera
 		for (int i = 0; i < 7; i++) {
@@ -214,25 +222,18 @@ namespace rec {
 			current_sensor.set_pinhole_distort(current_cam.world_to_device_pinhole_distort_, current_cam.pinhole_distort_center_, current_cam.pinhole_distort_focus_, 
 				current_cam.distort_r1_, current_cam.distort_r2_, current_cam.distort_t1_, current_cam.distort_t2_);
 
-			// ==== sample test (whole plane) ==== 
+			viral_core::vector scaledCamPosition = current_cam.cam_position_*scale;
 
-			//sample the plane in front of the camera, receive the corners of the plane
-			//std::vector<viral_core::vector> vectors = rec::sample_camera_to_image(current_cam, current_sensor, 500);
-			//add the plane in front of the camera to the geometry
-			//addSquare(geometry_mesh_testSquare, vectors.at(0), vectors.at(1), vectors.at(2), vectors.at(3));
-
-
-			// ==== sampling to create files ====
-			//rec::sample_camera_for_inv_projection(current_cam, current_sensor, 700);
-
+			//add camera
+			addCubeAroundVector(geometry_mesh_cameraPlanes, scaledCamPosition, 2.0f);
 			
 
-			
 
-			// ==== load the positions for camera inversion from binary file for distance 500 ====
+			// ========    viewing plane d = 500    ========
+
+			/*
 			std::string locationString = "../../assets/camera_inversion/sampledPositions_d" + std::to_string(500) + "_cam" + std::to_string(i);
 			std::vector<std::vector<viral_core::vector>> positionGrid500 = text_input::readPositionsGridFromBinaryfile(locationString + ".bin", 640, 480);
-
 			//add the viewing plane of the camera
 			int rasterSize = 10;
 			for (int y = 0; y < 480-rasterSize; y+=rasterSize) {
@@ -243,96 +244,45 @@ namespace rec {
 						positionGrid500.at(y + rasterSize).at(x + rasterSize)*scale);
 				}
 			}
-
-			/*
-			
-			// ==== load the positions for camera inversion from binary file for distance 700 ====
-			locationString = "../../assets/camera_inversion/sampledPositions_d" + std::to_string(700) + "_cam" + std::to_string(i);
-			std::vector<std::vector<viral_core::vector>> positionGrid700 = text_input::readPositionsGridFromBinaryfile(locationString + ".bin", 640, 480);
-
-			
-			//add the viewing plane of the camera
-			rasterSize = 5;
-			for (int y = 0; y < 480 - rasterSize; y += rasterSize) {
-				for (int x = 0; x < 640 - rasterSize; x += rasterSize) {
-					addSquare(geometry_mesh_cameraPlanes, positionGrid700.at(y).at(x)*scale,
-						positionGrid700.at(y).at(x + rasterSize)*scale,
-						positionGrid700.at(y + rasterSize).at(x)*scale,
-						positionGrid700.at(y + rasterSize).at(x + rasterSize)*scale);
-				}
-			}
-			
-
-			util::float3 startOne;
-			util::float3 endOne;
-			util::float3 startTwo;
-			util::float3 endTwo;
-
-			//add rays
-			rasterSize = 100;
-			for (int y = 0; y < 480; y += rasterSize) {
-				for (int x = 0; x < 640; x += rasterSize) {
-					viral_core::vector startVec = positionGrid500.at(y).at(x)*scale;
-					viral_core::vector endVec = positionGrid700.at(y).at(x)*scale;
-
-					viral_core::vector direction = endVec - startVec;
-
-					viral_core::vector furtherStartVec = endVec + direction * 3;
-					viral_core::vector furtherEndVec = startVec - direction * 3;
-
-					addLine(geometry_mesh_cameraRays, furtherStartVec, furtherEndVec);
-					if (y == 0 && x == 0) {
-						startOne = util::float3(furtherStartVec.x, furtherStartVec.y, furtherStartVec.z);
-						endOne = util::float3(furtherEndVec.x, furtherEndVec.y, furtherEndVec.z);
-					}
-					if (y == rasterSize && x == rasterSize) {
-						startTwo = util::float3(furtherStartVec.x, furtherStartVec.y, furtherStartVec.z);
-						endTwo = util::float3(furtherEndVec.x, furtherEndVec.y, furtherEndVec.z);
-					}
-				}
-			}
-
-			//calculate camera position with ray intersection
-			util::float3 intersection = util::ClosestPointLineLine(startOne, endOne, startTwo, endTwo);
-
 			*/
-
-
-
-			//calculateNormalizedDirectionvectors(current_cam.cam_position_, 500, i);
-
-
-
-			locationString = "../../assets/camera_inversion/directions_distanceNormalized_cam" + std::to_string(i);
-			std::vector<std::vector<viral_core::vector>> directionsGrid = text_input::readPositionsGridFromBinaryfile(locationString + ".bin", 640, 480);
-
-			viral_core::vector scaledCamPosition = current_cam.cam_position_*scale;
-
-			locationString = "test2_se_rosin_tree_occMask_" + std::to_string(i+1) + "_ellipseImage_1.png";
-			int width, height;
-			int* pixels = image_input::loadPixelGridFromImage(locationString, width, height);
-
 			
-			//add rays
-			rasterSize = 1;
-			for (int y = 0; y < 480; y += rasterSize) {
-				for (int x = 0; x < 640; x += rasterSize) {
-					int pixelValue = pixels[y*width + x];
-					if (pixelValue > 0) {
-						viral_core::vector direction = directionsGrid.at(y).at(x);
-						viral_core::vector endVec = scaledCamPosition + (direction * 500);
 
-						addLine(geometry_mesh_cameraRays, scaledCamPosition, endVec);
-					}
+
+			// ========    (extended) viewing plane d = 700    ========
+
+			std::string locationString700 = "../../assets/camera_inversion/sampledPositions_d" + std::to_string(700) + "_cam" + std::to_string(i);
+			std::vector<std::vector<viral_core::vector>> positionGrid700 = text_input::readPositionsGridFromBinaryfile(locationString700 + ".bin", 1240, 1080);
+			//add the extended viewing plane of the camera
+			int rasterSize700 = 20;
+			for (int y = 0; y < 1080 - rasterSize700; y += rasterSize700) {
+				for (int x = 0; x < 1240 - rasterSize700; x += rasterSize700) {
+					addSquare(geometry_mesh_cameraPlanes, positionGrid700.at(y).at(x)*scale,
+						positionGrid700.at(y).at(x + rasterSize700)*scale,
+						positionGrid700.at(y + rasterSize700).at(x)*scale,
+						positionGrid700.at(y + rasterSize700).at(x + rasterSize700)*scale);
+				}
+			}
+			//add the real viewing plane of the camera
+			for (int y = 300; y < 780 - rasterSize700; y += rasterSize700) {
+				for (int x = 300; x < 940 - rasterSize700; x += rasterSize700) {
+					addSquare(geometry_mesh_cameraPlanes, positionGrid700.at(y).at(x)*scale,
+						positionGrid700.at(y).at(x + rasterSize700)*scale,
+						positionGrid700.at(y + rasterSize700).at(x)*scale,
+						positionGrid700.at(y + rasterSize700).at(x + rasterSize700)*scale);
 				}
 			}
 
+			
 
+			// ========    viewing rays    ========
+
+			std::string locationStringDirections = "../../assets/camera_inversion/directions_distanceNormalized_cam" + std::to_string(i);
+			std::vector<std::vector<viral_core::vector>> directionsGrid = text_input::readPositionsGridFromBinaryfile(locationStringDirections + ".bin", 1240, 1080);
 			/*
-			//add rays
-			rasterSize = 50;
-			for (int y = 0; y < 480; y += rasterSize) {
-				for (int x = 0; x < 640; x += rasterSize) {
+			//add all possible rays
+			int rasterSizeAllRays = 50;
+			for (int y = 300; y < 780; y += rasterSizeAllRays) {
+				for (int x = 300; x < 940; x += rasterSizeAllRays) {
 					viral_core::vector direction = directionsGrid.at(y).at(x);
 					viral_core::vector endVec = scaledCamPosition + (direction * 100);
 
@@ -340,11 +290,53 @@ namespace rec {
 				}
 			}
 			*/
+			
+			/*
+			//add rays corresponding to occupied pixels
+			std::string locationStringImage = "BB_occMask_" + std::to_string(i + 1) + "_lvl1.png";
+			int width, height;
+			int* pixels = image_input::loadPixelGridFromImage(locationStringImage, width, height);
+		
+			int rasterSizeOccupiedRays = 1;
+			for (int y = 0; y < 1080; y += rasterSizeOccupiedRays) {
+				for (int x = 0; x < 1240; x += rasterSizeOccupiedRays) {
+					int pixelValue = pixels[y*width + x];
+					if (pixelValue > 0) {
+						viral_core::vector direction = directionsGrid.at(y).at(x);
+						viral_core::vector endVec = scaledCamPosition + (direction * 100);
+
+						addLine(geometry_mesh_cameraRays, scaledCamPosition, endVec);
+					}
+				}
+			}
+			*/
 
 
-			//add camera
-			addCubeAroundVector(geometry_mesh_cameraPlanes, scaledCamPosition, 2.0f);
-		}
+			//add lines in plane corresponding to bounding box pixels
+			std::string locationStringCorners = "BBLines_occMask_" + std::to_string(i + 1) + "_lvl1.txt";
+			std::vector<int> corners = text_input::readIntVectorFromTextfile(locationStringCorners);
+			
+			for (int i = 0; i < corners.size() / 4; i++) {
+				int x1 = corners[4 * i];
+				int y1 = corners[4 * i + 1];
+				int x2 = corners[4 * i + 2];
+				int y2 = corners[4 * i + 3];
+
+
+
+				viral_core::vector direction1 = directionsGrid.at(y1).at(x1);
+				viral_core::vector endVec1 = scaledCamPosition + (direction1 * 70);
+
+				viral_core::vector direction2 = directionsGrid.at(y2).at(x2);
+				viral_core::vector endVec2 = scaledCamPosition + (direction2 * 70);
+
+				addLine(geometry_mesh_cameraDrawings2D, endVec1, endVec2);
+			}
+
+
+		}	//end of for each camera
+
+
 
 		viral_core::auto_pointer<viral_core::model> geometry_cameraPlanes
 			(new viral_core::model());
@@ -360,6 +352,11 @@ namespace rec {
 		geometry_cameraRays->validate();
 
 
+		viral_core::auto_pointer<viral_core::model> geometry_cameraDrawings2D
+			(new viral_core::model());
+		geometry_cameraDrawings2D->insert_group("model_group_cameraDrawings2D", geometry_mesh_cameraDrawings2D);
+		geometry_cameraDrawings2D->rebuild_boundings();
+		geometry_cameraDrawings2D->validate();
 
 
 		std::vector<viral_core::auto_pointer<viral_core::model>> geometry_cubes_container;
@@ -449,6 +446,9 @@ namespace rec {
 		viral_core::render_model_data model_data_cameraRays;
 		model_data_cameraRays.geometry = geometry_cameraRays;
 
+		viral_core::render_model_data model_data_cameraDrawings2D;
+		model_data_cameraDrawings2D.geometry = geometry_cameraDrawings2D;
+
 		viral_core::render_model_data model_data_coordinateAxes;
 		model_data_coordinateAxes.geometry = geometry_coordinateAxes;
 
@@ -499,6 +499,13 @@ namespace rec {
 		puppet_data_cameraRays.position = viral_core::vector(0, 0, 0);
 		puppet_data_cameraRays.model = model_cameraRays_id;
 		puppet_data_cameraRays.materials.insert("model_group_cameraRays", material_transparent_id);
+
+
+		//add the cameraDrawings2D model to the render_puppet_data
+		viral_core::render_puppet_data puppet_data_cameraDrawings2D;
+		puppet_data_cameraDrawings2D.position = viral_core::vector(0, 0, 0);
+		puppet_data_cameraDrawings2D.model = model_cameraDrawings2D_id;
+		puppet_data_cameraDrawings2D.materials.insert("model_group_cameraDrawings2D", material_unlit_id);
 
 
 		//add the bounding box model to the render_puppet_data
@@ -552,6 +559,7 @@ namespace rec {
 		scene_data.objects.insert(puppet_coordinateAxes_id);
 		scene_data.objects.insert(puppet_cameraPlanes_id);
 		scene_data.objects.insert(puppet_cameraRays_id);
+		scene_data.objects.insert(puppet_cameraDrawings2D_id);
 		for (int i = 0; i < nrOfPuppets; i++) {
 			scene_data.objects.insert(puppet_ids[i]);
 		}
@@ -588,6 +596,7 @@ namespace rec {
 		q->commit(model_data_boundingBox, model_boundingBox_id);
 		q->commit(model_data_cameraPlanes, model_cameraPlanes_id);
 		q->commit(model_data_cameraRays, model_cameraRays_id);
+		q->commit(model_data_cameraDrawings2D, model_cameraDrawings2D_id);
 		for (int i = 0; i < nrOfPuppets; i++)
 			q->commit(model_data_cubes_container[i], model_cubes_ids[i]);
 
@@ -602,6 +611,7 @@ namespace rec {
 		q->commit(puppet_data_boundingBox, puppet_boundingBox_id);
 		q->commit(puppet_data_cameraPlanes, puppet_cameraPlanes_id);
 		q->commit(puppet_data_cameraRays, puppet_cameraRays_id);
+		q->commit(puppet_data_cameraDrawings2D, puppet_cameraDrawings2D_id);
 		for (int i = 0; i < nrOfPuppets; i++)
 			q->commit(puppet_data_cubes_container[i], puppet_ids[i]);
 

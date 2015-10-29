@@ -8,6 +8,8 @@
 ************************************************************************/
 
 #include "rec_rendering_util.h"
+#include <iostream>
+#include <string>
 
 
 namespace rec {
@@ -28,7 +30,8 @@ namespace rec {
 		}
 		viral_core::mesh_stream_vector& normals = static_cast<viral_core::mesh_stream_vector&>(*normals_it->value);
 
-
+		//std::cout << "adding line from (" + std::to_string(vec_one.x) + "," + std::to_string(vec_one.y) + "," + std::to_string(vec_one.z) + ") to (" +
+		//	std::to_string(vec_two.x) + "," + std::to_string(vec_two.y) + "," + std::to_string(vec_two.z) + ")" << std::endl;
 
 		geometry_mesh->vertices().push_back(vec_one);	//0
 		geometry_mesh->vertices().push_back(vec_two);	//1

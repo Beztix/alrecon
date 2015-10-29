@@ -9,6 +9,7 @@
 
 #include "se_rendering.h"
 #include "image_output.h"
+#include "text_output.h"
 #include "se_util.h"
 
 #define _USE_MATH_DEFINES
@@ -252,7 +253,7 @@ int processSuperellipsesFromVector(vector<se::superellipse> superellipses, strin
 
 
 
-int processSuperellipsesToBoundingBoxFromVector(vector<se::superellipse> superellipses, string outputFile, const int width, const int height) {
+int processSuperellipsesToBoundingBoxFromVector(vector<se::superellipse> superellipses, string outputName, const int width, const int height, const int offset) {
 
 	vector<tuple<double, double>> corners;
 	vector<vector<tuple<double, double>>> listOfBoundingBoxes;
@@ -268,18 +269,20 @@ int processSuperellipsesToBoundingBoxFromVector(vector<se::superellipse> superel
 
 		for (int j = 0; j < corners.size(); j++) {
 			tuple<double, double> corner = corners.at(j);
-			int x = (int)std::get<0>(corner);
-			int y = (int)std::get<1>(corner);
+			int x = offset + (int)std::get<0>(corner);
+			int y = offset + (int)std::get<1>(corner);
 
 			cornerPixels.emplace_back(x);
 			cornerPixels.emplace_back(y);
 		}
 	}
 
-	image_output::pixelVectorToImage(cornerPixels, 640, 480, "test_" + outputFile);
+	image_output::pixelVectorToImage(cornerPixels, 640 + 2*offset, 480 + 2*offset, "BBCorners_" + outputName + ".png");
 
 	vector<int> lineData = createBoundingBoxLinesFromCorners(cornerPixels);
-	image_output::renderArrayOfLinesToImage("test2_" + outputFile, 640, 480, lineData);
+	text_output::writeIntVectorToTextfile("BBLines_" + outputName + ".txt", lineData);
+
+	image_output::renderArrayOfLinesToImage("BB_" + outputName + ".png", 640 + 2*offset, 480 + 2*offset, lineData);
 
 	return 0;
 }

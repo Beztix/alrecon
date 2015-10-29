@@ -174,153 +174,156 @@ int main() {
 
 	if (USE_SUPERELLIPSES_ROSIN) {
 
-		//++++++++++++++++++++++++++++
-		bool RECURSIVE =	false;
-		bool TREE =			true;
-		bool debug =		false;
+		for (int w = 1; w <= 7; w++) {
 
 
-		string inputName =		"occMask_1";
-		int quality =			200;
-		vector<int> qualityValues =	{ 50000 , 10000 , 1000 , 200 , 100};
-		int iterations =		1;
-		//++++++++++++++++++++++++++++
-
-		string inputImage = "images/" + inputName + ".png";
-
-		int width;
-		int height;
-
-		LARGE_INTEGER frequency;        // ticks per second
-		LARGE_INTEGER t1, t2, t3, t4, t5, t6;	//ticks
-		QueryPerformanceFrequency(&frequency);
-		double totalComputeDuration = 0;
-
-		//load the contours from the image
-		QueryPerformanceCounter(&t1);
-		vector<vector<cv::Point>> contours = image_input::getContoursFromImage(inputImage, width, height);
-
-		QueryPerformanceCounter(&t2);
-		double prepareDuration = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
-		cout << "prepareDuration:     " << prepareDuration << "ms" << endl;
+			//++++++++++++++++++++++++++++
+			bool RECURSIVE = false;
+			bool TREE = true;
+			bool debug = false;
 
 
+			string inputName = "occMask_" + std::to_string(w);
+			int quality = 200;
+			vector<int> qualityValues = { 50000, 10000, 1000, 200, 100 };
+			int iterations = 1;
+			//++++++++++++++++++++++++++++
 
-		if (RECURSIVE) {
-			string ellipseImage = "se_rosin_rec_" + inputName + "_ellipseImage_" + to_string(quality) + ".png";
-			string combinedImage = "se_rosin_rec_" + inputName + "_combined" + to_string(quality) + ".png";
+			string inputImage = "images/" + inputName + ".png";
 
-			vector<se::superellipse> totalEllipsesVector;
+			int width;
+			int height;
 
-			//do the whole computation multiple times (performance averageing)
-			for (int i = 0; i < iterations; i++) {
-				totalEllipsesVector.clear();
+			LARGE_INTEGER frequency;        // ticks per second
+			LARGE_INTEGER t1, t2, t3, t4, t5, t6;	//ticks
+			QueryPerformanceFrequency(&frequency);
+			double totalComputeDuration = 0;
 
-				//use recursive rosin fitting to fit superellipses to the contours
+			//load the contours from the image
+			QueryPerformanceCounter(&t1);
+			vector<vector<cv::Point>> contours = image_input::getContoursFromImage(inputImage, width, height);
 
-				QueryPerformanceCounter(&t3);
-				totalEllipsesVector = startRosinRecursive(contours, width, height, quality);
-
-				QueryPerformanceCounter(&t4);
-				double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
-				cout << "computeDuration:     " << computeDuration << "ms" << endl;
-
-				totalComputeDuration = totalComputeDuration + computeDuration;
-			}
-
-			cout << endl;
-			cout << "totalComputeDuration:         " << totalComputeDuration << "ms" << endl;
-			cout << "medium compute Duration:      " << totalComputeDuration / iterations << "ms" << endl;
-
-			cout << endl;
-			cout << "quality used:                 " << quality << endl;
-			cout << "number of superellipses:      " << totalEllipsesVector.size() << endl;
-
-			//render the fitted superellipses to an image file
-			QueryPerformanceCounter(&t5);
-			int err = processSuperellipsesFromVector(totalEllipsesVector, ellipseImage, width, height);
-
-			//combine the original and the ellipse image
-			image_output::combineOriginalAndEllipseImage(inputImage, ellipseImage, combinedImage);
-
-			QueryPerformanceCounter(&t6);
-			double renderDuration = (t6.QuadPart - t5.QuadPart) * 1000.0 / frequency.QuadPart;
-			cout << "renderDuration:               " << renderDuration << "ms" << endl;
-		}
+			QueryPerformanceCounter(&t2);
+			double prepareDuration = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
+			cout << "prepareDuration:     " << prepareDuration << "ms" << endl;
 
 
 
-		if (TREE) {
-			string ellipseImagePart = "se_rosin_tree_" + inputName + "_ellipseImage_";
-			string combinedImagePart = "se_rosin_tree_" + inputName + "_combined_";
+			if (RECURSIVE) {
+				string ellipseImage = "se_rosin_rec_" + inputName + "_ellipseImage_" + to_string(quality) + ".png";
+				string combinedImage = "se_rosin_rec_" + inputName + "_combined" + to_string(quality) + ".png";
 
-			tree<se::contourAndSe> seTree;
+				vector<se::superellipse> totalEllipsesVector;
 
-			//do the whole computation multiple times (performance averaging)
-			for (int i = 0; i < iterations; i++) {
-				seTree.clear();
+				//do the whole computation multiple times (performance averageing)
+				for (int i = 0; i < iterations; i++) {
+					totalEllipsesVector.clear();
 
-				QueryPerformanceCounter(&t3);
-		
-				//add root node to the tree
-				tree<se::contourAndSe>::iterator top = seTree.begin();
-				se::contourAndSe rootEllipse = se::contourAndSe();
-				seTree.insert(top, rootEllipse);
-				
-				if (debug) {
-					cout << endl;
-					cout << "initial tree" << endl;
-					kptree::print_tree_bracketed(seTree);
-					cout << endl;
+					//use recursive rosin fitting to fit superellipses to the contours
+
+					QueryPerformanceCounter(&t3);
+					totalEllipsesVector = startRosinRecursive(contours, width, height, quality);
+
+					QueryPerformanceCounter(&t4);
+					double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
+					cout << "computeDuration:     " << computeDuration << "ms" << endl;
+
+					totalComputeDuration = totalComputeDuration + computeDuration;
 				}
-				
-				startRosinTree(seTree, contours, width, height, qualityValues);
 
-				if (debug) {
-					cout << endl;
-					cout << "final tree" << endl;
-					kptree::print_tree_bracketed(seTree);
-					cout << endl;
-				}
-				
-				QueryPerformanceCounter(&t4);
-				double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
-				cout << "computeDuration:     " << computeDuration << "ms" << endl;
+				cout << endl;
+				cout << "totalComputeDuration:         " << totalComputeDuration << "ms" << endl;
+				cout << "medium compute Duration:      " << totalComputeDuration / iterations << "ms" << endl;
 
-				totalComputeDuration = totalComputeDuration + computeDuration;
-			}
+				cout << endl;
+				cout << "quality used:                 " << quality << endl;
+				cout << "number of superellipses:      " << totalEllipsesVector.size() << endl;
 
-			int depth = seTree.max_depth();
-
-			cout << endl;
-			cout << "totalComputeDuration:         " << totalComputeDuration << "ms" << endl;
-			cout << "medium compute Duration:      " << totalComputeDuration / iterations << "ms" << endl;
-
-			cout << endl;
-			cout << "quality used:                 " << quality << endl;
-			cout << "depth of tree:                " << depth << endl;
-
-			//render the fitted superellipses to image files
-			QueryPerformanceCounter(&t5);
-
-			for (int k = 1; k <= depth; k++) {
-				vector<se::superellipse> ellipses = se::getEllipsesOfGivenDepth(seTree, k);
-				processSuperellipsesFromVector(ellipses, ellipseImagePart + to_string(k) + ".png", width, height);
-
-				processSuperellipsesToBoundingBoxFromVector(ellipses, ellipseImagePart + to_string(k) + ".png", width, height);
+				//render the fitted superellipses to an image file
+				QueryPerformanceCounter(&t5);
+				int err = processSuperellipsesFromVector(totalEllipsesVector, ellipseImage, width, height);
 
 				//combine the original and the ellipse image
-				image_output::combineOriginalAndEllipseImage(inputImage, ellipseImagePart + to_string(k) + ".png", combinedImagePart + to_string(k) + ".png");
+				image_output::combineOriginalAndEllipseImage(inputImage, ellipseImage, combinedImage);
+
+				QueryPerformanceCounter(&t6);
+				double renderDuration = (t6.QuadPart - t5.QuadPart) * 1000.0 / frequency.QuadPart;
+				cout << "renderDuration:               " << renderDuration << "ms" << endl;
 			}
 
-		
 
-			QueryPerformanceCounter(&t6);
-			double renderDuration = (t6.QuadPart - t5.QuadPart) * 1000.0 / frequency.QuadPart;
-			cout << "renderDuration:               " << renderDuration << "ms" << endl;
 
+			if (TREE) {
+				string ellipseImagePart = "se_rosin_tree_" + inputName + "_ellipseImage_";
+				string combinedImagePart = "se_rosin_tree_" + inputName + "_combined_";
+
+				tree<se::contourAndSe> seTree;
+
+				//do the whole computation multiple times (performance averaging)
+				for (int i = 0; i < iterations; i++) {
+					seTree.clear();
+
+					QueryPerformanceCounter(&t3);
+
+					//add root node to the tree
+					tree<se::contourAndSe>::iterator top = seTree.begin();
+					se::contourAndSe rootEllipse = se::contourAndSe();
+					seTree.insert(top, rootEllipse);
+
+					if (debug) {
+						cout << endl;
+						cout << "initial tree" << endl;
+						kptree::print_tree_bracketed(seTree);
+						cout << endl;
+					}
+
+					startRosinTree(seTree, contours, width, height, qualityValues);
+
+					if (debug) {
+						cout << endl;
+						cout << "final tree" << endl;
+						kptree::print_tree_bracketed(seTree);
+						cout << endl;
+					}
+
+					QueryPerformanceCounter(&t4);
+					double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
+					cout << "computeDuration:     " << computeDuration << "ms" << endl;
+
+					totalComputeDuration = totalComputeDuration + computeDuration;
+				}
+
+				int depth = seTree.max_depth();
+
+				cout << endl;
+				cout << "totalComputeDuration:         " << totalComputeDuration << "ms" << endl;
+				cout << "medium compute Duration:      " << totalComputeDuration / iterations << "ms" << endl;
+
+				cout << endl;
+				cout << "quality used:                 " << quality << endl;
+				cout << "depth of tree:                " << depth << endl;
+
+				//render the fitted superellipses to image files
+				QueryPerformanceCounter(&t5);
+
+				for (int k = 1; k <= depth; k++) {
+					vector<se::superellipse> ellipses = se::getEllipsesOfGivenDepth(seTree, k);
+					processSuperellipsesFromVector(ellipses, ellipseImagePart + to_string(k) + ".png", width, height);
+
+					processSuperellipsesToBoundingBoxFromVector(ellipses, inputName + "_lvl" + to_string(k), width, height, 300);
+
+					//combine the original and the ellipse image
+					image_output::combineOriginalAndEllipseImage(inputImage, ellipseImagePart + to_string(k) + ".png", combinedImagePart + to_string(k) + ".png");
+				}
+
+
+
+				QueryPerformanceCounter(&t6);
+				double renderDuration = (t6.QuadPart - t5.QuadPart) * 1000.0 / frequency.QuadPart;
+				cout << "renderDuration:               " << renderDuration << "ms" << endl;
+
+			}
 		}
-
 	}
 
 
@@ -468,6 +471,7 @@ int main() {
 
 		
 		
+		//rec::doAllSamplingCalculations();
 
 		std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct(20);
 
@@ -475,7 +479,7 @@ int main() {
 		
 		
 
-
+		
 
 
 		

@@ -12,7 +12,7 @@ namespace text_output {
 
 	void writePositionsGridToBinaryfile(std::string location, std::vector<std::vector<viral_core::vector>> positionsGrid);
 
-
+	void writeIntVectorToTextfile(std::string location, std::vector<int> data);
 
 }
 

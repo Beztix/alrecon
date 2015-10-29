@@ -189,4 +189,21 @@ namespace text_input {
 
 
 
+	std::vector<int> readIntVectorFromTextfile(std::string input) {
+		ifstream infile(input);
+		
+		std::vector<int> output;
+		int in;
+
+		while (infile >> in) {
+			output.emplace_back(in);
+		}
+
+		infile.close();
+
+		return output;
+	}
+
+
+
 }

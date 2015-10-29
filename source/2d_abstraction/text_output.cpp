@@ -24,6 +24,9 @@ namespace text_output {
 		std::ofstream outfile(location, std::ios_base::trunc);
 
 		for (int y = 0; y < positionsGrid.size(); y++) {
+			if (y % 100 == 0) {
+				std::cout << "writing row " + std::to_string(y) << std::endl;
+			}
 			std::vector<viral_core::vector> currentPositionsLine = positionsGrid.at(y);
 			for (int x = 0; x < currentPositionsLine.size(); x++) {
 				viral_core::vector currentPosition = currentPositionsLine.at(x);
@@ -44,6 +47,9 @@ namespace text_output {
 	
 		std::ofstream outfile(location, std::ios::out | std::ofstream::binary);
 		for (int y = 0; y < positionsGrid.size(); y++) {
+			if (y % 100 == 0) {
+				std::cout << "writing row " + std::to_string(y) << std::endl;
+			}
 			std::vector<viral_core::vector> currentPositionsLine = positionsGrid.at(y);
 			for(int x = 0; x < currentPositionsLine.size(); x++) {
 				viral_core::vector currentPosition = currentPositionsLine.at(x);
@@ -54,6 +60,19 @@ namespace text_output {
 		outfile.close();
 
 
+	}
+
+
+
+	void writeIntVectorToTextfile(std::string location, std::vector<int> data) {
+		std::ofstream outfile(location, std::ios_base::trunc);
+
+		for (int i = 0; i < data.size(); i++) {
+			outfile << std::to_string(data.at(i)) << "\n";
+		}
+
+
+		outfile.close();
 	}
 
 

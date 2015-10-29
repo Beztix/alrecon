@@ -12,6 +12,8 @@ namespace text_input {
 	std::vector<std::vector<viral_core::vector>> readPositionsGridFromTextfile(std::string input, int dimX, int dimY);
 
 	std::vector<std::vector<viral_core::vector>> readPositionsGridFromBinaryfile(std::string input, int dimX, int dimY);
+
+	std::vector<int> readIntVectorFromTextfile(std::string input);
 }
 
 
