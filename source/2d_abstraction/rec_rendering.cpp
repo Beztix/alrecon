@@ -151,6 +151,8 @@ namespace rec {
 			(new viral_core::render_model_id("my_cameraRays_model"));
 		viral_core::shared_pointer<viral_core::render_model_id> model_cameraDrawings2D_id
 			(new viral_core::render_model_id("my_cameraDrawings2D_model"));
+		viral_core::shared_pointer<viral_core::render_model_id> model_frustums_id
+			(new viral_core::render_model_id("my_frustums_model"));
 		viral_core::shared_pointer<viral_core::render_shader_id> shader_id
 			(new viral_core::render_shader_id("my_shader"));
 		viral_core::shared_pointer<viral_core::render_material_id> material_id
@@ -161,6 +163,8 @@ namespace rec {
 			(new viral_core::render_material_id("my_unlit_material"));
 		viral_core::shared_pointer<viral_core::render_material_id> material_transparent_id
 			(new viral_core::render_material_id("my_transparent_material"));
+		viral_core::shared_pointer<viral_core::render_material_id> material_transparent2_id
+			(new viral_core::render_material_id("my_transparent2_material"));
 
 
 		// ======= Scene ======= 
@@ -180,6 +184,8 @@ namespace rec {
 			(new viral_core::render_puppet_id("my_cameraRays_puppet"));
 		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_cameraDrawings2D_id
 			(new viral_core::render_puppet_id("my_cameraDrawings2D_puppet"));
+		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_frustums_id
+			(new viral_core::render_puppet_id("my_frustums_puppet"));
 		viral_core::shared_pointer<viral_core::render_light_id> light_id
 			(new viral_core::render_light_id("my_light"));
 		viral_core::shared_pointer<viral_core::render_light_id> light2_id
@@ -201,6 +207,42 @@ namespace rec {
 		// ######################### Put together geometry ######################### 
 
 
+		// create the bounding box of the world space 
+		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_boundingBox
+			(new viral_core::mesh());
+
+		viral_core::vector near_top_left(-2000 * scale, -2200 * scale, -880 * scale);
+		viral_core::vector near_top_right(2200 * scale, -2200 * scale, -880 * scale);
+		viral_core::vector near_bot_left(-2000 * scale, 2200 * scale, -880 * scale);
+		viral_core::vector near_bot_right(2200 * scale, 2200 * scale, -880 * scale);
+		viral_core::vector far_top_left(-2000 * scale, -2200 * scale, 1600 * scale);
+		viral_core::vector far_top_right(2200 * scale, -2200 * scale, 1600 * scale);
+		viral_core::vector far_bot_left(-2000 * scale, 2200 * scale, 1600 * scale);
+		viral_core::vector far_bot_right(2200 * scale, 2200 * scale, 1600 * scale);
+		addBoxWithCorners(geometry_mesh_boundingBox, near_top_left, near_top_right, near_bot_left, near_bot_right,
+			far_top_left, far_top_right, far_bot_left, far_bot_right);
+
+		viral_core::auto_pointer<viral_core::model> geometry_boundingBox
+			(new viral_core::model());
+		geometry_boundingBox->insert_group("model_group_boundingBox", geometry_mesh_boundingBox);
+		geometry_boundingBox->rebuild_boundings();
+		geometry_boundingBox->validate();
+
+
+		//create the coordinate axes of the world space
+		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_coordinateAxes
+			(new viral_core::mesh());
+		addCoordinateSystem(geometry_mesh_coordinateAxes, 500, 500, 300);
+
+		viral_core::auto_pointer<viral_core::model> geometry_coordinateAxes
+			(new viral_core::model());
+		geometry_coordinateAxes->insert_group("model_group_coordinateAxes", geometry_mesh_coordinateAxes);
+		geometry_coordinateAxes->rebuild_boundings();
+		geometry_coordinateAxes->validate();
+
+
+
+
 		//create the camera planes
 		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_cameraPlanes
 			(new viral_core::mesh());
@@ -211,6 +253,10 @@ namespace rec {
 
 		//create the 2d drawings on the camera planes
 		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_cameraDrawings2D
+			(new viral_core::mesh());
+
+		//create the frustums
+		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_frustums
 			(new viral_core::mesh());
 
 
@@ -246,11 +292,11 @@ namespace rec {
 			}
 			*/
 			
-
+			if (i == 5){
 
 			// ========    (extended) viewing plane d = 700    ========
 
-			std::string locationString700 = "../../assets/camera_inversion/sampledPositions_d" + std::to_string(700) + "_cam" + std::to_string(i);
+			std::string locationString700 = "../../assets/camera_inversion/offset_300/sampledPositions_d" + std::to_string(700) + "_cam" + std::to_string(i);
 			std::vector<std::vector<viral_core::vector>> positionGrid700 = text_input::readPositionsGridFromBinaryfile(locationString700 + ".bin", 1240, 1080);
 			//add the extended viewing plane of the camera
 			int rasterSize700 = 20;
@@ -276,7 +322,7 @@ namespace rec {
 
 			// ========    viewing rays    ========
 
-			std::string locationStringDirections = "../../assets/camera_inversion/directions_distanceNormalized_cam" + std::to_string(i);
+			std::string locationStringDirections = "../../assets/camera_inversion/offset_300/directions_distanceNormalized_cam" + std::to_string(i);
 			std::vector<std::vector<viral_core::vector>> directionsGrid = text_input::readPositionsGridFromBinaryfile(locationStringDirections + ".bin", 1240, 1080);
 			/*
 			//add all possible rays
@@ -312,17 +358,20 @@ namespace rec {
 			*/
 
 
-			//add lines in plane corresponding to bounding box pixels
-			std::string locationStringCorners = "BBLines_occMask_" + std::to_string(i + 1) + "_lvl1.txt";
+
+			// ========    frustums    ========
+
+
+			std::string locationStringCorners = "BBCorners_occMask_" + std::to_string(i + 1) + "_lvl1.txt";
 			std::vector<int> corners = text_input::readIntVectorFromTextfile(locationStringCorners);
-			
-			for (int i = 0; i < corners.size() / 4; i++) {
-				int x1 = corners[4 * i];
-				int y1 = corners[4 * i + 1];
-				int x2 = corners[4 * i + 2];
-				int y2 = corners[4 * i + 3];
 
-
+			//add lines in the viewing plane corresponding to the 2d bounding box pixels
+			std::vector<int> lineData = util::createBoundingBoxLinesFromCorners(corners);
+			for (int i = 0; i < lineData.size() / 4; i++) {
+				int x1 = lineData[4 * i];
+				int y1 = lineData[4 * i + 1];
+				int x2 = lineData[4 * i + 2];
+				int y2 = lineData[4 * i + 3];
 
 				viral_core::vector direction1 = directionsGrid.at(y1).at(x1);
 				viral_core::vector endVec1 = scaledCamPosition + (direction1 * 70);
@@ -332,6 +381,47 @@ namespace rec {
 
 				addLine(geometry_mesh_cameraDrawings2D, endVec1, endVec2);
 			}
+
+			
+	
+				//add frustums
+				int nrOfBoxes = corners.size() / 8;
+				for (int i = 0; i < nrOfBoxes; i++) {
+					int x1 = corners.at(8 * i);
+					int y1 = corners.at(8 * i + 1);
+					int x2 = corners.at(8 * i + 2);
+					int y2 = corners.at(8 * i + 3);
+					int x3 = corners.at(8 * i + 4);
+					int y3 = corners.at(8 * i + 5);
+					int x4 = corners.at(8 * i + 6);
+					int y4 = corners.at(8 * i + 7);
+
+
+					viral_core::vector direction1 = directionsGrid.at(y1).at(x1);
+					viral_core::vector direction2 = directionsGrid.at(y2).at(x2);
+					viral_core::vector direction3 = directionsGrid.at(y3).at(x3);
+					viral_core::vector direction4 = directionsGrid.at(y4).at(x4);
+
+					viral_core::vector near_top_left = scaledCamPosition + (direction2 * 50);
+					viral_core::vector near_top_right = scaledCamPosition + (direction1 * 50);
+					viral_core::vector near_bot_left = scaledCamPosition + (direction3 * 50);
+					viral_core::vector near_bot_right = scaledCamPosition + (direction4 * 50);
+					viral_core::vector far_top_left = scaledCamPosition + (direction2 * 500);
+					viral_core::vector far_top_right = scaledCamPosition + (direction1 * 500);
+					viral_core::vector far_bot_left = scaledCamPosition + (direction3 * 500);
+					viral_core::vector far_bot_right = scaledCamPosition + (direction4 * 500);
+
+					addBoxWithCorners(geometry_mesh_frustums, near_top_left, near_top_right, near_bot_left, near_bot_right,
+						far_top_left, far_top_right, far_bot_left, far_bot_right);
+
+
+				}
+
+
+			}
+			
+
+			
 
 
 		}	//end of for each camera
@@ -357,6 +447,13 @@ namespace rec {
 		geometry_cameraDrawings2D->insert_group("model_group_cameraDrawings2D", geometry_mesh_cameraDrawings2D);
 		geometry_cameraDrawings2D->rebuild_boundings();
 		geometry_cameraDrawings2D->validate();
+
+
+		viral_core::auto_pointer<viral_core::model> geometry_frustums
+			(new viral_core::model());
+		geometry_frustums->insert_group("model_group_frustums", geometry_mesh_frustums);
+		geometry_frustums->rebuild_boundings();
+		geometry_frustums->validate();
 
 
 		std::vector<viral_core::auto_pointer<viral_core::model>> geometry_cubes_container;
@@ -391,38 +488,7 @@ namespace rec {
 		geometry_cubes_container.emplace_back(current_geometry);
 
 
-		// create the bounding box of the world space 
-		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_boundingBox
-			(new viral_core::mesh());
-
-		viral_core::vector near_top_left(-2000 * scale, -2200 * scale, -880 * scale);
-		viral_core::vector near_top_right(2200 * scale, -2200 * scale, -880 * scale);
-		viral_core::vector near_bot_left(-2000 * scale, 2200 * scale, -880 * scale);
-		viral_core::vector near_bot_right(2200 * scale, 2200 * scale, -880 * scale);
-		viral_core::vector far_top_left(-2000 * scale, -2200 * scale, 1600 * scale);
-		viral_core::vector far_top_right(2200 * scale, -2200 * scale, 1600 * scale);
-		viral_core::vector far_bot_left(-2000 * scale, 2200 * scale, 1600 * scale);
-		viral_core::vector far_bot_right(2200 * scale, 2200 * scale, 1600 * scale);
-		addBoxWithCorners(geometry_mesh_boundingBox, near_top_left, near_top_right, near_bot_left, near_bot_right,
-			far_top_left, far_top_right, far_bot_left, far_bot_right);
-
-		viral_core::auto_pointer<viral_core::model> geometry_boundingBox
-			(new viral_core::model());
-		geometry_boundingBox->insert_group("model_group_boundingBox", geometry_mesh_boundingBox);
-		geometry_boundingBox->rebuild_boundings();
-		geometry_boundingBox->validate();
-
-
-		//create the coordinate axes of the world space
-		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_coordinateAxes
-			(new viral_core::mesh());
-		addCoordinateSystem(geometry_mesh_coordinateAxes, 500, 500, 300);
-
-		viral_core::auto_pointer<viral_core::model> geometry_coordinateAxes
-			(new viral_core::model());
-		geometry_coordinateAxes->insert_group("model_group_coordinateAxes", geometry_mesh_coordinateAxes); 
-		geometry_coordinateAxes->rebuild_boundings();
-		geometry_coordinateAxes->validate();
+		
 
 
 
@@ -448,6 +514,9 @@ namespace rec {
 
 		viral_core::render_model_data model_data_cameraDrawings2D;
 		model_data_cameraDrawings2D.geometry = geometry_cameraDrawings2D;
+
+		viral_core::render_model_data model_data_frustums;
+		model_data_frustums.geometry = geometry_frustums;
 
 		viral_core::render_model_data model_data_coordinateAxes;
 		model_data_coordinateAxes.geometry = geometry_coordinateAxes;
@@ -479,12 +548,20 @@ namespace rec {
 		material_data_unlit.shader = shader_id;
 
 		viral_core::render_material_data material_transparent_data;
-		material_transparent_data.ambient_color = viral_core::color(0.05f, 0.5f, 0, 0.2f);
-		material_transparent_data.diffuse_color = viral_core::color(0.05f, 0.5f, 0, 0.2f);
+		material_transparent_data.ambient_color = viral_core::color(0.05f, 0.6f, 0, 0.2f);
+		material_transparent_data.diffuse_color = viral_core::color(0.05f, 0.6f, 0, 0.2f);
 		material_transparent_data.specular_color = viral_core::color(0, 0, 0, 0.2f);
 		material_transparent_data.blend = viral_core::render_material_data::blend_alpha;
 		material_transparent_data.cull = viral_core::render_material_data::cull_none;
 		material_transparent_data.shader = shader_id;
+
+		viral_core::render_material_data material_transparent2_data;
+		material_transparent2_data.ambient_color = viral_core::color(0.8f, 0.f, 0.05f, 0.3f);
+		material_transparent2_data.diffuse_color = viral_core::color(0.8f, 0.f, 0.05f, 0.3f);
+		material_transparent2_data.specular_color = viral_core::color(0, 0, 0, 0.2f);
+		material_transparent2_data.blend = viral_core::render_material_data::blend_alpha;
+		material_transparent2_data.cull = viral_core::render_material_data::cull_none;
+		material_transparent2_data.shader = shader_id;
 
 
 		//add the cameraPlanes model to the render_puppet_data
@@ -506,6 +583,13 @@ namespace rec {
 		puppet_data_cameraDrawings2D.position = viral_core::vector(0, 0, 0);
 		puppet_data_cameraDrawings2D.model = model_cameraDrawings2D_id;
 		puppet_data_cameraDrawings2D.materials.insert("model_group_cameraDrawings2D", material_unlit_id);
+
+
+		//add the frustums model to the render_puppet_data
+		viral_core::render_puppet_data puppet_data_frustums;
+		puppet_data_frustums.position = viral_core::vector(0, 0, 0);
+		puppet_data_frustums.model = model_frustums_id;
+		puppet_data_frustums.materials.insert("model_group_frustums", material_transparent2_id);
 
 
 		//add the bounding box model to the render_puppet_data
@@ -560,6 +644,7 @@ namespace rec {
 		scene_data.objects.insert(puppet_cameraPlanes_id);
 		scene_data.objects.insert(puppet_cameraRays_id);
 		scene_data.objects.insert(puppet_cameraDrawings2D_id);
+		scene_data.objects.insert(puppet_frustums_id);
 		for (int i = 0; i < nrOfPuppets; i++) {
 			scene_data.objects.insert(puppet_ids[i]);
 		}
@@ -597,6 +682,7 @@ namespace rec {
 		q->commit(model_data_cameraPlanes, model_cameraPlanes_id);
 		q->commit(model_data_cameraRays, model_cameraRays_id);
 		q->commit(model_data_cameraDrawings2D, model_cameraDrawings2D_id);
+		q->commit(model_data_frustums, model_frustums_id);
 		for (int i = 0; i < nrOfPuppets; i++)
 			q->commit(model_data_cubes_container[i], model_cubes_ids[i]);
 
@@ -605,6 +691,7 @@ namespace rec {
 		q->commit(material_data_wireframe, material_wireframe_id);
 		q->commit(material_data_unlit, material_unlit_id);
 		q->commit(material_transparent_data, material_transparent_id);
+		q->commit(material_transparent2_data, material_transparent2_id);
 		
 		// commit puppets
 		q->commit(puppet_data_coordinateAxes, puppet_coordinateAxes_id);
@@ -612,6 +699,7 @@ namespace rec {
 		q->commit(puppet_data_cameraPlanes, puppet_cameraPlanes_id);
 		q->commit(puppet_data_cameraRays, puppet_cameraRays_id);
 		q->commit(puppet_data_cameraDrawings2D, puppet_cameraDrawings2D_id);
+		q->commit(puppet_data_frustums, puppet_frustums_id);
 		for (int i = 0; i < nrOfPuppets; i++)
 			q->commit(puppet_data_cubes_container[i], puppet_ids[i]);
 

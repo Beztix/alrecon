@@ -13,4 +13,5 @@ int processSuperellipsesFromVector(std::vector<se::superellipse> superellipses, 
 int processSuperellipsesToBoundingBoxFromVector(std::vector<se::superellipse> superellipses, std::string outputName, const int width, const int height, const int offset);
 
 
+
 #endif /* SE_RENDERING*/

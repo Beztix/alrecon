@@ -506,6 +506,45 @@ namespace util {
 
 
 
+	vector<int> createBoundingBoxLinesFromCorners(vector<int> cornerPixels) {
+		vector<int> lineData;
+		int nrOfBoxes = cornerPixels.size() / 8;
+		int nrOfLines = nrOfBoxes * 4;
+
+		for (int i = 0; i < nrOfBoxes; i++) {
+			int x1 = cornerPixels.at(8 * i);
+			int y1 = cornerPixels.at(8 * i + 1);
+			int x2 = cornerPixels.at(8 * i + 2);
+			int y2 = cornerPixels.at(8 * i + 3);
+			int x3 = cornerPixels.at(8 * i + 4);
+			int y3 = cornerPixels.at(8 * i + 5);
+			int x4 = cornerPixels.at(8 * i + 6);
+			int y4 = cornerPixels.at(8 * i + 7);
+
+			lineData.emplace_back(x1);
+			lineData.emplace_back(y1);
+			lineData.emplace_back(x2);
+			lineData.emplace_back(y2);
+
+			lineData.emplace_back(x2);
+			lineData.emplace_back(y2);
+			lineData.emplace_back(x3);
+			lineData.emplace_back(y3);
+
+			lineData.emplace_back(x3);
+			lineData.emplace_back(y3);
+			lineData.emplace_back(x4);
+			lineData.emplace_back(y4);
+
+			lineData.emplace_back(x4);
+			lineData.emplace_back(y4);
+			lineData.emplace_back(x1);
+			lineData.emplace_back(y1);
+		}
+
+		return lineData;
+
+	}
 
 
 

@@ -61,6 +61,7 @@ namespace util {
 
 	float3 ClosestPointLineLine(float3 start0, float3 end0, float3 start1, float3 end1);
 
+	std::vector<int> createBoundingBoxLinesFromCorners(std::vector<int> cornerPixels);
 }
 
 

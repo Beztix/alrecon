@@ -11,6 +11,7 @@
 #include "image_output.h"
 #include "text_output.h"
 #include "se_util.h"
+#include "util.h"
 
 #define _USE_MATH_DEFINES
 
@@ -141,45 +142,6 @@ vector<tuple<double, double>> getBoundingboxOfSuperellipse(double xc, double yc,
 
 
 
-vector<int> createBoundingBoxLinesFromCorners(vector<int> cornerPixels) {
-	vector<int> lineData;
-	int nrOfBoxes = cornerPixels.size() / 8;
-	int nrOfLines = nrOfBoxes * 4;
-
-	for (int i = 0; i < nrOfBoxes; i++) {
-		int x1 = cornerPixels.at(8 * i);
-		int y1 = cornerPixels.at(8 * i + 1);
-		int x2 = cornerPixels.at(8 * i + 2);
-		int y2 = cornerPixels.at(8 * i + 3);
-		int x3 = cornerPixels.at(8 * i + 4);
-		int y3 = cornerPixels.at(8 * i + 5);
-		int x4 = cornerPixels.at(8 * i + 6);
-		int y4 = cornerPixels.at(8 * i + 7);
-
-		lineData.emplace_back(x1);
-		lineData.emplace_back(y1);
-		lineData.emplace_back(x2);
-		lineData.emplace_back(y2);
-
-		lineData.emplace_back(x2);
-		lineData.emplace_back(y2);
-		lineData.emplace_back(x3);
-		lineData.emplace_back(y3);
-
-		lineData.emplace_back(x3);
-		lineData.emplace_back(y3);
-		lineData.emplace_back(x4);
-		lineData.emplace_back(y4);
-
-		lineData.emplace_back(x4);
-		lineData.emplace_back(y4);
-		lineData.emplace_back(x1);
-		lineData.emplace_back(y1);
-	}
-
-	return lineData;
-
-}
 
 
 
@@ -278,9 +240,11 @@ int processSuperellipsesToBoundingBoxFromVector(vector<se::superellipse> superel
 	}
 
 	image_output::pixelVectorToImage(cornerPixels, 640 + 2*offset, 480 + 2*offset, "BBCorners_" + outputName + ".png");
+	text_output::writeIntVectorToTextfile("BBCorners_" + outputName + ".txt", cornerPixels);
 
-	vector<int> lineData = createBoundingBoxLinesFromCorners(cornerPixels);
-	text_output::writeIntVectorToTextfile("BBLines_" + outputName + ".txt", lineData);
+
+	vector<int> lineData = util::createBoundingBoxLinesFromCorners(cornerPixels);
+
 
 	image_output::renderArrayOfLinesToImage("BB_" + outputName + ".png", 640 + 2*offset, 480 + 2*offset, lineData);
 
