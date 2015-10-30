@@ -1,0 +1,54 @@
+
+
+
+vec<vec<Frusts>> resultList testAllFrustsForIntersection(vec<vec<Frust>> FrustLists) {
+
+	vec<vec<Frusts>> resultList;
+	
+	for each Frust f in Frustslists.at(0) {
+
+		vec<Frust> fList;
+		fList.add(f);
+		vec<vec<Frusts>> resultListPart = testMultipleFrustsWithMultipleFrustsForIntersection(fList, FrustLists, 1);
+		resultList.add(resultListPart);
+	}
+
+	return resultList;
+
+}
+
+
+
+
+vec<vec<Frusts>> testMultipleFrustsWithMultipleFrustsForIntersection(vec<Frust> fList, vec<vec<Frust>> FrustLists, int currentList) {
+
+	vec<vec<Frusts>> resultList;
+
+	for each Frust f in FrustLists.at(currentList) {
+		
+		if(doMultipleFrustsIntersect(fList, f)) {
+			vec<Frust> newfList = fList;
+			newfList.add(f);
+			if(currentList+1 < FrustLists.size()) {
+				vec<vec<Frusts>> resultListPart = testMultipleFrustsWithMultipleFrustsForIntersection(newfList, FrustLists, currentList+1);
+				resultList.add(resultListPart);
+			}
+			else {
+				resultList.add(newfList);
+			}
+		}
+	}
+	
+	return resultList;
+}
+
+
+boolean doMultipleFrustsIntersect(vec<Frust> fList, b) {
+
+	for each Frust a in aList {
+		if(! doFrustsIntersect(a, b) {
+			return false;
+		}
+	}
+	return true;
+}

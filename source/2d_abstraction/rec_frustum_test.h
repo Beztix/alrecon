@@ -2,7 +2,9 @@
 #define REC_FRUSTUM_TEST_H
 
 
-#include "rec_frustum_util.h"
+#include "rec_frust.h"
+
+
 
 namespace rec {
 

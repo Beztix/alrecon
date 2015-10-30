@@ -402,10 +402,10 @@ namespace rec {
 					viral_core::vector direction3 = directionsGrid.at(y3).at(x3);
 					viral_core::vector direction4 = directionsGrid.at(y4).at(x4);
 
-					viral_core::vector near_top_left = scaledCamPosition + (direction2 * 50);
-					viral_core::vector near_top_right = scaledCamPosition + (direction1 * 50);
-					viral_core::vector near_bot_left = scaledCamPosition + (direction3 * 50);
-					viral_core::vector near_bot_right = scaledCamPosition + (direction4 * 50);
+					viral_core::vector near_top_left = scaledCamPosition + (direction2 * 70);
+					viral_core::vector near_top_right = scaledCamPosition + (direction1 * 70);
+					viral_core::vector near_bot_left = scaledCamPosition + (direction3 * 70);
+					viral_core::vector near_bot_right = scaledCamPosition + (direction4 * 70);
 					viral_core::vector far_top_left = scaledCamPosition + (direction2 * 500);
 					viral_core::vector far_top_right = scaledCamPosition + (direction1 * 500);
 					viral_core::vector far_bot_left = scaledCamPosition + (direction3 * 500);
@@ -556,8 +556,8 @@ namespace rec {
 		material_transparent_data.shader = shader_id;
 
 		viral_core::render_material_data material_transparent2_data;
-		material_transparent2_data.ambient_color = viral_core::color(0.8f, 0.f, 0.05f, 0.3f);
-		material_transparent2_data.diffuse_color = viral_core::color(0.8f, 0.f, 0.05f, 0.3f);
+		material_transparent2_data.ambient_color = viral_core::color(0.9f, 0.f, 0.05f, 0.3f);
+		material_transparent2_data.diffuse_color = viral_core::color(0.9f, 0.f, 0.05f, 0.3f);
 		material_transparent2_data.specular_color = viral_core::color(0, 0, 0, 0.2f);
 		material_transparent2_data.blend = viral_core::render_material_data::blend_alpha;
 		material_transparent2_data.cull = viral_core::render_material_data::cull_none;

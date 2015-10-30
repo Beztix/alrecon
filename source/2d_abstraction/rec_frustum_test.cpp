@@ -8,10 +8,9 @@
 ************************************************************************/
 
 #include "rec_frustum_test.h"
-#include "rec_frustum_util.h"
+#include "rec_frust.h"
 
-#include <opencv2/core/core.hpp>
-
+#include <viral_core/geo_3d.hpp>
 
 using namespace std;
 
@@ -36,7 +35,7 @@ namespace rec {
 		//right plane
 		in = false;
 		for (int i = 0; i < 8; i++) {
-			cv::Point3f testVector = secondFrustum.points[i] - firstFrustum.planeNormalBases[frust::x_pos];
+			viral_core::vector testVector = secondFrustum.points[i] - firstFrustum.planeNormalBases[frust::x_pos];
 			float dot = firstFrustum.planeNormals[frust::x_pos].dot(testVector);
 			if (dot >= 0) in = true;
 		}
@@ -45,7 +44,7 @@ namespace rec {
 		//top plane
 		in = false;
 		for (int i = 0; i < 8; i++) {
-			cv::Point3f testVector = secondFrustum.points[i] - firstFrustum.planeNormalBases[frust::y_neg];
+			viral_core::vector testVector = secondFrustum.points[i] - firstFrustum.planeNormalBases[frust::y_neg];
 			float dot = firstFrustum.planeNormals[frust::y_neg].dot(testVector);
 			if (dot >= 0) in = true;
 		}
@@ -54,7 +53,7 @@ namespace rec {
 		//left plane
 		in = false;
 		for (int i = 0; i < 8; i++) {
-			cv::Point3f testVector = secondFrustum.points[i] - firstFrustum.planeNormalBases[frust::x_neg];
+			viral_core::vector testVector = secondFrustum.points[i] - firstFrustum.planeNormalBases[frust::x_neg];
 			float dot = firstFrustum.planeNormals[frust::x_neg].dot(testVector);
 			if (dot >= 0) in = true;
 		}
@@ -63,7 +62,7 @@ namespace rec {
 		//bottom plane
 		in = false;
 		for (int i = 0; i < 8; i++) {
-			cv::Point3f testVector = secondFrustum.points[i] - firstFrustum.planeNormalBases[frust::y_pos];
+			viral_core::vector testVector = secondFrustum.points[i] - firstFrustum.planeNormalBases[frust::y_pos];
 			float dot = firstFrustum.planeNormals[frust::y_pos].dot(testVector);
 			if (dot >= 0) in = true;
 		}
@@ -72,7 +71,7 @@ namespace rec {
 		//front plane
 		in = false;
 		for (int i = 0; i < 8; i++) {
-			cv::Point3f testVector = secondFrustum.points[i] - firstFrustum.planeNormalBases[frust::z_near];
+			viral_core::vector testVector = secondFrustum.points[i] - firstFrustum.planeNormalBases[frust::z_near];
 			float dot = firstFrustum.planeNormals[frust::z_near].dot(testVector);
 			if (dot >= 0) in = true;
 		}
@@ -81,7 +80,7 @@ namespace rec {
 		//back plane
 		in = false;
 		for (int i = 0; i < 8; i++) {
-			cv::Point3f testVector = secondFrustum.points[i] - firstFrustum.planeNormalBases[frust::z_far];
+			viral_core::vector testVector = secondFrustum.points[i] - firstFrustum.planeNormalBases[frust::z_far];
 			float dot = firstFrustum.planeNormals[frust::z_far].dot(testVector);
 			if (dot >= 0) in = true;
 		}
@@ -94,7 +93,7 @@ namespace rec {
 		//right plane
 		in = false;
 		for (int i = 0; i < 8; i++) {
-			cv::Point3f testVector = firstFrustum.points[i] - secondFrustum.planeNormalBases[frust::x_pos];
+			viral_core::vector testVector = firstFrustum.points[i] - secondFrustum.planeNormalBases[frust::x_pos];
 			float dot = secondFrustum.planeNormals[frust::x_pos].dot(testVector);
 			if (dot >= 0) in = true;
 		}
@@ -103,7 +102,7 @@ namespace rec {
 		//top plane
 		in = false;
 		for (int i = 0; i < 8; i++) {
-			cv::Point3f testVector = firstFrustum.points[i] - secondFrustum.planeNormalBases[frust::y_neg];
+			viral_core::vector testVector = firstFrustum.points[i] - secondFrustum.planeNormalBases[frust::y_neg];
 			float dot = secondFrustum.planeNormals[frust::y_neg].dot(testVector);
 			if (dot >= 0) in = true;
 		}
@@ -112,7 +111,7 @@ namespace rec {
 		//left plane
 		in = false;
 		for (int i = 0; i < 8; i++) {
-			cv::Point3f testVector = firstFrustum.points[i] - secondFrustum.planeNormalBases[frust::x_neg];
+			viral_core::vector testVector = firstFrustum.points[i] - secondFrustum.planeNormalBases[frust::x_neg];
 			float dot = secondFrustum.planeNormals[frust::x_neg].dot(testVector);
 			if (dot >= 0) in = true;
 		}
@@ -121,7 +120,7 @@ namespace rec {
 		//bottom plane
 		in = false;
 		for (int i = 0; i < 8; i++) {
-			cv::Point3f testVector = firstFrustum.points[i] - secondFrustum.planeNormalBases[frust::y_pos];
+			viral_core::vector testVector = firstFrustum.points[i] - secondFrustum.planeNormalBases[frust::y_pos];
 			float dot = secondFrustum.planeNormals[frust::y_pos].dot(testVector);
 			if (dot >= 0) in = true;
 		}
@@ -130,7 +129,7 @@ namespace rec {
 		//front plane
 		in = false;
 		for (int i = 0; i < 8; i++) {
-			cv::Point3f testVector = firstFrustum.points[i] - secondFrustum.planeNormalBases[frust::z_near];
+			viral_core::vector testVector = firstFrustum.points[i] - secondFrustum.planeNormalBases[frust::z_near];
 			float dot = secondFrustum.planeNormals[frust::z_near].dot(testVector);
 			if (dot >= 0) in = true;
 		}
@@ -139,7 +138,7 @@ namespace rec {
 		//back plane
 		in = false;
 		for (int i = 0; i < 8; i++) {
-			cv::Point3f testVector = firstFrustum.points[i] - secondFrustum.planeNormalBases[frust::z_far];
+			viral_core::vector testVector = firstFrustum.points[i] - secondFrustum.planeNormalBases[frust::z_far];
 			float dot = secondFrustum.planeNormals[frust::z_far].dot(testVector);
 			if (dot >= 0) in = true;
 		}

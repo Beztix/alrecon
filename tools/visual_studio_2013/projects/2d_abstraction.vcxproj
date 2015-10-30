@@ -55,9 +55,10 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\convexHull.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\convexHullForC.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\ellipseFit.h" />
-    <ClInclude Include="..\..\..\source\2d_abstraction\rec_frustum_util.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_frust.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\image_output.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\image_input.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_object3D.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_rendering.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_rendering_util.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_sampling.h" />

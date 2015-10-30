@@ -1,10 +1,10 @@
-#ifndef REC_FRUSTUM_UTIL_H
-#define REC_FRUSTUM_UTIL_H
+#ifndef REC_FRUST_H
+#define REC_FRUST_H
 
 
 
 
-#include <opencv2/core/core.hpp>
+#include <viral_core/geo_3d.hpp>
 
 
 
@@ -15,9 +15,9 @@ namespace rec {
 	// a struct representing a single frustum
 	struct frust {
 
-		cv::Point3f points[8];				//the 8 corners of the frustum
-		cv::Point3f planeNormals[6];		//the normals of the 6 planes, always pointing inside the frustum
-		cv::Point3f planeNormalBases[6];	//the base corners of the 6 normals
+		viral_core::vector points[8];				//the 8 corners of the frustum
+		viral_core::vector planeNormals[6];		//the normals of the 6 planes, always pointing inside the frustum
+		viral_core::vector planeNormalBases[6];	//the base corners of the 6 normals
 
 		enum vertex_type
 		{
@@ -33,10 +33,10 @@ namespace rec {
 
 		//constructor receiving the 8 corner points, automatically building the plane information
 		frust
-			(const cv::Point3f &n_xn_yp, const cv::Point3f &n_xp_yp,
-			const cv::Point3f &n_xp_yn, const cv::Point3f &n_xn_yn,
-			const cv::Point3f &f_xn_yp, const cv::Point3f &f_xp_yp,
-			const cv::Point3f &f_xp_yn, const cv::Point3f &f_xn_yn)
+			(const viral_core::vector &n_xn_yp, const viral_core::vector &n_xp_yp,
+			const viral_core::vector &n_xp_yn, const viral_core::vector &n_xn_yn,
+			const viral_core::vector &f_xn_yp, const viral_core::vector &f_xp_yp,
+			const viral_core::vector &f_xp_yn, const viral_core::vector &f_xn_yn)
 		{
 			points[near_xneg_ypos] = n_xn_yp;
 			points[near_xpos_ypos] = n_xp_yp;
@@ -54,10 +54,10 @@ namespace rec {
 
 		//building the plane information
 		void build_planes() {
-			cv::Point3f vectorOne;
-			cv::Point3f vectorTwo;
-			cv::Point3f normal;
-			cv::Point3f normalBase;
+			viral_core::vector vectorOne;
+			viral_core::vector vectorTwo;
+			viral_core::vector normal;
+			viral_core::vector normalBase;
 
 			//x_pos
 			vectorOne = points[frust::near_xpos_yneg] - points[frust::near_xpos_ypos];
@@ -110,4 +110,4 @@ namespace rec {
 
 
 
-#endif /* REC_FRUSTUM_UTIL_H*/
+#endif /* REC_FRUST_H*/

@@ -78,7 +78,7 @@
 #include "rec_rendering.h"
 #include "rec_sampling.h"
 #include "rec_frustum_test.h"
-#include "rec_frustum_util.h"
+#include "rec_frust.h"
 #include "rec_file_camera.h"
 #include "rec_sensor.h"
 
@@ -105,9 +105,9 @@ int main() {
 
 	bool USE_CGAL =					false;
 	bool USE_GPUALPHA =				false;
-	bool USE_SUPERELLIPSES_ROSIN =	false;
+	bool USE_SUPERELLIPSES_ROSIN =	true;
 	bool USE_SUPERELLIPSES_CERES =	false;
-	bool TEST_SECTION =				true;
+	bool TEST_SECTION =				false;
 
 	
 
