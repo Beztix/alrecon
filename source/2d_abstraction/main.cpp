@@ -25,6 +25,7 @@
 
 #include "image_input.h"
 #include "image_output.h"
+#include "text_input.h"
 #include "util.h"
 #include "se_util.h"
 #include "tree.hh"
@@ -473,6 +474,36 @@ int main() {
 		
 		
 		//rec::doAllSamplingCalculations();
+
+		std::vector<viral_core::vector> cameraPositions;
+
+		std::vector<std::vector<std::vector<viral_core::vector>>> directionsGrids;
+
+
+
+		for (int i = 0; i < 7; i++) {
+			rec::file_camera cam(i);
+			rec::sensor sens(i, cam.image_size, rec::sensor::projection_pinhole_distort);
+			sens.set_pinhole_distort(cam.world_to_device_pinhole_distort_, cam.pinhole_distort_center_, cam.pinhole_distort_focus_, cam.distort_r1_, cam.distort_r2_, cam.distort_t1_, cam.distort_t2_);
+
+			cameraPositions.push_back(cam.cam_position_);
+
+			std::string locationStringDirections = "../../assets/camera_inversion/offset_300/directions_distanceNormalized_cam" + std::to_string(i);
+			std::vector<std::vector<viral_core::vector>> directionsGrid = text_input::readPositionsGridFromBinaryfile(locationStringDirections + ".bin", 1240, 1080);
+			
+
+			directionsGrids.push_back(directionsGrid);
+
+		}
+
+
+
+
+
+		rec::createObject3DTree(cameraPositions, directionsGrids, 7, 640, 480, 300);
+
+
+
 
 
 

@@ -68,37 +68,37 @@ namespace rec {
 			//x_pos
 			vectorOne = points[frustum::near_xpos_yneg] - points[frustum::near_xpos_ypos];
 			vectorTwo = points[frustum::far_xpos_ypos] - points[frustum::near_xpos_ypos];
-			planeNormals[frustum::x_pos] = vectorOne.cross(vectorTwo);
+			planeNormals[frustum::x_pos] = vectorOne.cross(vectorTwo).normalized();
 			planeNormalBases[frustum::x_pos] = points[frustum::near_xpos_ypos];
 
 			//y_neg
 			vectorOne = points[frustum::near_xneg_yneg] - points[frustum::near_xpos_yneg];
 			vectorTwo = points[frustum::far_xpos_yneg] - points[frustum::near_xpos_yneg];
-			planeNormals[frustum::y_neg] = vectorOne.cross(vectorTwo);
+			planeNormals[frustum::y_neg] = vectorOne.cross(vectorTwo).normalized();
 			planeNormalBases[frustum::y_neg] = points[frustum::near_xpos_yneg];
 
 			//x_neg
 			vectorOne = points[frustum::near_xneg_ypos] - points[frustum::near_xneg_yneg];
 			vectorTwo = points[frustum::far_xneg_yneg] - points[frustum::near_xneg_yneg];
-			planeNormals[frustum::x_neg] = vectorOne.cross(vectorTwo);
+			planeNormals[frustum::x_neg] = vectorOne.cross(vectorTwo).normalized();
 			planeNormalBases[frustum::x_neg] = points[frustum::near_xneg_yneg];
 
 			//y_pos
 			vectorOne = points[frustum::near_xpos_ypos] - points[frustum::near_xneg_ypos];
 			vectorTwo = points[frustum::far_xneg_ypos] - points[frustum::near_xneg_ypos];
-			planeNormals[frustum::y_pos] = vectorOne.cross(vectorTwo);
+			planeNormals[frustum::y_pos] = vectorOne.cross(vectorTwo).normalized();
 			planeNormalBases[frustum::y_pos] = points[frustum::near_xneg_ypos];
 
 			//z_near
 			vectorOne = points[frustum::near_xneg_ypos] - points[frustum::near_xpos_ypos];
 			vectorTwo = points[frustum::near_xpos_yneg] - points[frustum::near_xpos_ypos];
-			planeNormals[frustum::z_near] = vectorOne.cross(vectorTwo);
+			planeNormals[frustum::z_near] = vectorOne.cross(vectorTwo).normalized();
 			planeNormalBases[frustum::z_near] = points[frustum::near_xpos_ypos];
 
 			//z_far
 			vectorOne = points[frustum::far_xneg_yneg] - points[frustum::far_xpos_yneg];
 			vectorTwo = points[frustum::far_xpos_ypos] - points[frustum::far_xpos_yneg];
-			planeNormals[frustum::z_far] = vectorOne.cross(vectorTwo);
+			planeNormals[frustum::z_far] = vectorOne.cross(vectorTwo).normalized();
 			planeNormalBases[frustum::z_far] = points[frustum::far_xpos_yneg];
 
 		}

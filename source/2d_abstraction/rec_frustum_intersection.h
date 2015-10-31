@@ -3,22 +3,25 @@
 
 
 #include "rec_frustum.h"
+#include "rec_container.h"
 #include <vector>
 
 
 
 namespace rec {
 
-	bool doFrustumsIntesect(frustum firstFrustum, frustum secondFrustum);
+	bool doFrustumsIntesect(rec::frustum firstFrustum, rec::frustum secondFrustum);
 
-	bool doMultipleFrustumsIntersect(std::vector<rec::frustum> fList, rec::frustum b);
+	bool doFrustumsIntesect(rec::container* firstFrustum, rec::container* secondFrustum);
+
+	bool doMultipleFrustumsIntersect(std::vector<rec::container*> fList, rec::container* b);
 
 
-	std::vector<std::vector<rec::frustum>> intersectAllFrustums(std::vector<std::vector<rec::frustum>> frustumLists);
+	std::vector<std::vector<rec::container*>> intersectAllFrustums(std::vector<std::vector<rec::container*>> frustumLists);
 
 
-	std::vector<std::vector<rec::frustum>> testMultipleFrustumsWithMultipleFrustumsForIntersection
-		(std::vector<rec::frustum> fList, std::vector<std::vector<rec::frustum>> FrustLists, int currentList);
+	std::vector<std::vector<rec::container*>> testMultipleFrustumsWithMultipleFrustumsForIntersection
+		(std::vector<rec::container*> fList, std::vector<std::vector<rec::container*>> FrustLists, int currentList);
 
 }
 

@@ -34,7 +34,6 @@
 
 #include "rec_file_camera.h"
 #include "rec_sensor.h"
-#include "rec_sampling.h"
 #include "rec_rendering_util.h"
 
 #include <vector>
@@ -416,6 +415,7 @@ namespace rec {
 
 
 				}
+
 
 
 			}
