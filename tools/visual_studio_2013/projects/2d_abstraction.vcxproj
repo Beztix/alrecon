@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_file_camera.cpp" />
-    <ClCompile Include="..\..\..\source\2d_abstraction\rec_frustum_test.cpp" />
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_frustum_intersection.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\as_cgal.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\as_gpu_input.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\blob.cpp" />
@@ -29,10 +29,11 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\image_output.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\image_input.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\main.cpp" />
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_reconstruction_frustum.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_rendering.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_rendering_util.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_sampling.cpp" />
-    <ClCompile Include="..\..\..\source\2d_abstraction\rec_trivial_reconstruction.cpp" />
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_reconstruction_trivial.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_sensor.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_rosin_core.c" />
     <ClCompile Include="..\..\..\source\2d_abstraction\se_rendering.cpp" />
@@ -46,8 +47,9 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_container.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_file_camera.h" />
-    <ClInclude Include="..\..\..\source\2d_abstraction\rec_frustum_test.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_frustum_intersection.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\Alpha_shape_2.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\as_cgal.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\as_gpu_input.h" />
@@ -55,14 +57,15 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\convexHull.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\convexHullForC.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\ellipseFit.h" />
-    <ClInclude Include="..\..\..\source\2d_abstraction\rec_frust.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_frustum.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\image_output.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\image_input.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_reconstruction_frustum.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_object3D.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_rendering.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_rendering_util.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_sampling.h" />
-    <ClInclude Include="..\..\..\source\2d_abstraction\rec_trivial_reconstruction.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_reconstruction_trivial.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_sensor.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_rosin_core.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\se_rendering.h" />

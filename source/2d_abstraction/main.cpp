@@ -74,11 +74,12 @@
 
 
 // Reconstruction stuff
-#include "rec_trivial_reconstruction.h"
+#include "rec_reconstruction_trivial.h"
+#include "rec_reconstruction_frustum.h"
 #include "rec_rendering.h"
 #include "rec_sampling.h"
-#include "rec_frustum_test.h"
-#include "rec_frust.h"
+#include "rec_frustum_intersection.h"
+#include "rec_frustum.h"
 #include "rec_file_camera.h"
 #include "rec_sensor.h"
 
@@ -105,9 +106,9 @@ int main() {
 
 	bool USE_CGAL =					false;
 	bool USE_GPUALPHA =				false;
-	bool USE_SUPERELLIPSES_ROSIN =	true;
+	bool USE_SUPERELLIPSES_ROSIN =	false;
 	bool USE_SUPERELLIPSES_CERES =	false;
-	bool TEST_SECTION =				false;
+	bool TEST_SECTION =				true;
 
 	
 
@@ -472,6 +473,8 @@ int main() {
 		
 		
 		//rec::doAllSamplingCalculations();
+
+
 
 		std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct(20);
 

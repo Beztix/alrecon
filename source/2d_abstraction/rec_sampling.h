@@ -1,5 +1,5 @@
-#ifndef REC_SAMPLING
-#define REC_SAMPLING
+#ifndef REC_SAMPLING_H
+#define REC_SAMPLING_H
 
 #include "rec_file_camera.h"
 #include "rec_sensor.h"
@@ -19,4 +19,4 @@ namespace rec {
 
 
 
-#endif /*REC_SAMPLING*/
+#endif /*REC_SAMPLING_H*/

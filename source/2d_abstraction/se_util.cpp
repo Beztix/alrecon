@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <opencv2/core/core.hpp>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 
 
@@ -247,6 +249,51 @@ namespace se {
 
 
 
+
+
+	/// calculates the bounding box of the given superellipse, returns the corners in counter clockwise order
+	/**
+	*
+	*/
+
+	vector<viral_core::vector2f> getBoundingboxOfSuperellipse(double xc, double yc, double a, double b, double epsilon, double theta) {
+
+		double halfPi = M_PI*0.5;
+
+		std::vector<viral_core::vector2f> corners;
+
+		float xa = a * cos(theta);
+		float ya = a * sin(theta);
+		float xb = b * cos(theta + halfPi);
+		float yb = b * sin(theta + halfPi);
+
+		float cornerX;
+		float cornerY;
+
+
+		//corner "top right"
+		cornerX = (float)xc + xa + xb;
+		cornerY = (float)yc + ya + yb;
+		corners.emplace_back(viral_core::vector2f(cornerX, cornerY));
+
+		//corner "top right"
+		cornerX = (float)xc - xa + xb;
+		cornerY = (float)yc - ya + yb;
+		corners.emplace_back(viral_core::vector2f(cornerX, cornerY));
+
+		//corner "top right"
+		cornerX = (float)xc - xa - xb;
+		cornerY = (float)yc - ya - yb;
+		corners.emplace_back(viral_core::vector2f(cornerX, cornerY));
+
+		//corner "top right"
+		cornerX = (float)xc + xa - xb;
+		cornerY = (float)yc + ya - yb;
+		corners.emplace_back(viral_core::vector2f(cornerX, cornerY));
+
+
+		return corners;
+	}
 
 
 

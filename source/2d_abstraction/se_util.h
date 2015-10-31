@@ -5,6 +5,7 @@
 
 
 #include <opencv2/core/core.hpp>
+#include <viral_core/geo_2d.hpp>
 
 
 namespace se {
@@ -18,7 +19,7 @@ namespace se {
 	bool isFitConservative(std::vector<cv::Point> contour, double xc, double yc, double theta, double a, double b, double epsilon);
 
 
-
+	std::vector<viral_core::vector2f> getBoundingboxOfSuperellipse(double xc, double yc, double a, double b, double epsilon, double theta);
 
 
 

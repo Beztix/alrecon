@@ -1,13 +1,13 @@
 /**
 *************************************************************************
 *
-* @file rec_trivial_reconstruction.cpp
+* @file rec_reconstruction_trivial.cpp
 *
 * 
 *
 ************************************************************************/
 
-#include "rec_trivial_reconstruction.h"
+#include "rec_reconstruction_trivial.h"
 
 
 #include "image_input.h"

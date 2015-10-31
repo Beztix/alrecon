@@ -71,16 +71,10 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\tree_util.hh">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\source\2d_abstraction\rec_trivial_reconstruction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_rendering.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_sampling.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\source\2d_abstraction\rec_frustum_test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_sensor.h">
@@ -95,7 +89,19 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_object3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\source\2d_abstraction\rec_frust.h">
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_container.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_frustum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_frustum_intersection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_reconstruction_trivial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_reconstruction_frustum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -154,16 +160,10 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\se_rosin_tree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\source\2d_abstraction\rec_trivial_reconstruction.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_rendering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_sampling.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\source\2d_abstraction\rec_frustum_test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_sensor.cpp">
@@ -173,6 +173,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_rendering_util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_frustum_intersection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_reconstruction_trivial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_reconstruction_frustum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
