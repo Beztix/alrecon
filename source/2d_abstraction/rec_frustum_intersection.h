@@ -3,7 +3,7 @@
 
 
 #include "rec_frustum.h"
-#include "rec_container.h"
+#include "rec_seAndFrust.h"
 #include <vector>
 
 
@@ -12,16 +12,16 @@ namespace rec {
 
 	bool doFrustumsIntesect(rec::frustum firstFrustum, rec::frustum secondFrustum);
 
-	bool doFrustumsIntesect(rec::container* firstFrustum, rec::container* secondFrustum);
+	bool doFrustumsIntesect(rec::seAndFrust* firstFrustum, rec::seAndFrust* secondFrustum);
 
-	bool doMultipleFrustumsIntersect(std::vector<rec::container*> fList, rec::container* b);
-
-
-	std::vector<std::vector<rec::container*>> intersectAllFrustums(std::vector<std::vector<rec::container*>> frustumLists);
+	bool doMultipleFrustumsIntersect(std::vector<rec::seAndFrust*> fList, rec::seAndFrust* b);
 
 
-	std::vector<std::vector<rec::container*>> testMultipleFrustumsWithMultipleFrustumsForIntersection
-		(std::vector<rec::container*> fList, std::vector<std::vector<rec::container*>> FrustLists, int currentList);
+	std::vector<std::vector<rec::seAndFrust*>> intersectAllFrustums(std::vector<std::vector<rec::seAndFrust*>> frustumLists);
+
+
+	std::vector<std::vector<rec::seAndFrust*>> testMultipleFrustumsWithMultipleFrustumsForIntersection
+		(std::vector<rec::seAndFrust*> fList, std::vector<std::vector<rec::seAndFrust*>> FrustLists, int currentList);
 
 }
 

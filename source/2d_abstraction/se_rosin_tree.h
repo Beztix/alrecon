@@ -4,11 +4,12 @@
 
 #include "tree.hh"
 #include "se_util.h"
+#include "rec_seAndFrust.h"
 
 namespace se {
 
 
-	void startRosinTree(tree<se::contourAndSe> &seTree, std::vector<std::vector<cv::Point>> contours, int width, int height, std::vector<int> qualityValues);
+	void startRosinTree(tree<se::contourAndSe> &seTree, tree<rec::seAndFrust> &seAndFrustTree, std::vector<std::vector<cv::Point>> contours, int width, int height, std::vector<int> qualityValues);
 
 	std::vector<se::superellipse> getEllipsesOfGivenDepth(tree<se::contourAndSe> seTree, int depth);
 }

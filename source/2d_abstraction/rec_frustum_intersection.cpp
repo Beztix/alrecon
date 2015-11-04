@@ -9,7 +9,7 @@
 
 #include "rec_frustum_intersection.h"
 #include "rec_frustum.h"
-#include "rec_container.h"
+#include "rec_seAndFrust.h"
 
 #include <viral_core/geo_3d.hpp>
 
@@ -154,7 +154,7 @@ namespace rec {
 
 
 	// TODO: LOOKUP
-	bool doFrustumsIntesect(rec::container* firstFrustum, rec::container* secondFrustum) {
+	bool doFrustumsIntesect(rec::seAndFrust* firstFrustum, rec::seAndFrust* secondFrustum) {
 		rec::frustum firstFrust = (*firstFrustum).frust;
 		rec::frustum secondFrust = (*secondFrustum).frust;
 		return doFrustumsIntesect(firstFrust, secondFrust);
@@ -166,10 +166,10 @@ namespace rec {
 	*	Tests if all frustums in frustumOneList intersect frustum Two.
 	*	If each frustumOne intersects frustumTwo it returns true, otherwise false.
 	*/
-	bool doMultipleFrustumsIntersect(std::vector<rec::container*> frustumOneList, rec::container* frustumTwo) {
+	bool doMultipleFrustumsIntersect(std::vector<rec::seAndFrust*> frustumOneList, rec::seAndFrust* frustumTwo) {
 
 		for (int i = 0; i < frustumOneList.size(); i++) {
-			rec::container* currentFrustumOne = frustumOneList.at(i);
+			rec::seAndFrust* currentFrustumOne = frustumOneList.at(i);
 			if (!doFrustumsIntesect(currentFrustumOne, frustumTwo)) {
 				return false;
 			}
@@ -190,22 +190,22 @@ namespace rec {
 	*	-returns:			 A List of x resulting combinations, each combination contains of n frustums with each frustum from one of the n cameras, while all have a common intersection.
 	*/
 
-	std::vector<std::vector<rec::container*>> intersectAllFrustums(std::vector<std::vector<rec::container*>> cameraFrustumLists) {
+	std::vector<std::vector<rec::seAndFrust*>> intersectAllFrustums(std::vector<std::vector<rec::seAndFrust*>> cameraFrustumLists) {
 
-		std::vector<std::vector<rec::container*>> resultCombinations;
+		std::vector<std::vector<rec::seAndFrust*>> resultCombinations;
 
 		//begin recursive computation with the frustumList of camera 0
-		std::vector<rec::container*> camera0FrustumList = cameraFrustumLists.at(0);
+		std::vector<rec::seAndFrust*> camera0FrustumList = cameraFrustumLists.at(0);
 
 		for (int i = 0; i < camera0FrustumList.size(); i++) {
-			rec::container* currentFrustum = camera0FrustumList.at(i);
+			rec::seAndFrust* currentFrustum = camera0FrustumList.at(i);
 
 			//fList contains the frustums of the cameras already gathered and tested for intersection 
-			std::vector<rec::container*> fList;
+			std::vector<rec::seAndFrust*> fList;
 			fList.push_back(currentFrustum);
 
 			//start recursive computation
-			std::vector<std::vector<rec::container*>> resultCombinationsPart = testMultipleFrustumsWithMultipleFrustumsForIntersection(fList, cameraFrustumLists, 1);
+			std::vector<std::vector<rec::seAndFrust*>> resultCombinationsPart = testMultipleFrustumsWithMultipleFrustumsForIntersection(fList, cameraFrustumLists, 1);
 
 			//append received part of the result to the whole result
 			resultCombinations.insert(resultCombinations.end(), resultCombinationsPart.begin(), resultCombinationsPart.end());
@@ -225,27 +225,27 @@ namespace rec {
 	*
 	*/
 
-	std::vector<std::vector<rec::container*>> testMultipleFrustumsWithMultipleFrustumsForIntersection
-		(std::vector<rec::container*> fList, std::vector<std::vector<rec::container*>> cameraFrustumLists, int currentList) {
+	std::vector<std::vector<rec::seAndFrust*>> testMultipleFrustumsWithMultipleFrustumsForIntersection
+		(std::vector<rec::seAndFrust*> fList, std::vector<std::vector<rec::seAndFrust*>> cameraFrustumLists, int currentList) {
 
-		std::vector<std::vector<rec::container*>> resultCombinations;
+		std::vector<std::vector<rec::seAndFrust*>> resultCombinations;
 
 		//get cameraFrustumList which has to be processed in this recursion step
-		std::vector<rec::container*> currentCameraFrustumList = cameraFrustumLists.at(currentList);
+		std::vector<rec::seAndFrust*> currentCameraFrustumList = cameraFrustumLists.at(currentList);
 
 		//process each frustum in currentCameraFrustumList
 		for (int i = 0; i < currentCameraFrustumList.size(); i++) {
-			rec::container* currentFrustum = currentCameraFrustumList.at(i);
+			rec::seAndFrust* currentFrustum = currentCameraFrustumList.at(i);
 
 			//test if all already in fList gathered frustums intersect the currentFrustm
 			if (doMultipleFrustumsIntersect(fList, currentFrustum)) {
-				std::vector<rec::container*> newfList = fList;
+				std::vector<rec::seAndFrust*> newfList = fList;
 				newfList.push_back(currentFrustum);
 
 				//this was not the last computation to be performed, there are cameraFrustumLists not evaluated yet
 				if (currentList + 1 < cameraFrustumLists.size()) {
 					//perform another recursive computation on the next cameraFrustumList
-					std::vector<std::vector<rec::container*>> resultCombinationsPart = testMultipleFrustumsWithMultipleFrustumsForIntersection(newfList, cameraFrustumLists, currentList+1);
+					std::vector<std::vector<rec::seAndFrust*>> resultCombinationsPart = testMultipleFrustumsWithMultipleFrustumsForIntersection(newfList, cameraFrustumLists, currentList+1);
 					//append received part of the result to the whole result
 					resultCombinations.insert(resultCombinations.end(), resultCombinationsPart.begin(), resultCombinationsPart.end());
 				}

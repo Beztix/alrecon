@@ -46,10 +46,6 @@ namespace se {
 		}
 
 
-		class construct_uninitialized_tag { };
-		superellipse(const construct_uninitialized_tag& construct_uninitialized) { }
-
-
 
 		superellipse(float mxc, float myc, float mtheta, float ma, float mb, float mepsilon, float mquality) {
 			xc = mxc;
@@ -81,14 +77,14 @@ namespace se {
 
 		//constructor creating an empty contourAndSe
 		contourAndSe() :
-			width(0), height(0), offSetX(0), offSetY(0), alreadyFitted(false), fittedEllipse(se::superellipse::construct_uninitialized_tag())
+			width(0), height(0), offSetX(0), offSetY(0), alreadyFitted(false), fittedEllipse()
 		{
 		}
 
 
 		//constructor creating a contourAndSe without a fitted ellipse
 		contourAndSe(std::vector<cv::Point> mcontour, int mwidth, int mheight, int moffSetX, int moffSetY) :
-			contour(mcontour), width(mwidth), height(mheight), offSetX(moffSetX), offSetY(moffSetY), alreadyFitted(false), fittedEllipse(se::superellipse::construct_uninitialized_tag())
+			contour(mcontour), width(mwidth), height(mheight), offSetX(moffSetX), offSetY(moffSetY), alreadyFitted(false), fittedEllipse()
 		{
 		}
 

@@ -107,11 +107,17 @@ int main() {
 
 	bool USE_CGAL =					false;
 	bool USE_GPUALPHA =				false;
-	bool USE_SUPERELLIPSES_ROSIN =	false;
+	bool USE_SUPERELLIPSES_ROSIN =	true;
 	bool USE_SUPERELLIPSES_CERES =	false;
 	bool TEST_SECTION =				true;
+	int nrOfCameras = 7;
 
 	
+
+	std::vector<tree<rec::seAndFrust>> seAndFrustTrees;
+	std::vector<tree<se::contourAndSe>> seTrees;
+
+
 
 	//############################################
 	//##########          CGAL          ##########       
@@ -176,16 +182,18 @@ int main() {
 
 	if (USE_SUPERELLIPSES_ROSIN) {
 
-		for (int w = 1; w <= 7; w++) {
+
+
+		for (int camera = 1; camera <= nrOfCameras; camera++) {
 
 
 			//++++++++++++++++++++++++++++
 			bool RECURSIVE = false;
 			bool TREE = true;
-			bool debug = false;
+			bool debug = true;
 
 
-			string inputName = "occMask_" + std::to_string(w);
+			string inputName = "occMask_" + std::to_string(camera);
 			int quality = 200;
 			vector<int> qualityValues = { 50000, 10000, 1000, 200, 100 };
 			int iterations = 1;
@@ -255,38 +263,65 @@ int main() {
 
 
 
+
+
 			if (TREE) {
 				string ellipseImagePart = "se_rosin_tree_" + inputName + "_ellipseImage_";
 				string combinedImagePart = "se_rosin_tree_" + inputName + "_combined_";
 
 				tree<se::contourAndSe> seTree;
+				tree<rec::seAndFrust> seAndFrustTree;
 
 				//do the whole computation multiple times (performance averaging)
 				for (int i = 0; i < iterations; i++) {
 					seTree.clear();
+					seAndFrustTree.clear();
 
 					QueryPerformanceCounter(&t3);
 
 					//add root node to the tree
-					tree<se::contourAndSe>::iterator top = seTree.begin();
-					se::contourAndSe rootEllipse = se::contourAndSe();
-					seTree.insert(top, rootEllipse);
+					tree<se::contourAndSe>::iterator seTreeTop = seTree.begin();
+					se::contourAndSe rootContourAndSe = se::contourAndSe();
+					seTree.insert(seTreeTop, rootContourAndSe);
+
+
+					tree<rec::seAndFrust>::iterator seAndFrustTreeTop = seAndFrustTree.begin();
+					// create corners
+					viral_core::vector2f corner1(width, 0);
+					viral_core::vector2f corner2(0, 0);
+					viral_core::vector2f corner3(0, height);
+					viral_core::vector2f corner4(width, height);
+					//create seAndFrust
+					rec::seAndFrust rootseAndFrust(corner1, corner2, corner3, corner4);
+
+					seAndFrustTree.insert(seAndFrustTreeTop, rootseAndFrust);
+
+
 
 					if (debug) {
 						cout << endl;
-						cout << "initial tree" << endl;
+						cout << "initial setTree" << endl;
 						kptree::print_tree_bracketed(seTree);
+						cout << endl;
+						cout << "initial seAndFrustTree" << endl;
+						kptree::print_tree_bracketed(seAndFrustTree);
 						cout << endl;
 					}
 
-					startRosinTree(seTree, contours, width, height, qualityValues);
+					startRosinTree(seTree, seAndFrustTree, contours, width, height, qualityValues);
 
 					if (debug) {
 						cout << endl;
-						cout << "final tree" << endl;
+						cout << "final seTree" << endl;
 						kptree::print_tree_bracketed(seTree);
 						cout << endl;
+						cout << "final seAndFrustTree" << endl;
+						kptree::print_tree_bracketed(seAndFrustTree);
+						cout << endl;
 					}
+
+					seTrees.push_back(seTree);
+					seAndFrustTrees.push_back(seAndFrustTree);
 
 					QueryPerformanceCounter(&t4);
 					double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
@@ -500,7 +535,7 @@ int main() {
 
 
 
-		rec::createObject3DTree(cameraPositions, directionsGrids, 7, 640, 480, 300);
+		rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
 
 
 

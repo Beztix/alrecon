@@ -238,7 +238,7 @@ namespace se {
 
 	std::ostream& operator<<(std::ostream& os, const se::contourAndSe& c)
 	{
-		os << c.offSetX << ',' << c.offSetY;
+		os << c.fittedEllipse.xc << ',' << c.fittedEllipse.yc;
 
 		//os << "contour size: " << c.contour.size() << "  offset: " <<  c.offSetX << ',' << c.offSetY;
 		return os;

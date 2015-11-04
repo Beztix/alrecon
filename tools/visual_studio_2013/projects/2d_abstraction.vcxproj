@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_seAndFrust.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_file_camera.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_frustum_intersection.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\as_cgal.cpp" />
@@ -47,7 +48,7 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\source\2d_abstraction\rec_container.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_seAndFrust.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_file_camera.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_frustum_intersection.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\Alpha_shape_2.h" />

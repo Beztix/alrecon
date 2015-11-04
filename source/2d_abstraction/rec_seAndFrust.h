@@ -1,9 +1,10 @@
-#ifndef REC_CONTAINER_H
-#define REC_CONTAINER_H
+#ifndef REC_SEANDFRUST_H
+#define REC_SEANDFRUST_H
 
 
 #include "rec_frustum.h"
 #include "se_util.h"
+#include <iostream>
 
 
 namespace rec {
@@ -12,7 +13,7 @@ namespace rec {
 
 	// struct representing a fitted superellipse, its bounding box and the corresponding frustum
 
-	struct container {
+	struct seAndFrust {
 
 		se::superellipse fittedEllipse;
 
@@ -24,9 +25,14 @@ namespace rec {
 		frustum frust;
 
 		
+		//empty defualt constructor
+		seAndFrust() {
+
+		}
+
 
 		//constructor receiving the ellipse and creating the bounding box
-		container(se::superellipse mfittedEllipse) {
+		seAndFrust(se::superellipse mfittedEllipse) {
 			fittedEllipse = mfittedEllipse;
 
 			std::vector<viral_core::vector2f> corners = se::getBoundingboxOfSuperellipse(fittedEllipse.xc, fittedEllipse.yc, fittedEllipse.a, fittedEllipse.b, fittedEllipse.epsilon, fittedEllipse.theta);
@@ -37,7 +43,7 @@ namespace rec {
 		}
 
 		//constructor receiving only the corners
-		container(viral_core::vector2f mcorner1, viral_core::vector2f mcorner2, viral_core::vector2f mcorner3, viral_core::vector2f mcorner4) {
+		seAndFrust(viral_core::vector2f mcorner1, viral_core::vector2f mcorner2, viral_core::vector2f mcorner3, viral_core::vector2f mcorner4) {
 			corner1 = mcorner1;
 			corner2 = mcorner2;
 			corner3 = mcorner3;
@@ -54,6 +60,7 @@ namespace rec {
 
 	};
 	
+	std::ostream& operator<<(std::ostream& os, const rec::seAndFrust& c);
 
 
 }
@@ -65,4 +72,4 @@ namespace rec {
 
 
 
-#endif /* REC_CONTAINER_H*/
+#endif /* REC_SEANDFRUST_H*/
