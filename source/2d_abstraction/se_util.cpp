@@ -108,7 +108,7 @@ namespace se {
 			stepsize = 20;
 		}
 		else {
-			double stepsizeD = contour.size() / 20;
+			double stepsizeD = (double)contour.size() / 20;
 			stepsize = (int)stepsizeD;
 		}
 

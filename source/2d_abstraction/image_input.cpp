@@ -126,31 +126,7 @@ namespace image_input {
 
 
 
-	vector<vector<cv::Point2i>> getBlobsFromImage(string imageLocation, int &width, int &height) {
-
-		Mat img = imread(imageLocation, 0);
-		if (!img.data) {
-			std::cout << "File not found" << std::endl;
-		}
-
-		//get size of the image
-		Size size = img.size();
-		height = size.height;
-		width = size.width;
-
-		vector<vector<cv::Point2i>> blobs;
-		Mat binary;
-		threshold(img, binary, 0.0, 1.0, cv::THRESH_BINARY);
-
-		blob::FindBlobs(binary, blobs);
-
-		int type1 = img.type();
-		int type2 = binary.type();
-
-
-
-		return blobs;
-	}
+	
 
 
 }

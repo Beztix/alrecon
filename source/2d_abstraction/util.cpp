@@ -508,7 +508,7 @@ namespace util {
 
 	vector<int> createBoundingBoxLinesFromCorners(vector<int> cornerPixels) {
 		vector<int> lineData;
-		int nrOfBoxes = cornerPixels.size() / 8;
+		int nrOfBoxes = (int)cornerPixels.size() / 8;
 		int nrOfLines = nrOfBoxes * 4;
 
 		for (int i = 0; i < nrOfBoxes; i++) {

@@ -15,7 +15,7 @@ namespace image_input {
 
 	std::vector<std::vector<cv::Point>> getContoursFromImage(std::string imageLocation, int &width, int &height);
 
-	std::vector<std::vector<cv::Point2i>> getBlobsFromImage(std::string imageLocation, int &width, int &height);
+
 
 }
 

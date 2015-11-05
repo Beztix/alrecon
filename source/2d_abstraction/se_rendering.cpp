@@ -165,7 +165,7 @@ namespace se {
 			listOfEllipses.emplace_back(pointListOfEllipse);
 		}
 
-		image_output::writeSuperellipsesToImage(listOfEllipses, outputFile, width, height);
+		image_output::writeSuperellipsesToImage(listOfEllipses, outputFile + ".png", width, height);
 
 		return 0;
 	}
@@ -196,14 +196,14 @@ namespace se {
 			}
 		}
 
-		image_output::pixelVectorToImage(cornerPixels, 640 + 2 * offset, 480 + 2 * offset, "BBCorners_" + outputName + ".png");
-		text_output::writeIntVectorToTextfile("BBCorners_" + outputName + ".txt", cornerPixels);
+		image_output::pixelVectorToImage(cornerPixels, 640 + 2 * offset, 480 + 2 * offset, outputName + "_corners.png");
+		text_output::writeIntVectorToTextfile(outputName + ".txt", cornerPixels);
 
 
 		std::vector<int> lineData = util::createBoundingBoxLinesFromCorners(cornerPixels);
 
 
-		image_output::renderArrayOfLinesToImage("BB_" + outputName + ".png", 640 + 2 * offset, 480 + 2 * offset, lineData);
+		image_output::renderArrayOfLinesToImage(outputName + "_lines.png", 640 + 2 * offset, 480 + 2 * offset, lineData);
 
 		return 0;
 	}

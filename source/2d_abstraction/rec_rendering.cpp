@@ -384,7 +384,7 @@ namespace rec {
 			
 	
 				//add frustums
-				int nrOfBoxes = corners.size() / 8;
+				int nrOfBoxes = (int)corners.size() / 8;
 				for (int i = 0; i < nrOfBoxes; i++) {
 					int x1 = corners.at(8 * i);
 					int y1 = corners.at(8 * i + 1);

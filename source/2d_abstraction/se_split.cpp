@@ -3,7 +3,6 @@
 
 #include <string>
 #include <iostream>
-#include <ceres/ceres.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -13,7 +12,6 @@
 
 using namespace cv;
 using namespace std;
-using ceres::Solver;
 
 
 
@@ -147,13 +145,13 @@ void splitImagegridToMats(vector<int> pixelGrid, const int width, const int heig
 	}
 
 
-	double x, y;
+	int x, y;
 	for (int i = 0; i < width*height; i++) {
 		if (pixelGrid[i] != 0) {
 			y = i / width;
 			x = i % width;
 			Point point = Point(x, y);
-			tuple<double, double> testPoint(x, y);
+			tuple<int, int> testPoint(x, y);
 			if (isLeftOf(testPoint, point1, point2)){
 				internPart1.at<uchar>(point) = (uchar)1;
 			}
@@ -185,13 +183,13 @@ void splitContourToVectors(vector<cv::Point> contourPoints, const int width, con
 
 	//split line is horizontal
 	if (newTheta == 0) {
-		point1 = cv::Point(0, yc);
-		point2 = cv::Point(width, yc);
+		point1 = cv::Point(0, (int)yc);
+		point2 = cv::Point(width, (int)yc);
 	}
 	//split line is vertical
 	else if (theta < 0.001) {
-		point1 = cv::Point(xc, 0);
-		point2 = cv::Point(xc, height);
+		point1 = cv::Point((int)xc, 0);
+		point2 = cv::Point((int)xc, height);
 	}
 	else {
 		//use y = m*x +t:
@@ -334,8 +332,8 @@ void splitContourToVectors(vector<cv::Point> contourPoints, const int width, con
 			cv::Point2d intersection1 = intersectionPoints.at(2*i);
 			cv::Point2d intersection2 = intersectionPoints.at(2*i + 1);
 
-			cv::Point inter1 = cv::Point(intersection1.x, intersection1.y);
-			cv::Point inter2 = cv::Point(intersection2.x, intersection2.y);
+			cv::Point inter1 = cv::Point((int)intersection1.x, (int)intersection1.y);
+			cv::Point inter2 = cv::Point((int)intersection2.x, (int)intersection2.y);
 
 			//rasterize the part of the split line
 			vector<cv::Point> splitLinePart = util::bresenhamLine(inter1, inter2);

@@ -22,11 +22,7 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_seAndFrust.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_file_camera.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_frustum_intersection.cpp" />
-    <ClCompile Include="..\..\..\source\2d_abstraction\as_cgal.cpp" />
-    <ClCompile Include="..\..\..\source\2d_abstraction\as_gpu_input.cpp" />
-    <ClCompile Include="..\..\..\source\2d_abstraction\blob.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\convex_hull.cpp" />
-    <ClCompile Include="..\..\..\source\2d_abstraction\ellipseFit.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\image_output.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\image_input.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\main.cpp" />
@@ -51,13 +47,8 @@
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_seAndFrust.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_file_camera.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_frustum_intersection.h" />
-    <ClInclude Include="..\..\..\source\2d_abstraction\Alpha_shape_2.h" />
-    <ClInclude Include="..\..\..\source\2d_abstraction\as_cgal.h" />
-    <ClInclude Include="..\..\..\source\2d_abstraction\as_gpu_input.h" />
-    <ClInclude Include="..\..\..\source\2d_abstraction\blob.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\convexHull.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\convexHullForC.h" />
-    <ClInclude Include="..\..\..\source\2d_abstraction\ellipseFit.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_frustum.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\image_output.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\image_input.h" />
@@ -110,19 +101,12 @@
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 6.5.props" />
-  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\props\build_type_app.props" />
     <Import Project="..\props\build_mode_debug.props" />
     <Import Project="..\props\build_app_console.props" />
     <Import Project="..\props\build_opencv_x64_debug.props" />
-    <Import Project="..\props\build_cgal_x64_debug.props" />
-    <Import Project="..\props\build_boost_x64_debug.props" />
-    <Import Project="..\props\build_eigen_x64_debug.props" />
-    <Import Project="..\props\build_ceres_x64_debug.props" />
     <Import Project="..\props\build_viral_lib.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
@@ -138,10 +122,6 @@
     <Import Project="..\props\build_type_app.props" />
     <Import Project="..\props\build_mode_release.props" />
     <Import Project="..\props\build_app_console.props" />
-    <Import Project="..\props\build_cgal_x64_release.props" />
-    <Import Project="..\props\build_boost_x64_release.props" />
-    <Import Project="..\props\build_ceres_x64_release.props" />
-    <Import Project="..\props\build_eigen_x64_release.props" />
     <Import Project="..\props\build_opencv_x64_release.props" />
     <Import Project="..\props\build_viral_lib.props" />
   </ImportGroup>
@@ -154,16 +134,10 @@
     <Import Project="..\props\build_viral_lib.props" />
   </ImportGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 6.5.targets" />
-  </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PostBuildEvent>
       <Command>"$(ProjectDir)..\..\copy_assets\copy_all_assets.bat"</Command>
     </PostBuildEvent>
-    <CudaCompile>
-      <CodeGeneration>compute_13,sm_20</CodeGeneration>
-    </CudaCompile>
     <Link>
       <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -172,26 +146,15 @@
     <PostBuildEvent>
       <Command>"$(ProjectDir)..\..\copy_assets\copy_all_assets.bat"</Command>
     </PostBuildEvent>
-    <CudaCompile>
-      <CodeGeneration>compute_13,sm_20</CodeGeneration>
-    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PostBuildEvent>
       <Command>"$(ProjectDir)..\..\copy_assets\copy_all_assets.bat"</Command>
     </PostBuildEvent>
-    <CudaCompile>
-      <CodeGeneration>compute_13,sm_20</CodeGeneration>
-      <GPUDebugInfo>false</GPUDebugInfo>
-      <FastMath>true</FastMath>
-    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PostBuildEvent>
       <Command>"$(ProjectDir)..\..\copy_assets\copy_all_assets.bat"</Command>
     </PostBuildEvent>
-    <CudaCompile>
-      <CodeGeneration>compute_13,sm_20</CodeGeneration>
-    </CudaCompile>
   </ItemDefinitionGroup>
 </Project>
