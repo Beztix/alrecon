@@ -79,10 +79,10 @@ class tree {
 		tree(const T&);                                 // constructor setting given element as head
 		tree(const iterator_base&);
 		tree(const tree<T, tree_node_allocator>&);      // copy constructor
-		tree(tree<T, tree_node_allocator>&&);           // move constructor
+	//	tree(tree<T, tree_node_allocator>&&);           // move constructor
 		~tree();
 		tree<T,tree_node_allocator>& operator=(const tree<T, tree_node_allocator>&);   // copy assignment
-		tree<T,tree_node_allocator>& operator=(tree<T, tree_node_allocator>&&);        // move assignment
+	//	tree<T,tree_node_allocator>& operator=(tree<T, tree_node_allocator>&&);        // move assignment
 
       /// Base class for iterators, only pointers stored, no traversal logic.
 #ifdef __SGI_STL_PORT
@@ -499,6 +499,7 @@ tree<T, tree_node_allocator>::tree(const T& x)
 	set_head(x);
 	}
 
+/*
 template <class T, class tree_node_allocator>
 tree<T, tree_node_allocator>::tree(tree<T, tree_node_allocator>&& x) 
 	{
@@ -510,6 +511,7 @@ tree<T, tree_node_allocator>::tree(tree<T, tree_node_allocator>&& x)
 	x.head->next_sibling=x.feet;
 	x.feet->prev_sibling=x.head;
 	}
+	*/
 
 template <class T, class tree_node_allocator>
 tree<T, tree_node_allocator>::tree(const iterator_base& other)
@@ -558,6 +560,7 @@ tree<T,tree_node_allocator>& tree<T, tree_node_allocator>::operator=(const tree<
 	return *this;
 	}
 
+/*
 template <class T, class tree_node_allocator>
 tree<T,tree_node_allocator>& tree<T, tree_node_allocator>::operator=(tree<T, tree_node_allocator>&& x)
 	{
@@ -571,6 +574,7 @@ tree<T,tree_node_allocator>& tree<T, tree_node_allocator>::operator=(tree<T, tre
 		}
 	return *this;
 	}
+	*/
 
 template <class T, class tree_node_allocator>
 tree<T, tree_node_allocator>::tree(const tree<T, tree_node_allocator>& other)

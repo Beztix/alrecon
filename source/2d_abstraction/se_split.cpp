@@ -290,10 +290,9 @@ void splitContourToVectors(vector<cv::Point> contourPoints, const int width, con
 	}
 
 
-	//number of intersection points is not even: Fuckup with this method of comupation
+	//number of intersection points is not even: Fuckup with this method of compuation
 	if (intersectionPoints.size() % 2 == 1) {
-		cerr << "FUCKUP" << endl;
-
+	
 		//USE OTHER ALGO:
 
 		//rasterize the split line

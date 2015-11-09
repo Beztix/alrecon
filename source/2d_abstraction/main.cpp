@@ -119,6 +119,9 @@ int main() {
 		int iterations = 1;
 		//++++++++++++++++++++++++++++
 
+
+		cout << "===   IMAGE: " << inputName << ".png   ===" << endl;
+
 		int width;
 		int height;
 
@@ -230,6 +233,7 @@ int main() {
 		QueryPerformanceCounter(&t6);
 		double renderDuration = (t6.QuadPart - t5.QuadPart) * 1000.0 / frequency.QuadPart;
 		cout << "renderDuration:               " << renderDuration << "ms" << endl;
+		cout << endl;
 
 	}	
 	// end of for each camera
