@@ -37,9 +37,8 @@ namespace rec {
 	void file_camera::init_calibration(string calibration_base_path)
 	{
 
-		string calibration_path = calibration_base_path + std::to_string(index + 1) + ".cal";
-
-		cout << "Loading calibration data from: " + calibration_path << endl;
+		string calibration_path = calibration_base_path + std::to_string(index) + ".cal";
+		cout << "Loading calibration from: " + calibration_path << endl;
 
 		ifstream infile(calibration_path);
 		float line_lists[5][4];

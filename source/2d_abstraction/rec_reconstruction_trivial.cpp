@@ -43,7 +43,7 @@ namespace rec {
 
 
 
-	std::vector<viral_core::vector> reconstruct(int stepsize) {
+	std::vector<viral_core::vector> reconstruct_trivial(int stepsize) {
 
 
 		//create file_cameras and sensors using stefan's camera calibration to be able to project from world to device

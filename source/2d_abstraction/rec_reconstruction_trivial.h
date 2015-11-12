@@ -7,7 +7,7 @@
 
 namespace rec {
 
-	std::vector<viral_core::vector> reconstruct(int stepsize);
+	std::vector<viral_core::vector> reconstruct_trivial(int stepsize);
 
 }
 

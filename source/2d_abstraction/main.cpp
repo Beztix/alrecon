@@ -14,6 +14,7 @@
 
 #define NOGDI
 
+
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -88,6 +89,7 @@ int main() {
 
 	int NROFCAMS = 7;
 	bool DEBUG = false;
+	bool RENDER_IMAGES = false;
 	
 	
 
@@ -96,7 +98,10 @@ int main() {
 	//##########        Superellipses Rosin        ##########       
 	//#######################################################
 
-
+	cout << "=======  Starting superellipses computation using Rosin  =======" << endl;
+	cout << endl;
+	cout << endl;
+	cout << endl;
 
 	std::vector<tree<rec::seAndFrust>> seAndFrustTrees;
 	std::vector<tree<se::contourAndSe>> contourAndSeTrees;
@@ -169,8 +174,8 @@ int main() {
 			viral_core::vector2f corner2(0.f, 0.f);
 			viral_core::vector2f corner3(0.f, (float)height);
 			viral_core::vector2f corner4((float)width, (float)height);
-			rec::seAndFrust rootseAndFrust(corner1, corner2, corner3, corner4);
-			seAndFrustTree.insert(seAndFrustTreeTop, rootseAndFrust);
+			rec::seAndFrust rootSeAndFrust(corner1, corner2, corner3, corner4);
+			seAndFrustTree.insert(seAndFrustTreeTop, rootSeAndFrust);
 
 
 			if (DEBUG) {
@@ -219,22 +224,26 @@ int main() {
 		cout << "quality used:                 " << quality << endl;
 		cout << "depth of tree:                " << depth << endl;
 
-		//render the fitted superellipses to image files
-		QueryPerformanceCounter(&t5);
 
-		for (int k = 1; k <= depth; k++) {
-			vector<se::superellipse> ellipses = se::getEllipsesOfGivenDepth(contourAndSeTree, k);
-			processSuperellipsesFromVector(ellipses, ellipseImagePart + to_string(k), width, height);
-			processSuperellipsesToBoundingBoxFromVector(ellipses, bbImagePart + to_string(k), width, height, 300);
-			image_output::combineOriginalAndEllipseImage(inputImage, ellipseImagePart + to_string(k) + ".png", combinedImagePart + to_string(k) + ".png");
+
+		if (RENDER_IMAGES) {
+
+			//render the fitted superellipses to image files
+			QueryPerformanceCounter(&t5);
+
+			for (int k = 1; k <= depth; k++) {
+				vector<se::superellipse> ellipses = se::getEllipsesOfGivenDepth(contourAndSeTree, k);
+				processSuperellipsesFromVector(ellipses, ellipseImagePart + to_string(k), width, height);
+				processSuperellipsesToBoundingBoxFromVector(ellipses, bbImagePart + to_string(k), width, height, 300);
+				image_output::combineOriginalAndEllipseImage(inputImage, ellipseImagePart + to_string(k) + ".png", combinedImagePart + to_string(k) + ".png");
+			}
+
+
+			QueryPerformanceCounter(&t6);
+			double renderDuration = (t6.QuadPart - t5.QuadPart) * 1000.0 / frequency.QuadPart;
+			cout << "renderDuration:               " << renderDuration << "ms" << endl;
+			cout << endl;
 		}
-
-
-		QueryPerformanceCounter(&t6);
-		double renderDuration = (t6.QuadPart - t5.QuadPart) * 1000.0 / frequency.QuadPart;
-		cout << "renderDuration:               " << renderDuration << "ms" << endl;
-		cout << endl;
-
 	}	
 	// end of for each camera
 
@@ -254,6 +263,10 @@ int main() {
 	//##########          Reconstruction           ##########       
 	//#######################################################
 
+	cout << "=======  Starting reconstruction computation  =======" << endl;
+	cout << endl;
+	cout << endl;
+	cout << endl;
 
 
 	//rec::doAllSamplingCalculations();
@@ -261,15 +274,27 @@ int main() {
 	std::vector<viral_core::vector> cameraPositions;
 	std::vector<std::vector<std::vector<viral_core::vector>>> directionsGrids;
 
+	std::vector<rec::file_camera> cameras;
+	std::vector<rec::sensor> sensors;
 
-	for (int i = 0; i < 7; i++) {
-		rec::file_camera cam(i);
-		rec::sensor sens(i, cam.image_size, rec::sensor::projection_pinhole_distort);
-		sens.set_pinhole_distort(cam.world_to_device_pinhole_distort_, cam.pinhole_distort_center_, cam.pinhole_distort_focus_, cam.distort_r1_, cam.distort_r2_, cam.distort_t1_, cam.distort_t2_);
 
-		cameraPositions.push_back(cam.cam_position_);
+	cout << "Initialising file_camera and sensor objects, loading directionsGrids" << endl;
 
-		std::string locationStringDirections = "../../assets/camera_inversion/offset_300/directions_distanceNormalized_cam" + std::to_string(i);
+	// for each camera
+	for (int cam = 1; cam <= NROFCAMS; cam++) {
+
+		// create file_camera and sensor objects for camera transformations
+		rec::file_camera camera(cam);
+		rec::sensor sens(cam, camera.image_size, rec::sensor::projection_pinhole_distort);
+		sens.set_pinhole_distort(camera.world_to_device_pinhole_distort_, camera.pinhole_distort_center_, camera.pinhole_distort_focus_, 
+			camera.distort_r1_, camera.distort_r2_, camera.distort_t1_, camera.distort_t2_);
+		cameras.push_back(camera);
+		sensors.push_back(sens);
+
+		cameraPositions.push_back(camera.cam_position_);
+
+		// load directionsGrids
+		std::string locationStringDirections = "../../assets/camera_inversion/offset_300/directions_distanceNormalized_cam" + std::to_string(cam);
 		std::vector<std::vector<viral_core::vector>> directionsGrid = text_input::readPositionsGridFromBinaryfile(locationStringDirections + ".bin", 1240, 1080);
 
 
@@ -280,9 +305,9 @@ int main() {
 
 	//rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
 
-	std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct(20);
+	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20);
 
-	rec::renderOccupiedPositions(occupiedWorldPositions, 10, 0.1f);
+	//rec::renderOccupiedPositions(occupiedWorldPositions, 10, 0.1f);
 
 
 
