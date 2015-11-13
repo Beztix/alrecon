@@ -303,15 +303,15 @@ int main() {
 	}
 
 
-	rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
+	//rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
 
 
 
 	int i = 5;
 
-	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20);
+	std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20);
 
-	//rec::renderOccupiedPositions(occupiedWorldPositions, 10, 0.1f);
+	rec::renderOccupiedPositions(occupiedWorldPositions, 10, 0.1f);
 
 
 
