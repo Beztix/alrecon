@@ -11,7 +11,7 @@
 namespace rec {
 
 	void createObject3DTree(std::vector<viral_core::vector> cameraPositions, std::vector<std::vector<std::vector<viral_core::vector>>> &directionsGrids,
-		std::vector<tree<rec::seAndFrust>> seAndFrustTrees, int nrOfCams, int width, int height, int offset);
+		std::vector<tree<rec::seAndFrust>> &seAndFrustTrees, int nrOfCams, int width, int height, int offset);
 
 }
 

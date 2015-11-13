@@ -19,6 +19,11 @@ namespace rec {
 		std::vector<viral_core::vector> planeNormalBases;	//the base vectors of the plane normals
 		std::vector<rec::seAndFrust*> generatingFrustums;	//the frustums which are intersected to generate this object3D
 		
+
+		std::vector<tree<rec::seAndFrust>::pre_order_iterator> generatingFrustumsIT;
+
+
+
 		object3D()
 		{
 		
@@ -39,6 +44,17 @@ namespace rec {
 			generatingFrustums = mgeneratingFrustums;
 			collectGeneratingPlanes();
 		}
+
+
+		object3D(std::vector<tree<rec::seAndFrust>::pre_order_iterator> mgeneratingFrustums)
+		{
+			generatingFrustumsIT = mgeneratingFrustums;
+			for (auto n : mgeneratingFrustums)
+				generatingFrustums.push_back(&(*n));
+
+			collectGeneratingPlanes();
+		}
+
 
 
 		void collectGeneratingPlanes() {

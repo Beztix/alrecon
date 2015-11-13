@@ -5,6 +5,7 @@
 #include "rec_frustum.h"
 #include "se_util.h"
 #include <iostream>
+#include <string>
 
 
 namespace rec {
@@ -24,8 +25,9 @@ namespace rec {
 
 		frustum frust;
 
+
 		
-		//empty defualt constructor
+		//empty default constructor
 		seAndFrust() {
 
 		}
@@ -57,6 +59,12 @@ namespace rec {
 			frust = f;
 		}
 
+
+
+		std::string toBBString() {
+			return "[ (" + std::to_string(corner1.x) + "," + std::to_string(corner1.y) + ")(" + std::to_string(corner2.x) + "," + std::to_string(corner2.y) + ")(" +
+				std::to_string(corner3.x) + "," + std::to_string(corner3.y) + ")(" + std::to_string(corner4.x) + "," + std::to_string(corner4.y) + " ]";
+		}
 
 	};
 	

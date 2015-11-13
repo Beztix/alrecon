@@ -164,18 +164,18 @@ int main() {
 			QueryPerformanceCounter(&t3);
 
 			//add root node to the contourAndSeTree (empty contourAndSe)
-			tree<se::contourAndSe>::iterator contourAndSeTreeTop = contourAndSeTree.begin();
 			se::contourAndSe rootContourAndSe = se::contourAndSe();
-			contourAndSeTree.insert(contourAndSeTreeTop, rootContourAndSe);
+			contourAndSeTree.set_head(rootContourAndSe);
 
 			//add root node to the seAndFrustTree (seAndFrust containing the whole image as bounding box)
-			tree<rec::seAndFrust>::iterator seAndFrustTreeTop = seAndFrustTree.begin();
 			viral_core::vector2f corner1((float)width, 0.f);
 			viral_core::vector2f corner2(0.f, 0.f);
 			viral_core::vector2f corner3(0.f, (float)height);
 			viral_core::vector2f corner4((float)width, (float)height);
 			rec::seAndFrust rootSeAndFrust(corner1, corner2, corner3, corner4);
-			seAndFrustTree.insert(seAndFrustTreeTop, rootSeAndFrust);
+			seAndFrustTree.set_head(rootSeAndFrust);
+
+
 
 
 			if (DEBUG) {
@@ -202,8 +202,8 @@ int main() {
 			}
 
 			//add the trees of the current camera to the lsit of all trees
-			//contourAndSeTrees.push_back(contourAndSeTree);
-			//seAndFrustTrees.push_back(seAndFrustTree);
+			contourAndSeTrees.push_back(contourAndSeTree);
+			seAndFrustTrees.push_back(seAndFrustTree);
 
 			QueryPerformanceCounter(&t4);
 			double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
@@ -303,7 +303,11 @@ int main() {
 	}
 
 
-	//rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
+	rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
+
+
+
+	int i = 5;
 
 	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20);
 

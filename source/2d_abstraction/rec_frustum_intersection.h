@@ -4,6 +4,7 @@
 
 #include "rec_frustum.h"
 #include "rec_seAndFrust.h"
+#include "tree.hh"
 #include <vector>
 
 
@@ -22,6 +23,21 @@ namespace rec {
 
 	std::vector<std::vector<rec::seAndFrust*>> testMultipleFrustumsWithMultipleFrustumsForIntersection
 		(std::vector<rec::seAndFrust*> fList, std::vector<std::vector<rec::seAndFrust*>> FrustLists, int currentList);
+
+
+
+
+
+	bool doFrustumsIntesect(tree<rec::seAndFrust>::pre_order_iterator firstFrustum, tree<rec::seAndFrust>::pre_order_iterator secondFrustum);
+
+	bool doMultipleFrustumsIntersect(std::vector<tree<rec::seAndFrust>::pre_order_iterator> fList, tree<rec::seAndFrust>::pre_order_iterator b);
+
+
+	std::vector<std::vector<tree<rec::seAndFrust>::pre_order_iterator>> intersectAllFrustums(std::vector<std::vector<tree<rec::seAndFrust>::pre_order_iterator>> frustumLists);
+
+
+	std::vector<std::vector<tree<rec::seAndFrust>::pre_order_iterator>> testMultipleFrustumsWithMultipleFrustumsForIntersection
+		(std::vector<tree<rec::seAndFrust>::pre_order_iterator> fList, std::vector<std::vector<tree<rec::seAndFrust>::pre_order_iterator>> FrustLists, int currentList);
 
 }
 
