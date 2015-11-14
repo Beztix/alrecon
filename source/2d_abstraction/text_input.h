@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <viral_core/geo_3d.hpp>
+#include "rec_frustum.h"
 
 
 
@@ -14,6 +15,8 @@ namespace text_input {
 	std::vector<std::vector<viral_core::vector>> readPositionsGridFromBinaryfile(std::string input, int dimX, int dimY);
 
 	std::vector<int> readIntVectorFromTextfile(std::string input);
+
+	std::vector<rec::frustum> readFrustumsFromTextfile(std::string input);
 }
 
 

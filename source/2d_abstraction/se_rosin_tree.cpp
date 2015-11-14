@@ -330,7 +330,7 @@ namespace se {
 
 
 
-	void startRosinTree(tree<contourAndSe> &seTree, tree<rec::seAndFrust> &seAndFrustTree, vector<vector<cv::Point>> contours, int width, int height, vector<int> qualityValues) {
+	void startRosinTree(int cam, tree<contourAndSe> &seTree, tree<rec::seAndFrust> &seAndFrustTree, vector<vector<cv::Point>> contours, int width, int height, vector<int> qualityValues) {
 
 		tree<se::contourAndSe>::iterator seTreeTop = seTree.begin();
 		tree<rec::seAndFrust>::iterator seAndFrustTreeTop = seAndFrustTree.begin();
@@ -376,7 +376,7 @@ namespace se {
 
 			//build seAndFrusts for the fit
 			se::contourAndSe initialContourAndSe = se::contourAndSe(currentContourWithOffset, sizeX, sizeY, offsetX, offsetY, initialFit);
-			rec::seAndFrust initialseAndFrust = rec::seAndFrust(initialFit);
+			rec::seAndFrust initialseAndFrust = rec::seAndFrust(cam, initialFit);
 
 			//add the initial fit to the seTree
 			seTree.append_child(seTreeTop, initialContourAndSe);
@@ -432,7 +432,7 @@ namespace se {
 					for (int i = 0; i < newFits.size(); i++) {
 						se::contourAndSe currentNewFit = newFits.at(i);
 						seTree.append_child(seTreeDepthBeginIterator, currentNewFit);
-						rec::seAndFrust currentNewseAndFrust = rec::seAndFrust(currentNewFit.fittedEllipse);
+						rec::seAndFrust currentNewseAndFrust = rec::seAndFrust(cam, currentNewFit.fittedEllipse);
 						seAndFrustTree.append_child(seAndFrustTreeDepthBeginIterator, currentNewseAndFrust);
 					}
 				}

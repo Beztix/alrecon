@@ -266,7 +266,7 @@ namespace rec {
 	
 
 		//for each camera
-		for (int cam = 1; cam <= 7; cam++) {
+		for (int cam = 1; cam <= 2; cam++) {
 
 			viral_core::vector scaledCamPosition = cameras.at(cam - 1).cam_position_*scale;
 
@@ -432,6 +432,26 @@ namespace rec {
 
 
 
+		std::vector<rec::frustum> frustums = text_input::readFrustumsFromTextfile("frusts_1.txt");
+
+		for (int f = 0; f < frustums.size(); f++) {
+			rec::frustum currentFrust = frustums.at(f);
+
+			near_bot_left = currentFrust.points[0]*scale;
+			near_bot_right = currentFrust.points[1] * scale;
+			near_top_right = currentFrust.points[2] * scale;
+			near_top_left = currentFrust.points[3] * scale;
+			far_bot_left = currentFrust.points[4] * scale;
+			far_bot_right = currentFrust.points[5] * scale;
+			far_top_right = currentFrust.points[6] * scale;
+			far_top_left = currentFrust.points[7] * scale;
+
+			addBoxWithCorners(geometry_mesh_frustums, near_top_left, near_top_right, near_bot_left, near_bot_right,
+				far_top_left, far_top_right, far_bot_left, far_bot_right);
+
+		}
+		/*
+
 		near_bot_left = viral_core::vector(1522.23438, -1536.72461, 1966.72156)*scale;
 		near_bot_right = viral_core::vector(1612.93835, -1507.17798, 1847.31677)*scale;
 		near_top_right = viral_core::vector(1584.28857, -1569.03540, 1805.49500)*scale;
@@ -458,7 +478,7 @@ namespace rec {
 			far_top_left, far_top_right, far_bot_left, far_bot_right);
 
 
-
+		*/
 
 		viral_core::auto_pointer<viral_core::model> geometry_cameraPlanes
 			(new viral_core::model());
@@ -621,7 +641,8 @@ namespace rec {
 		viral_core::render_puppet_data puppet_data_frustums;
 		puppet_data_frustums.position = viral_core::vector(0, 0, 0);
 		puppet_data_frustums.model = model_frustums_id;
-		puppet_data_frustums.materials.insert("model_group_frustums", material_transparent2_id);
+		puppet_data_frustums.materials.insert("model_group_frustums", material_wireframe_id);
+		//puppet_data_frustums.materials.insert("model_group_frustums", material_transparent2_id);
 
 
 		//add the bounding box model to the render_puppet_data

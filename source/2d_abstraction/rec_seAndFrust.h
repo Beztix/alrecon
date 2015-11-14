@@ -16,6 +16,8 @@ namespace rec {
 
 	struct seAndFrust {
 
+		int camera;
+
 		se::superellipse fittedEllipse;
 
 		viral_core::vector2f corner1;
@@ -34,7 +36,8 @@ namespace rec {
 
 
 		//constructor receiving the ellipse and creating the bounding box
-		seAndFrust(se::superellipse mfittedEllipse) {
+		seAndFrust(int cam, se::superellipse mfittedEllipse) {
+			camera = cam;
 			fittedEllipse = mfittedEllipse;
 
 			std::vector<viral_core::vector2f> corners = se::getBoundingboxOfSuperellipse(fittedEllipse.xc, fittedEllipse.yc, fittedEllipse.a, fittedEllipse.b, fittedEllipse.epsilon, fittedEllipse.theta);
@@ -45,7 +48,8 @@ namespace rec {
 		}
 
 		//constructor receiving only the corners
-		seAndFrust(viral_core::vector2f mcorner1, viral_core::vector2f mcorner2, viral_core::vector2f mcorner3, viral_core::vector2f mcorner4) {
+		seAndFrust(int cam, viral_core::vector2f mcorner1, viral_core::vector2f mcorner2, viral_core::vector2f mcorner3, viral_core::vector2f mcorner4) {
+			camera = cam;
 			corner1 = mcorner1;
 			corner2 = mcorner2;
 			corner3 = mcorner3;

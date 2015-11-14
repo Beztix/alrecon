@@ -206,4 +206,37 @@ namespace text_input {
 
 
 
+
+	std::vector<rec::frustum> readFrustumsFromTextfile(std::string input) {
+		ifstream infile(input);
+
+		std::vector<rec::frustum> output;
+		float x, y, z;
+		while (infile >> x >> y >> z) {
+			std::vector<viral_core::vector> frustCorners;
+
+			viral_core::vector currentCorner = viral_core::vector(x, y, z);
+			frustCorners.push_back(currentCorner);
+
+
+			for (int i = 0; i < 7; i++) {
+				infile >> x >> y >> z;
+				currentCorner = viral_core::vector(x, y, z);
+				frustCorners.push_back(currentCorner);
+			}
+
+			rec::frustum currentFrustum(frustCorners.at(0), frustCorners.at(1), frustCorners.at(2), frustCorners.at(3),
+				frustCorners.at(4), frustCorners.at(5), frustCorners.at(6), frustCorners.at(7));
+			output.push_back(currentFrustum);
+
+
+		}
+		infile.close();
+
+		return output;
+
+	}
+
+
+
 }

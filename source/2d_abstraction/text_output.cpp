@@ -19,6 +19,23 @@
 namespace text_output {
 
 
+
+	void appendFrustumToTextFile(std::string location, rec::frustum frust) {
+
+		std::ofstream outfile(location, std::ios_base::app);
+
+		for (int i = 0; i < 8; i++) {
+			outfile << frust.points[i].x << " " << frust.points[i].y << " " << frust.points[i].z << "\n";
+		}
+		
+		outfile.close();
+
+	}
+
+
+
+
+
 	void writePositionsGridToTextfile(std::string location, std::vector<std::vector<viral_core::vector>> positionsGrid) {
 
 		std::ofstream outfile(location, std::ios_base::trunc);

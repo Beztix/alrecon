@@ -18,6 +18,7 @@
 #include "rec_seAndFrust.h"
 #include "rec_frustum_intersection.h"
 #include "tree.hh"
+#include "text_output.h"
 
 
 
@@ -147,17 +148,17 @@ namespace rec {
 
 				// process each camera = each generating frustum 
 				// (generating frustums live on currentLevel of the 2D trees)
-				for (int cam = 0; cam < seAndFrustTrees.size(); cam++) {
+				for (int cam = 1; cam <= nrOfCams; cam++) {
 
 					std::cout << "processing camera " + std::to_string(cam) << std::endl;
 
-					tree<rec::seAndFrust>& currentSeAndFrustTree = seAndFrustTrees.at(cam);
+					tree<rec::seAndFrust>& currentSeAndFrustTree = seAndFrustTrees.at(cam-1);
 
 					// list containing the frustums of the current camera which should be included in the next frustum intersections step
 					std::vector<tree<rec::seAndFrust>::pre_order_iterator> currentSeAndFrustITList;
 
 					// generating frustum of the current 3D object of the current camera
-					tree<rec::seAndFrust>::pre_order_iterator currentSeAndFrustIT = currentObject3D.generatingFrustumsIT.at(cam);
+					tree<rec::seAndFrust>::pre_order_iterator currentSeAndFrustIT = currentObject3D.generatingFrustumsIT.at(cam-1);
 
 					// create iterator of the children of currentSeAndFrust, which are the new frustums to be tested
 					// (they live on currentLevel + 1 of the 2D trees)
@@ -170,11 +171,11 @@ namespace rec {
 						rec::seAndFrust& currentChild = *childrenITbegin;
 
 						//calculate frustum of the current child
-						viral_core::vector camPosition = cameraPositions.at(cam);
-						viral_core::vector direction1 = directionsGrids.at(cam).at(currentChild.corner1.y + offset).at(currentChild.corner1.x + offset);
-						viral_core::vector direction2 = directionsGrids.at(cam).at(currentChild.corner2.y + offset).at(currentChild.corner2.x + offset);
-						viral_core::vector direction3 = directionsGrids.at(cam).at(currentChild.corner3.y + offset).at(currentChild.corner3.x + offset);
-						viral_core::vector direction4 = directionsGrids.at(cam).at(currentChild.corner4.y + offset).at(currentChild.corner4.x + offset);
+						viral_core::vector camPosition = cameraPositions.at(cam-1);
+						viral_core::vector direction1 = directionsGrids.at(cam - 1).at(currentChild.corner1.y + offset).at(currentChild.corner1.x + offset);
+						viral_core::vector direction2 = directionsGrids.at(cam - 1).at(currentChild.corner2.y + offset).at(currentChild.corner2.x + offset);
+						viral_core::vector direction3 = directionsGrids.at(cam - 1).at(currentChild.corner3.y + offset).at(currentChild.corner3.x + offset);
+						viral_core::vector direction4 = directionsGrids.at(cam - 1).at(currentChild.corner4.y + offset).at(currentChild.corner4.x + offset);
 						viral_core::vector near_top_left = camPosition + (direction2 * CAM_NEAR_PLANE);
 						viral_core::vector near_top_right = camPosition + (direction1 * CAM_NEAR_PLANE);
 						viral_core::vector near_bot_left = camPosition + (direction3 * CAM_NEAR_PLANE);
@@ -187,6 +188,9 @@ namespace rec {
 						rec::frustum currentFrust = rec::frustum(near_bot_left, near_bot_right, near_top_right, near_top_left,
 							far_bot_left, far_bot_right, far_top_right, far_top_left);
 						currentChild.setFrustum(currentFrust);
+
+						text_output::appendFrustumToTextFile("frusts.txt", currentFrust);
+
 
 						currentSeAndFrustITList.push_back(tree<rec::seAndFrust>::pre_order_iterator(childrenITbegin));
 						childrenITbegin++;

@@ -89,7 +89,7 @@ int main() {
 
 	int NROFCAMS = 7;
 	bool DEBUG = false;
-	bool RENDER_IMAGES = true;
+	bool RENDER_IMAGES = false;
 	
 	
 
@@ -174,7 +174,7 @@ int main() {
 			viral_core::vector2f corner2(0.f, 0.f);
 			viral_core::vector2f corner3(0.f, (float)height);
 			viral_core::vector2f corner4((float)width, (float)height);
-			rec::seAndFrust rootSeAndFrust(corner1, corner2, corner3, corner4);
+			rec::seAndFrust rootSeAndFrust(cam, corner1, corner2, corner3, corner4);
 			seAndFrustTree.set_head(rootSeAndFrust);
 
 
@@ -191,7 +191,7 @@ int main() {
 			}
 
 			//start the main computation
-			startRosinTree(contourAndSeTree, seAndFrustTree, contours, width, height, qualityValues);
+			startRosinTree(cam, contourAndSeTree, seAndFrustTree, contours, width, height, qualityValues);
 
 			if (DEBUG) {
 				cout << endl;
