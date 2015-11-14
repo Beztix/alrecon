@@ -199,7 +199,7 @@ namespace rec {
 	void doAllSamplingCalculations() {
 
 
-		for (int i = 0; i < 7; i++) {
+		for (int i = 1; i <= 7; i++) {
 
 			file_camera current_cam(i);
 			sensor current_sensor(i, current_cam.image_size, sensor::projection_pinhole_distort);
@@ -207,10 +207,10 @@ namespace rec {
 				current_cam.distort_r1_, current_cam.distort_r2_, current_cam.distort_t1_, current_cam.distort_t2_);
 
 		
-			/*
-			rec::sample_camera_to_image(current_cam, current_sensor, 500);
+			
+			//rec::sample_camera_to_image(current_cam, current_sensor, 500);
 			rec::sample_camera_for_inv_projection(current_cam, current_sensor, 700);
-			*/
+			
 
 			calculateNormalizedDirectionvectors(current_cam.cam_position_, 700, i, 1240, 1080);
 

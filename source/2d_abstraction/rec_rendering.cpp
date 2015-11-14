@@ -266,13 +266,19 @@ namespace rec {
 	
 
 		//for each camera
-		for (int cam = 0; cam < 7; cam++) {
+		for (int cam = 1; cam <= 7; cam++) {
 
-			viral_core::vector scaledCamPosition = cameras.at(cam).cam_position_*scale;
+			viral_core::vector scaledCamPosition = cameras.at(cam - 1).cam_position_*scale;
 
 			//add camera
 			addCubeAroundVector(geometry_mesh_cameraPlanes, scaledCamPosition, 2.0f);
 			
+
+			std::string locationStringDirections = "../../assets/camera_inversion/offset_300/directions_distanceNormalized_cam" + std::to_string(cam);
+			std::vector<std::vector<viral_core::vector>> directionsGrid = text_input::readPositionsGridFromBinaryfile(locationStringDirections + ".bin", 1240, 1080);
+
+
+
 			/*
 
 			// ========    viewing plane d = 500    ========
@@ -298,7 +304,7 @@ namespace rec {
 			
 			// ========    (extended) viewing plane d = 700    ========
 
-			std::string locationString700 = "../../assets/camera_inversion/offset_300/sampledPositions_d" + std::to_string(700) + "_cam" + std::to_string(cam);
+			std::string locationString700 = "../../assets/camera_inversion/offset_300/sampledPositions_d700_cam" + std::to_string(cam);
 			std::vector<std::vector<viral_core::vector>> positionGrid700 = text_input::readPositionsGridFromBinaryfile(locationString700 + ".bin", 1240, 1080);
 			//add the extended viewing plane of the camera
 			int rasterSize700 = 20;
@@ -325,8 +331,7 @@ namespace rec {
 
 			// ========    viewing rays    ========
 
-			std::string locationStringDirections = "../../assets/camera_inversion/offset_300/directions_distanceNormalized_cam" + std::to_string(cam);
-			std::vector<std::vector<viral_core::vector>> directionsGrid = text_input::readPositionsGridFromBinaryfile(locationStringDirections + ".bin", 1240, 1080);
+			
 			
 			//add all possible rays
 			int rasterSizeAllRays = 50;
@@ -360,12 +365,12 @@ namespace rec {
 			}
 			
 
-
+			*/
 
 			// ========    frustums    ========
 
 
-			std::string locationStringCorners = "BBCorners_occMask_" + std::to_string(i + 1) + "_lvl1.txt";
+			std::string locationStringCorners = "se_rosin_tree_occMask_" + std::to_string(cam) + "_bb_1.txt";
 			std::vector<int> corners = text_input::readIntVectorFromTextfile(locationStringCorners);
 
 			//add lines in the viewing plane corresponding to the 2d bounding box pixels
@@ -386,7 +391,7 @@ namespace rec {
 			}
 
 			
-	
+			/*
 				//add frustums
 				int nrOfBoxes = (int)corners.size() / 8;
 				for (int i = 0; i < nrOfBoxes; i++) {
@@ -425,6 +430,32 @@ namespace rec {
 
 		}	//end of for each camera
 
+
+
+		near_bot_left = viral_core::vector(1522.23438, -1536.72461, 1966.72156)*scale;
+		near_bot_right = viral_core::vector(1612.93835, -1507.17798, 1847.31677)*scale;
+		near_top_right = viral_core::vector(1584.28857, -1569.03540, 1805.49500)*scale;
+		near_top_left = viral_core::vector(1494.80981, -1596.06873, 1926.48779)*scale;
+		far_bot_left = viral_core::vector(-4068.20654, 534.564575, 3687.54541)*scale;
+		far_bot_right = viral_core::vector(-3161.16748, 830.030640, 2493.49731)*scale;
+		far_top_right = viral_core::vector(-3447.66553, 211.456909, 2075.27905)*scale;
+		far_top_left = viral_core::vector(-4342.45313, -58.8774414, 3285.20801)*scale;
+
+		addBoxWithCorners(geometry_mesh_frustums, near_top_left, near_top_right, near_bot_left, near_bot_right,
+			far_top_left, far_top_right, far_bot_left, far_bot_right);
+
+
+		near_bot_left = viral_core::vector(-1623.85669, 1418.67322, 1343.56238)*scale;
+		near_bot_right = viral_core::vector(-1308.10010, 1528.85303, 1600.92297)*scale;
+		near_top_right = viral_core::vector(-1402.25049, 1215.55322, 1805.99316)*scale;
+		near_top_left = viral_core::vector(-1707.74060, 1102.23633, 1563.75317)*scale;
+		far_bot_left = viral_core::vector(1037.12695, -377.945313, -2008.35999)*scale;
+		far_bot_right = viral_core::vector(4194.69238, 723.852600, 565.245728)*scale;
+		far_top_right = viral_core::vector(3253.18896, -2409.14502, 2615.94849)*scale;
+		far_top_left = viral_core::vector(198.287842, -3542.31494, 193.548584)*scale;
+
+		addBoxWithCorners(geometry_mesh_frustums, near_top_left, near_top_right, near_bot_left, near_bot_right,
+			far_top_left, far_top_right, far_bot_left, far_bot_right);
 
 
 

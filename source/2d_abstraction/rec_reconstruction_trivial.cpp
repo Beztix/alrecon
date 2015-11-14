@@ -99,7 +99,7 @@ namespace rec {
 					int x6 = (int)projVec_6.x;
 					int y6 = (int)projVec_6.y;
 
-					bool initial = true;	//if true: world space positions outside of camera viewing frustum assumed occupied, else assumes empty	
+					bool initial = false;	//if true: world space positions outside of camera viewing frustum assumed occupied, else assumes empty	
 					bool set_0 = initial;
 					bool set_1 = initial;
 					bool set_2 = initial;

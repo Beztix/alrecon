@@ -89,7 +89,7 @@ int main() {
 
 	int NROFCAMS = 7;
 	bool DEBUG = false;
-	bool RENDER_IMAGES = false;
+	bool RENDER_IMAGES = true;
 	
 	
 
@@ -307,7 +307,7 @@ int main() {
 	}
 
 
-	rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
+	//rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
 
 	std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20, sensors);
 
