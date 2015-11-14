@@ -43,47 +43,10 @@ namespace rec {
 
 
 
-	std::vector<viral_core::vector> reconstruct_trivial(int stepsize) {
+	std::vector<viral_core::vector> reconstruct_trivial(int stepsize, std::vector<rec::sensor> sensors) {
 
 
-		//create file_cameras and sensors using stefan's camera calibration to be able to project from world to device
-
-		file_camera cam_0(0);
-		sensor sens_0(0, cam_0.image_size, sensor::projection_pinhole_distort);
-		sens_0.set_pinhole_distort(cam_0.world_to_device_pinhole_distort_, cam_0.pinhole_distort_center_, cam_0.pinhole_distort_focus_, 
-								   cam_0.distort_r1_, cam_0.distort_r2_, cam_0.distort_t1_, cam_0.distort_t2_);
-
-		file_camera cam_1(1);
-		sensor sens_1(1, cam_1.image_size, sensor::projection_pinhole_distort);
-		sens_1.set_pinhole_distort(cam_1.world_to_device_pinhole_distort_, cam_1.pinhole_distort_center_, cam_1.pinhole_distort_focus_,
-			cam_1.distort_r1_, cam_1.distort_r2_, cam_1.distort_t1_, cam_1.distort_t2_);
-
-		file_camera cam_2(2);
-		sensor sens_2(2, cam_2.image_size, sensor::projection_pinhole_distort);
-		sens_2.set_pinhole_distort(cam_2.world_to_device_pinhole_distort_, cam_2.pinhole_distort_center_, cam_2.pinhole_distort_focus_,
-			cam_2.distort_r1_, cam_2.distort_r2_, cam_2.distort_t1_, cam_2.distort_t2_);
-
-		file_camera cam_3(3);
-		sensor sens_3(3, cam_3.image_size, sensor::projection_pinhole_distort);
-		sens_3.set_pinhole_distort(cam_3.world_to_device_pinhole_distort_, cam_3.pinhole_distort_center_, cam_3.pinhole_distort_focus_,
-			cam_3.distort_r1_, cam_3.distort_r2_, cam_3.distort_t1_, cam_3.distort_t2_);
-
-		file_camera cam_4(4);
-		sensor sens_4(4, cam_4.image_size, sensor::projection_pinhole_distort);
-		sens_4.set_pinhole_distort(cam_4.world_to_device_pinhole_distort_, cam_4.pinhole_distort_center_, cam_4.pinhole_distort_focus_,
-			cam_4.distort_r1_, cam_4.distort_r2_, cam_4.distort_t1_, cam_4.distort_t2_);
-
-		file_camera cam_5(5);
-		sensor sens_5(5, cam_5.image_size, sensor::projection_pinhole_distort);
-		sens_5.set_pinhole_distort(cam_5.world_to_device_pinhole_distort_, cam_5.pinhole_distort_center_, cam_5.pinhole_distort_focus_,
-			cam_5.distort_r1_, cam_5.distort_r2_, cam_5.distort_t1_, cam_5.distort_t2_);
-
-		file_camera cam_6(6);
-		sensor sens_6(6, cam_6.image_size, sensor::projection_pinhole_distort);
-		sens_6.set_pinhole_distort(cam_6.world_to_device_pinhole_distort_, cam_6.pinhole_distort_center_, cam_6.pinhole_distort_focus_,
-			cam_6.distort_r1_, cam_6.distort_r2_, cam_6.distort_t1_, cam_6.distort_t2_);
-
-
+		std::cout << "Loading images used for reconstruction" << std::endl;
 
 		//load images used for reconstruction
 		
@@ -98,11 +61,12 @@ namespace rec {
 
 
 
-
 		std::vector<viral_core::vector> occupiedWorldPositions;
 
-		// run through all positions in world space
 
+		std::cout << "Testing all world space positions for being occupied in the various device spaces" << std::endl;
+
+		// run through all positions in world space
 		for (int x = -2000; x < 2200; x+=stepsize) {
 			for (int y = -2200; y < 2200; y+=stepsize) {
 				for (int z = -880; z < 1600; z+=stepsize) {
@@ -111,16 +75,15 @@ namespace rec {
 
 					//transform world space position to device positions
 
-					viral_core::vector projVec_0 = sens_0.project(vec);
-					viral_core::vector projVec_1 = sens_1.project(vec);
-					viral_core::vector projVec_2 = sens_2.project(vec);
-					viral_core::vector projVec_3 = sens_3.project(vec);
-					viral_core::vector projVec_4 = sens_4.project(vec);
-					viral_core::vector projVec_5 = sens_5.project(vec);
-					viral_core::vector projVec_6 = sens_6.project(vec);
+					viral_core::vector projVec_0 = sensors.at(0).project(vec);
+					viral_core::vector projVec_1 = sensors.at(1).project(vec);
+					viral_core::vector projVec_2 = sensors.at(2).project(vec);
+					viral_core::vector projVec_3 = sensors.at(3).project(vec);
+					viral_core::vector projVec_4 = sensors.at(4).project(vec);
+					viral_core::vector projVec_5 = sensors.at(5).project(vec);
+					viral_core::vector projVec_6 = sensors.at(6).project(vec);
 
 					//test if device positions are occupied according to loaded images
-
 					int x0 = (int)projVec_0.x;
 					int y0 = (int)projVec_0.y;
 					int x1 = (int)projVec_1.x;
@@ -136,7 +99,6 @@ namespace rec {
 					int x6 = (int)projVec_6.x;
 					int y6 = (int)projVec_6.y;
 
-
 					bool initial = true;	//if true: world space positions outside of camera viewing frustum assumed occupied, else assumes empty	
 					bool set_0 = initial;
 					bool set_1 = initial;
@@ -146,7 +108,6 @@ namespace rec {
 					bool set_5 = initial;
 					bool set_6 = initial;
 					
-
 					if (0 < x0 && x0 < width && 0 < y0 && y0 < height) {
 						set_0 = false;
 						if (pixels_0[(int)projVec_0.y*width + (int)projVec_0.x] != 0)
@@ -184,7 +145,6 @@ namespace rec {
 					}
 
 					
-
 					//if occupied in every image: set world space position as occupied
 
 					if (set_0 && set_1 && set_2 && set_3 && set_4 && set_5 && set_6) {

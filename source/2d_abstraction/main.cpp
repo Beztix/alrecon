@@ -98,6 +98,8 @@ int main() {
 	//##########        Superellipses Rosin        ##########       
 	//#######################################################
 
+	cout << endl;
+	cout << endl;
 	cout << "=======  Starting superellipses computation using Rosin  =======" << endl;
 	cout << endl;
 	cout << endl;
@@ -124,7 +126,7 @@ int main() {
 		int iterations = 1;
 		//++++++++++++++++++++++++++++
 
-
+		cout << endl;
 		cout << "===   IMAGE: " << inputName << ".png   ===" << endl;
 
 		int width;
@@ -263,6 +265,8 @@ int main() {
 	//##########          Reconstruction           ##########       
 	//#######################################################
 
+	cout << endl;
+	cout << endl;
 	cout << "=======  Starting reconstruction computation  =======" << endl;
 	cout << endl;
 	cout << endl;
@@ -303,15 +307,11 @@ int main() {
 	}
 
 
-	//rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
+	rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
 
+	std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20, sensors);
 
-
-	int i = 5;
-
-	std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20);
-
-	rec::renderOccupiedPositions(occupiedWorldPositions, 10, 0.1f);
+	rec::renderOccupiedPositions(cameras, sensors, occupiedWorldPositions, 10, 0.1f);
 
 
 

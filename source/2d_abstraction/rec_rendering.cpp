@@ -120,12 +120,15 @@ namespace rec {
 
 
 
-	void renderOccupiedPositions(std::vector<viral_core::vector> occupiedPositions, float cubesize, float scale) {
+	void renderOccupiedPositions(std::vector<rec::file_camera> cameras, std::vector<rec::sensor> sensors, std::vector<viral_core::vector> occupiedPositions, float cubesize, float scale) {
 
 		int nrOfPuppets = 100;
 		int cubesPerPuppet = (int) (occupiedPositions.size() / (nrOfPuppets-1));
 
 
+		std::cout << std::endl;
+		std::cout << "Starting rendering!" << std::endl;
+		std::cout << std::endl;
 
 		// ######################### Initialization ######################### 
 
@@ -259,24 +262,22 @@ namespace rec {
 			(new viral_core::mesh());
 
 
+
+	
+
 		//for each camera
-		for (int i = 0; i < 7; i++) {
+		for (int cam = 0; cam < 7; cam++) {
 
-			file_camera current_cam(i);
-			sensor current_sensor(i, current_cam.image_size, sensor::projection_pinhole_distort);
-			current_sensor.set_pinhole_distort(current_cam.world_to_device_pinhole_distort_, current_cam.pinhole_distort_center_, current_cam.pinhole_distort_focus_, 
-				current_cam.distort_r1_, current_cam.distort_r2_, current_cam.distort_t1_, current_cam.distort_t2_);
-
-			viral_core::vector scaledCamPosition = current_cam.cam_position_*scale;
+			viral_core::vector scaledCamPosition = cameras.at(cam).cam_position_*scale;
 
 			//add camera
 			addCubeAroundVector(geometry_mesh_cameraPlanes, scaledCamPosition, 2.0f);
 			
-
+			/*
 
 			// ========    viewing plane d = 500    ========
 
-			/*
+			
 			std::string locationString = "../../assets/camera_inversion/sampledPositions_d" + std::to_string(500) + "_cam" + std::to_string(i);
 			std::vector<std::vector<viral_core::vector>> positionGrid500 = text_input::readPositionsGridFromBinaryfile(locationString + ".bin", 640, 480);
 			//add the viewing plane of the camera
@@ -289,13 +290,15 @@ namespace rec {
 						positionGrid500.at(y + rasterSize).at(x + rasterSize)*scale);
 				}
 			}
-			*/
 			
-			if (i == 5){
+			
+			*/
 
+
+			
 			// ========    (extended) viewing plane d = 700    ========
 
-			std::string locationString700 = "../../assets/camera_inversion/offset_300/sampledPositions_d" + std::to_string(700) + "_cam" + std::to_string(i);
+			std::string locationString700 = "../../assets/camera_inversion/offset_300/sampledPositions_d" + std::to_string(700) + "_cam" + std::to_string(cam);
 			std::vector<std::vector<viral_core::vector>> positionGrid700 = text_input::readPositionsGridFromBinaryfile(locationString700 + ".bin", 1240, 1080);
 			//add the extended viewing plane of the camera
 			int rasterSize700 = 20;
@@ -318,12 +321,13 @@ namespace rec {
 			}
 
 			
+			/*
 
 			// ========    viewing rays    ========
 
-			std::string locationStringDirections = "../../assets/camera_inversion/offset_300/directions_distanceNormalized_cam" + std::to_string(i);
+			std::string locationStringDirections = "../../assets/camera_inversion/offset_300/directions_distanceNormalized_cam" + std::to_string(cam);
 			std::vector<std::vector<viral_core::vector>> directionsGrid = text_input::readPositionsGridFromBinaryfile(locationStringDirections + ".bin", 1240, 1080);
-			/*
+			
 			//add all possible rays
 			int rasterSizeAllRays = 50;
 			for (int y = 300; y < 780; y += rasterSizeAllRays) {
@@ -334,9 +338,9 @@ namespace rec {
 					addLine(geometry_mesh_cameraRays, scaledCamPosition, endVec);
 				}
 			}
-			*/
 			
-			/*
+			
+			
 			//add rays corresponding to occupied pixels
 			std::string locationStringImage = "BB_occMask_" + std::to_string(i + 1) + "_lvl1.png";
 			int width, height;
@@ -354,7 +358,7 @@ namespace rec {
 					}
 				}
 			}
-			*/
+			
 
 
 
@@ -416,15 +420,12 @@ namespace rec {
 
 				}
 
-
-
-			}
-			
-
-			
+				*/
 
 
 		}	//end of for each camera
+
+
 
 
 
@@ -669,7 +670,6 @@ namespace rec {
 
 
 
-
 		// ######################### Commit data structures to render-side objects with appropriate ID ######################### 
 
 
@@ -713,6 +713,9 @@ namespace rec {
 
 		e.window().set_display
 			(viral_core::vector2f(50, 50), viral_core::vector2f(800, 600), 0);
+
+
+
 
 
 
