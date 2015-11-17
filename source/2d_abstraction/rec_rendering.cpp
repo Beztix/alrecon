@@ -224,11 +224,7 @@ namespace rec {
 		addBoxWithCorners(geometry_mesh_boundingBox, near_top_left, near_top_right, near_bot_left, near_bot_right,
 			far_top_left, far_top_right, far_bot_left, far_bot_right);
 
-		viral_core::auto_pointer<viral_core::model> geometry_boundingBox
-			(new viral_core::model());
-		geometry_boundingBox->insert_group("model_group_boundingBox", geometry_mesh_boundingBox);
-		geometry_boundingBox->rebuild_boundings();
-		geometry_boundingBox->validate();
+		
 
 
 		//create the coordinate axes of the world space
@@ -236,11 +232,7 @@ namespace rec {
 			(new viral_core::mesh());
 		addCoordinateSystem(geometry_mesh_coordinateAxes, 500, 500, 300);
 
-		viral_core::auto_pointer<viral_core::model> geometry_coordinateAxes
-			(new viral_core::model());
-		geometry_coordinateAxes->insert_group("model_group_coordinateAxes", geometry_mesh_coordinateAxes);
-		geometry_coordinateAxes->rebuild_boundings();
-		geometry_coordinateAxes->validate();
+		
 
 
 
@@ -448,6 +440,8 @@ namespace rec {
 
 			addBoxWithCorners(geometry_mesh_frustums, near_top_left, near_top_right, near_bot_left, near_bot_right,
 				far_top_left, far_top_right, far_bot_left, far_bot_right);
+			addBoxWithCorners(geometry_mesh_boundingBox, near_top_left, near_top_right, near_bot_left, near_bot_right,
+				far_top_left, far_top_right, far_bot_left, far_bot_right);
 
 		}
 		/*
@@ -479,6 +473,20 @@ namespace rec {
 
 
 		*/
+
+		viral_core::auto_pointer<viral_core::model> geometry_coordinateAxes
+			(new viral_core::model());
+		geometry_coordinateAxes->insert_group("model_group_coordinateAxes", geometry_mesh_coordinateAxes);
+		geometry_coordinateAxes->rebuild_boundings();
+		geometry_coordinateAxes->validate();
+
+
+
+		viral_core::auto_pointer<viral_core::model> geometry_boundingBox
+			(new viral_core::model());
+		geometry_boundingBox->insert_group("model_group_boundingBox", geometry_mesh_boundingBox);
+		geometry_boundingBox->rebuild_boundings();
+		geometry_boundingBox->validate();
 
 		viral_core::auto_pointer<viral_core::model> geometry_cameraPlanes
 			(new viral_core::model());
@@ -592,8 +600,8 @@ namespace rec {
 		material_data_wireframe.shader = shader_id;
 
 		viral_core::render_material_data material_data_unlit;
-		material_data_unlit.ambient_color = viral_core::color(1, 0.05f, 0.05f, 1);
-		material_data_unlit.diffuse_color = viral_core::color(1, 0.05f, 0.05f, 1);
+		material_data_unlit.ambient_color = viral_core::color(0.2f, 1.f, 0.2f, 1);
+		material_data_unlit.diffuse_color = viral_core::color(0.2f, 1.f, 0.2f, 1);
 		material_data_unlit.specular_color = viral_core::color(0, 0, 0, 1);
 		material_data_unlit.unlit = true;
 		material_data_unlit.cull = viral_core::render_material_data::cull_none;
@@ -641,8 +649,8 @@ namespace rec {
 		viral_core::render_puppet_data puppet_data_frustums;
 		puppet_data_frustums.position = viral_core::vector(0, 0, 0);
 		puppet_data_frustums.model = model_frustums_id;
-		puppet_data_frustums.materials.insert("model_group_frustums", material_wireframe_id);
-		//puppet_data_frustums.materials.insert("model_group_frustums", material_transparent2_id);
+		//puppet_data_frustums.materials.insert("model_group_frustums", material_wireframe_id);
+		puppet_data_frustums.materials.insert("model_group_frustums", material_transparent2_id);
 
 
 		//add the bounding box model to the render_puppet_data

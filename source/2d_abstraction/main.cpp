@@ -174,7 +174,7 @@ int main() {
 			viral_core::vector2f corner2(0.f, 0.f);
 			viral_core::vector2f corner3(0.f, (float)height);
 			viral_core::vector2f corner4((float)width, (float)height);
-			rec::seAndFrust rootSeAndFrust(cam, corner1, corner2, corner3, corner4);
+			rec::seAndFrust rootSeAndFrust(cam, 0, 0, corner1, corner2, corner3, corner4);
 			seAndFrustTree.set_head(rootSeAndFrust);
 
 

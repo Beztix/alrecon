@@ -376,11 +376,11 @@ namespace se {
 
 			//build seAndFrusts for the fit
 			se::contourAndSe initialContourAndSe = se::contourAndSe(currentContourWithOffset, sizeX, sizeY, offsetX, offsetY, initialFit);
-			rec::seAndFrust initialseAndFrust = rec::seAndFrust(cam, initialFit);
+			rec::seAndFrust initialSeAndFrust = rec::seAndFrust(cam, offsetX, offsetY, initialFit);
 
 			//add the initial fit to the seTree
 			seTree.append_child(seTreeTop, initialContourAndSe);
-			seAndFrustTree.append_child(seAndFrustTreeTop, initialseAndFrust);
+			seAndFrustTree.append_child(seAndFrustTreeTop, initialSeAndFrust);
 
 		}
 
@@ -407,7 +407,7 @@ namespace se {
 			//iterate through all fits at the current depth
 			while (seTree.is_valid(seTreeDepthBeginIterator)) {
 				se::contourAndSe currentContourAndSe = *seTreeDepthBeginIterator;
-				rec::seAndFrust currentseAndFrust = *seAndFrustTreeDepthBeginIterator;
+				rec::seAndFrust currentSeAndFrust = *seAndFrustTreeDepthBeginIterator;
 
 				if (!currentContourAndSe.alreadyFitted) {
 					se::superellipse fit = useRosinOnce(currentContourAndSe.contour, currentContourAndSe.width, currentContourAndSe.height);
@@ -420,7 +420,7 @@ namespace se {
 					//TODO: SINNVOLL??
 					//duplicate current node
 					seTree.append_child(seTreeDepthBeginIterator, currentContourAndSe);
-					seAndFrustTree.append_child(seAndFrustTreeDepthBeginIterator, currentseAndFrust);
+					seAndFrustTree.append_child(seAndFrustTreeDepthBeginIterator, currentSeAndFrust);
 				}
 
 				//fit is not good enough for the next depth
@@ -432,8 +432,8 @@ namespace se {
 					for (int i = 0; i < newFits.size(); i++) {
 						se::contourAndSe currentNewFit = newFits.at(i);
 						seTree.append_child(seTreeDepthBeginIterator, currentNewFit);
-						rec::seAndFrust currentNewseAndFrust = rec::seAndFrust(cam, currentNewFit.fittedEllipse);
-						seAndFrustTree.append_child(seAndFrustTreeDepthBeginIterator, currentNewseAndFrust);
+						rec::seAndFrust currentNewSeAndFrust = rec::seAndFrust(cam, currentNewFit.offSetX, currentNewFit.offSetY, currentNewFit.fittedEllipse);
+						seAndFrustTree.append_child(seAndFrustTreeDepthBeginIterator, currentNewSeAndFrust);
 					}
 				}
 
@@ -456,10 +456,10 @@ namespace se {
 		tree<se::contourAndSe>::fixed_depth_iterator depthBeginIterator = seTree.begin_fixed(top, depth);
 
 		while (seTree.is_valid(depthBeginIterator)) {
-			se::contourAndSe currentseAndFrust = *depthBeginIterator;
-			se::superellipse currentEllipse = currentseAndFrust.fittedEllipse;
-			currentEllipse.xc += currentseAndFrust.offSetX;
-			currentEllipse.yc += currentseAndFrust.offSetY;
+			se::contourAndSe currentContourAndSe = *depthBeginIterator;
+			se::superellipse currentEllipse = currentContourAndSe.fittedEllipse;
+			currentEllipse.xc += currentContourAndSe.offSetX;
+			currentEllipse.yc += currentContourAndSe.offSetY;
 			ellipsesVector.emplace_back(currentEllipse);
 			depthBeginIterator++;
 		}
