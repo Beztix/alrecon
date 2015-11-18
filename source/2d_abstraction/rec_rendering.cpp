@@ -30,6 +30,8 @@
 #include <viral_core/render_task.hpp>
 #include <viral_core/render.hpp>
 
+#include <viral_core/file_util.hpp>
+#include <viral_core/font.hpp>
 
 
 #include "rec_file_camera.h"
@@ -87,6 +89,10 @@ namespace rec {
 				rotation(vector(0, 0, 1), input.value_of(input_source::j0_button6) * 0.1f);
 			cam.orientation *=
 				rotation(vector(0, 0, 1), -input.value_of(input_source::j0_button7) * 0.1f);
+			cam.orientation *=
+				rotation(vector(0, 0, 1), input.value_of(input_source::k_q) * 0.4f);
+			cam.orientation *=
+				rotation(vector(0, 0, 1), -input.value_of(input_source::k_e) * 0.4f);
 
 			vector movement
 				(vector(0, 0, 1) * input.value_of(input_source::j0_axis5) +
@@ -114,6 +120,34 @@ namespace rec {
 		}
 	}
 
+
+
+
+	void addText(const viral_core::string text, viral_core::auto_pointer<viral_core::font> &font, viral_core::render_scene_data &scene_data, 
+		viral_core::auto_pointer<viral_core::render_command_queue> &q, viral_core::shared_pointer<viral_core::render_material_id> &material_texture_id,
+		viral_core::vector position) {
+
+		viral_core::auto_pointer<viral_core::model> geometry_text = (*font).typeset_model(text, "model_group_text");
+
+		viral_core::shared_pointer<viral_core::render_model_id> model_text_id
+			(new viral_core::render_model_id("my_text_model"));
+		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_text_id
+			(new viral_core::render_puppet_id("my_text_puppet"));
+
+		viral_core::render_model_data model_data_text;
+		model_data_text.geometry = geometry_text;
+
+		viral_core::render_puppet_data puppet_data_text;
+		puppet_data_text.position = position;
+		puppet_data_text.model = model_text_id;
+		puppet_data_text.materials.insert("model_group_text", material_texture_id);
+		puppet_data_text.scale = 0.3;
+
+		scene_data.objects.insert(puppet_text_id);
+
+		q->commit(model_data_text, model_text_id);
+		q->commit(puppet_data_text, puppet_text_id);
+	}
 
 
 
@@ -157,6 +191,8 @@ namespace rec {
 			(new viral_core::render_model_id("my_frustums_model"));
 		viral_core::shared_pointer<viral_core::render_shader_id> shader_id
 			(new viral_core::render_shader_id("my_shader"));
+		viral_core::shared_pointer<viral_core::render_shader_id> gui_shader_id
+			(new viral_core::render_shader_id("my_gui_shader"));
 		viral_core::shared_pointer<viral_core::render_material_id> material_id
 			(new viral_core::render_material_id("my_material"));
 		viral_core::shared_pointer<viral_core::render_material_id> material_wireframe_id
@@ -167,6 +203,10 @@ namespace rec {
 			(new viral_core::render_material_id("my_transparent_material"));
 		viral_core::shared_pointer<viral_core::render_material_id> material_transparent2_id
 			(new viral_core::render_material_id("my_transparent2_material"));
+		viral_core::shared_pointer<viral_core::render_material_id> material_texture_id
+			(new viral_core::render_material_id("my_texture_material"));
+		viral_core::shared_pointer<viral_core::render_texture_id> texture_id
+			(new viral_core::render_texture_id("my_texture"));
 
 
 		// ======= Scene ======= 
@@ -203,6 +243,28 @@ namespace rec {
 		viral_core::shared_pointer<viral_core::render_process_id> process_id
 			(new viral_core::render_process_id("my_process"));
 
+
+
+
+
+
+
+		viral_core::auto_pointer<viral_core::render_command_queue> q
+			(new viral_core::render_command_queue());
+
+
+		viral_core::render_scene_data scene_data;
+
+
+		viral_core::disk_file fontImageFile("C:/Users/luetzow/alrecon/external/werner/viral/assets/viral_test/test_gui/deja_vu_mono_white.png", viral_core::file::file_operation::read_only);
+		viral_core::disk_file fontXMLFile("C:/Users/luetzow/alrecon/external/werner/viral/assets/viral_test/test_gui/deja_vu_mono.bmfont", viral_core::file::file_operation::read_only);
+
+		viral_core::auto_pointer<viral_core::font> dejaVuFont = viral_core::font::load(fontXMLFile);
+		viral_core::auto_pointer<viral_core::image> dejaVuImage = viral_core::image::load_png(fontImageFile);
+
+
+		viral_core::render_texture_2d_data texture_data;
+		texture_data.image_2d = dejaVuImage;
 
 
 
@@ -255,16 +317,17 @@ namespace rec {
 
 
 
-	
+		//=================================================
+		//=======          for each camera          =======
+		//=================================================
 
-		//for each camera
-		for (int cam = 1; cam <= 2; cam++) {
+		for (int cam = 1; cam <= 7; cam++) {
 
 			viral_core::vector scaledCamPosition = cameras.at(cam - 1).cam_position_*scale;
 
 			//add camera
 			addCubeAroundVector(geometry_mesh_cameraPlanes, scaledCamPosition, 2.0f);
-			
+			addText(("[" + std::to_string(cam) + "]").c_str(), dejaVuFont, scene_data, q, material_texture_id, scaledCamPosition + viral_core::vector(10, 0, 0));
 
 			std::string locationStringDirections = "../../assets/camera_inversion/offset_300/directions_distanceNormalized_cam" + std::to_string(cam);
 			std::vector<std::vector<viral_core::vector>> directionsGrid = text_input::readPositionsGridFromBinaryfile(locationStringDirections + ".bin", 1240, 1080);
@@ -272,10 +335,8 @@ namespace rec {
 
 
 			/*
-
 			// ========    viewing plane d = 500    ========
 
-			
 			std::string locationString = "../../assets/camera_inversion/sampledPositions_d" + std::to_string(500) + "_cam" + std::to_string(i);
 			std::vector<std::vector<viral_core::vector>> positionGrid500 = text_input::readPositionsGridFromBinaryfile(locationString + ".bin", 640, 480);
 			//add the viewing plane of the camera
@@ -288,8 +349,6 @@ namespace rec {
 						positionGrid500.at(y + rasterSize).at(x + rasterSize)*scale);
 				}
 			}
-			
-			
 			*/
 
 
@@ -319,12 +378,11 @@ namespace rec {
 			}
 
 			
+
 			/*
 
 			// ========    viewing rays    ========
 
-			
-			
 			//add all possible rays
 			int rasterSizeAllRays = 50;
 			for (int y = 300; y < 780; y += rasterSizeAllRays) {
@@ -335,8 +393,6 @@ namespace rec {
 					addLine(geometry_mesh_cameraRays, scaledCamPosition, endVec);
 				}
 			}
-			
-			
 			
 			//add rays corresponding to occupied pixels
 			std::string locationStringImage = "BB_occMask_" + std::to_string(i + 1) + "_lvl1.png";
@@ -355,12 +411,10 @@ namespace rec {
 					}
 				}
 			}
-			
-
 			*/
 
-			// ========    frustums    ========
 
+			// ========    frustums    ========
 
 			std::string locationStringCorners = "se_rosin_tree_occMask_" + std::to_string(cam) + "_bb_1.txt";
 			std::vector<int> corners = text_input::readIntVectorFromTextfile(locationStringCorners);
@@ -396,7 +450,6 @@ namespace rec {
 					int x4 = corners.at(8 * i + 6);
 					int y4 = corners.at(8 * i + 7);
 
-
 					viral_core::vector direction1 = directionsGrid.at(y1).at(x1);
 					viral_core::vector direction2 = directionsGrid.at(y2).at(x2);
 					viral_core::vector direction3 = directionsGrid.at(y3).at(x3);
@@ -414,36 +467,103 @@ namespace rec {
 					addBoxWithCorners(geometry_mesh_frustums, near_top_left, near_top_right, near_bot_left, near_bot_right,
 						far_top_left, far_top_right, far_bot_left, far_bot_right);
 
-
 				}
-
 				*/
+			
+
+			std::vector<rec::frustum> frustums = text_input::readFrustumsFromTextfile("frusts_cam" + std::to_string(cam) + ".txt");
+
+			for (int f = 0; f < frustums.size(); f++) {
+				rec::frustum currentFrust = frustums.at(f);
+
+				near_bot_left = currentFrust.points[0] * scale;
+				near_bot_right = currentFrust.points[1] * scale;
+				near_top_right = currentFrust.points[2] * scale;
+				near_top_left = currentFrust.points[3] * scale;
+				far_bot_left = currentFrust.points[4] * scale;
+				far_bot_right = currentFrust.points[5] * scale;
+				far_top_right = currentFrust.points[6] * scale;
+				far_top_left = currentFrust.points[7] * scale;
+
+				addBoxWithCorners(geometry_mesh_frustums, near_top_left, near_top_right, near_bot_left, near_bot_right,
+					far_top_left, far_top_right, far_bot_left, far_bot_right);
+				addBoxWithCorners(geometry_mesh_boundingBox, near_top_left, near_top_right, near_bot_left, near_bot_right,
+					far_top_left, far_top_right, far_bot_left, far_bot_right);
+				addText("near_bot_left", dejaVuFont, scene_data, q, material_texture_id, near_bot_left + viral_core::vector(10, 0, 0));
+				addText("near_bot_right", dejaVuFont, scene_data, q, material_texture_id, near_bot_right + viral_core::vector(10, 0, 0));
+				addText("near_top_right", dejaVuFont, scene_data, q, material_texture_id, near_top_right + viral_core::vector(10, 0, 0));
+				addText("near_top_left", dejaVuFont, scene_data, q, material_texture_id, near_top_left + viral_core::vector(10, 0, 0));
+				addText("far_bot_left", dejaVuFont, scene_data, q, material_texture_id, far_bot_left + viral_core::vector(10, 0, 0));
+				addText("far_bot_right", dejaVuFont, scene_data, q, material_texture_id, far_bot_right + viral_core::vector(10, 0, 0));
+				addText("far_top_right", dejaVuFont, scene_data, q, material_texture_id, far_top_right + viral_core::vector(10, 0, 0));
+				addText("far_top_left", dejaVuFont, scene_data, q, material_texture_id, far_top_left + viral_core::vector(10, 0, 0));
+
+
+			}
+			
 
 
 		}	//end of for each camera
 
+		
+
+		viral_core::vector vec1; 
+		viral_core::vector vec2;
+
+		addCubeAroundVector(geometry_mesh_frustums, viral_core::vector(1941.87891, -1546.28320, 1192.81934)*scale, 1);
+		vec1 = viral_core::vector(1941.87891, -1546.28320, 1192.81934)*scale;
+		vec2 = vec1 + viral_core::vector(-0.883969545, 0.244759992, 0.398359686) * 10;
+		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
+
+		addCubeAroundVector(geometry_mesh_frustums, viral_core::vector(2050.29858, -1451.70215, 1139.83435)*scale, 1);
+		vec1 = viral_core::vector(2050.29858, -1451.70215, 1139.83435)*scale;
+		vec2 = vec1 + viral_core::vector(0.887233019, -0.348226309, -0.302582085) * 10;
+		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
+
+		addCubeAroundVector(geometry_mesh_frustums, viral_core::vector(2020.25256, -1505.16125, 1113.25659)*scale, 1);
+		vec1 = viral_core::vector(2020.25256, -1505.16125, 1113.25659)*scale;
+		vec2 = vec1 + viral_core::vector(0.0955520868, -0.919561684, -0.381150782) * 10;
+		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
+
+		addCubeAroundVector(geometry_mesh_frustums, viral_core::vector(1972.94214, -1487.49365, 1225.62793)*scale, 1);
+		vec1 = viral_core::vector(1972.94214, -1487.49365, 1225.62793)*scale;
+		vec2 = vec1 + viral_core::vector(0.0673338175, 0.897787035, 0.435252339) * 10;
+		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
+
+		addCubeAroundVector(geometry_mesh_frustums, viral_core::vector(2050.29858, -1451.70215, 1139.83435)*scale, 1);
+		vec1 = viral_core::vector(2050.29858, -1451.70215, 1139.83435)*scale;
+		vec2 = vec1 + viral_core::vector(0.706135571, -0.590864241, 0.390194952) * 10;
+		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
+
+		addCubeAroundVector(geometry_mesh_frustums, viral_core::vector(911.975342, 850.197632, -4847.10400)*scale, 1);
+		vec1 = viral_core::vector(911.975342, 850.197632, -4847.10400)*scale;
+		vec2 = vec1 + viral_core::vector(-0.706135392, 0.590864003, -0.390195459) * 10;
+		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
 
 
-		std::vector<rec::frustum> frustums = text_input::readFrustumsFromTextfile("frusts_1.txt");
+		vec1 = viral_core::vector(911.975342, 850.197632, -4847.10400)*scale;
+		vec2 = vec1 + viral_core::vector(-783, -411, 795) * 0.5;
+		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
 
-		for (int f = 0; f < frustums.size(); f++) {
-			rec::frustum currentFrust = frustums.at(f);
+		vec1 = viral_core::vector(911.975342, 850.197632, -4847.10400)*scale;
+		vec2 = vec1 + viral_core::vector(300, 534, 265) * 0.2;
+		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
 
-			near_bot_left = currentFrust.points[0]*scale;
-			near_bot_right = currentFrust.points[1] * scale;
-			near_top_right = currentFrust.points[2] * scale;
-			near_top_left = currentFrust.points[3] * scale;
-			far_bot_left = currentFrust.points[4] * scale;
-			far_bot_right = currentFrust.points[5] * scale;
-			far_top_right = currentFrust.points[6] * scale;
-			far_top_left = currentFrust.points[7] * scale;
 
-			addBoxWithCorners(geometry_mesh_frustums, near_top_left, near_top_right, near_bot_left, near_bot_right,
-				far_top_left, far_top_right, far_bot_left, far_bot_right);
-			addBoxWithCorners(geometry_mesh_boundingBox, near_top_left, near_top_right, near_bot_left, near_bot_right,
-				far_top_left, far_top_right, far_bot_left, far_bot_right);
+		
 
-		}
+
+
+
+
+
+
+		addText("test", dejaVuFont, scene_data, q, material_texture_id, viral_core::vector(100,0,0));
+
+
+
+
+
 		/*
 
 		near_bot_left = viral_core::vector(1522.23438, -1536.72461, 1966.72156)*scale;
@@ -473,6 +593,12 @@ namespace rec {
 
 
 		*/
+
+
+
+
+
+
 
 		viral_core::auto_pointer<viral_core::model> geometry_coordinateAxes
 			(new viral_core::model());
@@ -563,6 +689,7 @@ namespace rec {
 			model_data_cubes_container.emplace_back(model_data_cube);
 		}
 		
+	
 		viral_core::render_model_data model_data_boundingBox;
 		model_data_boundingBox.geometry = geometry_boundingBox;
 
@@ -586,6 +713,12 @@ namespace rec {
 			e.files().open_file("shaders/shader.glfs", viral_core::file::read_only)->read_text();
 		shader_data.vertex_shader =
 			e.files().open_file("shaders/shader.glvs", viral_core::file::read_only)->read_text();
+
+		viral_core::render_shader_data gui_shader_data;
+		gui_shader_data.fragment_shader =
+			e.files().open_file("shaders/gui_shader.glfs", viral_core::file::read_only)->read_text();
+		gui_shader_data.vertex_shader =
+			e.files().open_file("shaders/gui_shader.glvs", viral_core::file::read_only)->read_text();
 
 		viral_core::render_material_data material_data;
 		material_data.ambient_color = viral_core::color(1, 1, 1, 1);
@@ -622,6 +755,18 @@ namespace rec {
 		material_transparent2_data.blend = viral_core::render_material_data::blend_alpha;
 		material_transparent2_data.cull = viral_core::render_material_data::cull_none;
 		material_transparent2_data.shader = shader_id;
+
+
+		viral_core::render_material_data material_texture_data;
+		material_data_unlit.unlit = true;
+		material_texture_data.texture = texture_id;
+		material_texture_data.shader = gui_shader_id;
+		material_texture_data.blend = viral_core::render_material_data::blend_alpha;
+		material_texture_data.cull = viral_core::render_material_data::cull_none;
+
+
+
+		
 
 
 		//add the cameraPlanes model to the render_puppet_data
@@ -699,7 +844,6 @@ namespace rec {
 			viral_core::rotation(viral_core::vector(0, 1, 0), 145);
 
 		//add the puppets to the render_scene_data
-		viral_core::render_scene_data scene_data;
 		scene_data.objects.insert(puppet_boundingBox_id);
 		scene_data.objects.insert(puppet_coordinateAxes_id);
 		scene_data.objects.insert(puppet_cameraPlanes_id);
@@ -733,10 +877,8 @@ namespace rec {
 		// ######################### Commit data structures to render-side objects with appropriate ID ######################### 
 
 
-		viral_core::auto_pointer<viral_core::render_command_queue> q
-			(new viral_core::render_command_queue());
-
 		// commit models
+
 		q->commit(model_data_coordinateAxes, model_coordinateAxes_id);
 		q->commit(model_data_boundingBox, model_boundingBox_id);
 		q->commit(model_data_cameraPlanes, model_cameraPlanes_id);
@@ -747,11 +889,14 @@ namespace rec {
 			q->commit(model_data_cubes_container[i], model_cubes_ids[i]);
 
 		q->commit(shader_data, shader_id);
+		q->commit(gui_shader_data, gui_shader_id);
 		q->commit(material_data, material_id);
+		q->commit(material_texture_data, material_texture_id);
 		q->commit(material_data_wireframe, material_wireframe_id);
 		q->commit(material_data_unlit, material_unlit_id);
 		q->commit(material_transparent_data, material_transparent_id);
 		q->commit(material_transparent2_data, material_transparent2_id);
+		q->commit(texture_data, texture_id);
 		
 		// commit puppets
 		q->commit(puppet_data_coordinateAxes, puppet_coordinateAxes_id);

@@ -189,7 +189,7 @@ namespace rec {
 							far_bot_left, far_bot_right, far_top_right, far_top_left);
 						currentChild.setFrustum(currentFrust);
 
-						text_output::appendFrustumToTextFile("frusts.txt", currentFrust);
+						//text_output::appendFrustumToTextFile("frusts_cam" + std::to_string(cam) + ".txt", currentFrust);
 
 
 						currentSeAndFrustITList.push_back(tree<rec::seAndFrust>::pre_order_iterator(childrenITbegin));
