@@ -70,14 +70,14 @@ namespace rec {
 			viral_core::vector direction2 = directionsGrids.at(i).at(rootSeAndFrust.corner2.y + rootSeAndFrust.offSetY + offset).at(rootSeAndFrust.corner2.x + rootSeAndFrust.offSetX + offset);
 			viral_core::vector direction3 = directionsGrids.at(i).at(rootSeAndFrust.corner3.y + rootSeAndFrust.offSetY + offset).at(rootSeAndFrust.corner3.x + rootSeAndFrust.offSetX + offset);
 			viral_core::vector direction4 = directionsGrids.at(i).at(rootSeAndFrust.corner4.y + rootSeAndFrust.offSetY + offset).at(rootSeAndFrust.corner4.x + rootSeAndFrust.offSetX + offset);
-			viral_core::vector near_top_left = camPosition + (direction2 * CAM_NEAR_PLANE);
-			viral_core::vector near_top_right = camPosition + (direction1 * CAM_NEAR_PLANE);
-			viral_core::vector near_bot_left = camPosition + (direction3 * CAM_NEAR_PLANE);
-			viral_core::vector near_bot_right = camPosition + (direction4 * CAM_NEAR_PLANE);
-			viral_core::vector far_top_left = camPosition + (direction2 * CAM_FAR_PLANE);
-			viral_core::vector far_top_right = camPosition + (direction1 * CAM_FAR_PLANE);
-			viral_core::vector far_bot_left = camPosition + (direction3 * CAM_FAR_PLANE);
-			viral_core::vector far_bot_right = camPosition + (direction4 * CAM_FAR_PLANE);
+			viral_core::vector near_bot_left = camPosition + (direction4 * CAM_NEAR_PLANE);
+			viral_core::vector near_bot_right = camPosition + (direction3 * CAM_NEAR_PLANE);
+			viral_core::vector near_top_right = camPosition + (direction2 * CAM_NEAR_PLANE);
+			viral_core::vector near_top_left = camPosition + (direction1 * CAM_NEAR_PLANE);
+			viral_core::vector far_bot_left = camPosition + (direction4 * CAM_FAR_PLANE);
+			viral_core::vector far_bot_right = camPosition + (direction3 * CAM_FAR_PLANE);
+			viral_core::vector far_top_right = camPosition + (direction2 * CAM_FAR_PLANE);
+			viral_core::vector far_top_left = camPosition + (direction1 * CAM_FAR_PLANE);
 
 			rec::frustum currentFrust = rec::frustum(near_bot_left, near_bot_right, near_top_right, near_top_left,
 													far_bot_left, far_bot_right, far_top_right, far_top_left);
@@ -176,15 +176,15 @@ namespace rec {
 						viral_core::vector direction2 = directionsGrids.at(cam - 1).at(currentChild.corner2.y + currentChild.offSetY + offset).at(currentChild.corner2.x + currentChild.offSetX + offset);
 						viral_core::vector direction3 = directionsGrids.at(cam - 1).at(currentChild.corner3.y + currentChild.offSetY + offset).at(currentChild.corner3.x + currentChild.offSetX + offset);
 						viral_core::vector direction4 = directionsGrids.at(cam - 1).at(currentChild.corner4.y + currentChild.offSetY + offset).at(currentChild.corner4.x + currentChild.offSetX + offset);
-						viral_core::vector near_top_left = camPosition + (direction2 * CAM_NEAR_PLANE);
-						viral_core::vector near_top_right = camPosition + (direction1 * CAM_NEAR_PLANE);
-						viral_core::vector near_bot_left = camPosition + (direction3 * CAM_NEAR_PLANE);
-						viral_core::vector near_bot_right = camPosition + (direction4 * CAM_NEAR_PLANE);
-						viral_core::vector far_top_left = camPosition + (direction2 * CAM_FAR_PLANE);
-						viral_core::vector far_top_right = camPosition + (direction1 * CAM_FAR_PLANE);
-						viral_core::vector far_bot_left = camPosition + (direction3 * CAM_FAR_PLANE);
-						viral_core::vector far_bot_right = camPosition + (direction4 * CAM_FAR_PLANE);
-
+						viral_core::vector near_bot_left = camPosition + (direction4 * CAM_NEAR_PLANE);
+						viral_core::vector near_bot_right = camPosition + (direction3 * CAM_NEAR_PLANE);
+						viral_core::vector near_top_right = camPosition + (direction2 * CAM_NEAR_PLANE);
+						viral_core::vector near_top_left = camPosition + (direction1 * CAM_NEAR_PLANE);
+						viral_core::vector far_bot_left = camPosition + (direction4 * CAM_FAR_PLANE);
+						viral_core::vector far_bot_right = camPosition + (direction3 * CAM_FAR_PLANE);
+						viral_core::vector far_top_right = camPosition + (direction2 * CAM_FAR_PLANE);
+						viral_core::vector far_top_left = camPosition + (direction1 * CAM_FAR_PLANE);
+						
 						rec::frustum currentFrust = rec::frustum(near_bot_left, near_bot_right, near_top_right, near_top_left,
 							far_bot_left, far_bot_right, far_top_right, far_top_left);
 						currentChild.setFrustum(currentFrust);

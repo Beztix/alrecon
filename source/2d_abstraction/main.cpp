@@ -170,10 +170,10 @@ int main() {
 			contourAndSeTree.set_head(rootContourAndSe);
 
 			//add root node to the seAndFrustTree (seAndFrust containing the whole image as bounding box)
-			viral_core::vector2f corner1((float)width, 0.f);
-			viral_core::vector2f corner2(0.f, 0.f);
-			viral_core::vector2f corner3(0.f, (float)height);
-			viral_core::vector2f corner4((float)width, (float)height);
+			viral_core::vector2f corner1(0.f, 0.f);
+			viral_core::vector2f corner2((float)width, 0.f);
+			viral_core::vector2f corner3((float)width, (float)height);
+			viral_core::vector2f corner4(0.f, (float)height);
 			rec::seAndFrust rootSeAndFrust(cam, 0, 0, corner1, corner2, corner3, corner4);
 			seAndFrustTree.set_head(rootSeAndFrust);
 
@@ -248,10 +248,6 @@ int main() {
 		}
 	}	
 	// end of for each camera
-
-
-
-
 
 
 

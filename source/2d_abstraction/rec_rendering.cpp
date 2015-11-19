@@ -125,7 +125,7 @@ namespace rec {
 
 	void addText(const viral_core::string text, viral_core::auto_pointer<viral_core::font> &font, viral_core::render_scene_data &scene_data, 
 		viral_core::auto_pointer<viral_core::render_command_queue> &q, viral_core::shared_pointer<viral_core::render_material_id> &material_texture_id,
-		viral_core::vector position) {
+		viral_core::vector position, float scale) {
 
 		viral_core::auto_pointer<viral_core::model> geometry_text = (*font).typeset_model(text, "model_group_text");
 
@@ -141,7 +141,10 @@ namespace rec {
 		puppet_data_text.position = position;
 		puppet_data_text.model = model_text_id;
 		puppet_data_text.materials.insert("model_group_text", material_texture_id);
-		puppet_data_text.scale = 0.3;
+		puppet_data_text.scale = scale;
+		puppet_data_text.orientation =
+			viral_core::rotation(viral_core::vector(1, 0, 0), -90) *
+			viral_core::rotation(viral_core::vector(0, 1, 0), 90);
 
 		scene_data.objects.insert(puppet_text_id);
 
@@ -327,7 +330,7 @@ namespace rec {
 
 			//add camera
 			addCubeAroundVector(geometry_mesh_cameraPlanes, scaledCamPosition, 2.0f);
-			addText(("[" + std::to_string(cam) + "]").c_str(), dejaVuFont, scene_data, q, material_texture_id, scaledCamPosition + viral_core::vector(10, 0, 0));
+			addText(("[" + std::to_string(cam) + "]").c_str(), dejaVuFont, scene_data, q, material_texture_id, scaledCamPosition + viral_core::vector(0, -5, 0), 0.3);
 
 			std::string locationStringDirections = "../../assets/camera_inversion/offset_300/directions_distanceNormalized_cam" + std::to_string(cam);
 			std::vector<std::vector<viral_core::vector>> directionsGrid = text_input::readPositionsGridFromBinaryfile(locationStringDirections + ".bin", 1240, 1080);
@@ -436,6 +439,9 @@ namespace rec {
 				addLine(geometry_mesh_cameraDrawings2D, endVec1, endVec2);
 			}
 
+		
+
+
 			
 			/*
 				//add frustums
@@ -489,14 +495,14 @@ namespace rec {
 					far_top_left, far_top_right, far_bot_left, far_bot_right);
 				addBoxWithCorners(geometry_mesh_boundingBox, near_top_left, near_top_right, near_bot_left, near_bot_right,
 					far_top_left, far_top_right, far_bot_left, far_bot_right);
-				addText("near_bot_left", dejaVuFont, scene_data, q, material_texture_id, near_bot_left + viral_core::vector(10, 0, 0));
-				addText("near_bot_right", dejaVuFont, scene_data, q, material_texture_id, near_bot_right + viral_core::vector(10, 0, 0));
-				addText("near_top_right", dejaVuFont, scene_data, q, material_texture_id, near_top_right + viral_core::vector(10, 0, 0));
-				addText("near_top_left", dejaVuFont, scene_data, q, material_texture_id, near_top_left + viral_core::vector(10, 0, 0));
-				addText("far_bot_left", dejaVuFont, scene_data, q, material_texture_id, far_bot_left + viral_core::vector(10, 0, 0));
-				addText("far_bot_right", dejaVuFont, scene_data, q, material_texture_id, far_bot_right + viral_core::vector(10, 0, 0));
-				addText("far_top_right", dejaVuFont, scene_data, q, material_texture_id, far_top_right + viral_core::vector(10, 0, 0));
-				addText("far_top_left", dejaVuFont, scene_data, q, material_texture_id, far_top_left + viral_core::vector(10, 0, 0));
+				addText("near_bot_left", dejaVuFont, scene_data, q, material_texture_id, near_bot_left + viral_core::vector(0, -5, 0), 0.1);
+				addText("near_bot_right", dejaVuFont, scene_data, q, material_texture_id, near_bot_right + viral_core::vector(0, -5, 0), 0.1);
+				addText("near_top_right", dejaVuFont, scene_data, q, material_texture_id, near_top_right + viral_core::vector(0, -5, 0), 0.1);
+				addText("near_top_left", dejaVuFont, scene_data, q, material_texture_id, near_top_left + viral_core::vector(0, -5, 0), 0.1);
+				addText("far_bot_left", dejaVuFont, scene_data, q, material_texture_id, far_bot_left + viral_core::vector(0, -5, 0), 0.1);
+				addText("far_bot_right", dejaVuFont, scene_data, q, material_texture_id, far_bot_right + viral_core::vector(0, -5, 0), 0.1);
+				addText("far_top_right", dejaVuFont, scene_data, q, material_texture_id, far_top_right + viral_core::vector(0, -5, 0), 0.1);
+				addText("far_top_left", dejaVuFont, scene_data, q, material_texture_id, far_top_left + viral_core::vector(0, -5, 0), 0.1);
 
 
 			}
@@ -510,35 +516,39 @@ namespace rec {
 		viral_core::vector vec1; 
 		viral_core::vector vec2;
 
-		addCubeAroundVector(geometry_mesh_frustums, viral_core::vector(1941.87891, -1546.28320, 1192.81934)*scale, 1);
-		vec1 = viral_core::vector(1941.87891, -1546.28320, 1192.81934)*scale;
-		vec2 = vec1 + viral_core::vector(-0.883969545, 0.244759992, 0.398359686) * 10;
-		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
-
-		addCubeAroundVector(geometry_mesh_frustums, viral_core::vector(2050.29858, -1451.70215, 1139.83435)*scale, 1);
-		vec1 = viral_core::vector(2050.29858, -1451.70215, 1139.83435)*scale;
-		vec2 = vec1 + viral_core::vector(0.887233019, -0.348226309, -0.302582085) * 10;
-		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
-
-		addCubeAroundVector(geometry_mesh_frustums, viral_core::vector(2020.25256, -1505.16125, 1113.25659)*scale, 1);
 		vec1 = viral_core::vector(2020.25256, -1505.16125, 1113.25659)*scale;
-		vec2 = vec1 + viral_core::vector(0.0955520868, -0.919561684, -0.381150782) * 10;
+		vec2 = vec1 + viral_core::vector(-0.887233019, 0.348226339, 0.302582085) * 10;
+		addCubeAroundVector(geometry_mesh_frustums, vec1, 1);
 		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
 
-		addCubeAroundVector(geometry_mesh_frustums, viral_core::vector(1972.94214, -1487.49365, 1225.62793)*scale, 1);
 		vec1 = viral_core::vector(1972.94214, -1487.49365, 1225.62793)*scale;
-		vec2 = vec1 + viral_core::vector(0.0673338175, 0.897787035, 0.435252339) * 10;
+		vec2 = vec1 + viral_core::vector(0.883969545, -0.244760096, -0.398359537) * 10;
+		addCubeAroundVector(geometry_mesh_frustums, vec1, 1);
 		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
 
-		addCubeAroundVector(geometry_mesh_frustums, viral_core::vector(2050.29858, -1451.70215, 1139.83435)*scale, 1);
+		vec1 = viral_core::vector(1941.87891, -1546.28320, 1192.81934)*scale;
+		vec2 = vec1 + viral_core::vector(-0.0955520645, 0.919561744, 0.381150812) * 10;
+		addCubeAroundVector(geometry_mesh_frustums, vec1, 1);
+		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
+		
+
 		vec1 = viral_core::vector(2050.29858, -1451.70215, 1139.83435)*scale;
-		vec2 = vec1 + viral_core::vector(0.706135571, -0.590864241, 0.390194952) * 10;
+		vec2 = vec1 + viral_core::vector(-0.0673336685, -0.897787154, -0.435252219) * 10;
+		addCubeAroundVector(geometry_mesh_frustums, vec1, 1);
 		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
 
-		addCubeAroundVector(geometry_mesh_frustums, viral_core::vector(911.975342, 850.197632, -4847.10400)*scale, 1);
-		vec1 = viral_core::vector(911.975342, 850.197632, -4847.10400)*scale;
-		vec2 = vec1 + viral_core::vector(-0.706135392, 0.590864003, -0.390195459) * 10;
+		vec1 = viral_core::vector(1972.94214, -1487.49365, 1225.62793)*scale;
+		vec2 = vec1 + viral_core::vector(-0.706135690, 0.590863764, -0.390195191) * 10;
+		addCubeAroundVector(geometry_mesh_frustums, vec1, 1);
 		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
+
+		vec1 = viral_core::vector(128.237793, 438.978394, -4051.47656)*scale;
+		vec2 = vec1 + viral_core::vector(0.706135511, -0.590863764, 0.390195638) * 10;
+		addCubeAroundVector(geometry_mesh_frustums, vec1, 1);
+		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
+
+
+
 
 
 		vec1 = viral_core::vector(911.975342, 850.197632, -4847.10400)*scale;
@@ -556,9 +566,6 @@ namespace rec {
 
 
 
-
-
-		addText("test", dejaVuFont, scene_data, q, material_texture_id, viral_core::vector(100,0,0));
 
 
 
@@ -741,9 +748,9 @@ namespace rec {
 		material_data_unlit.shader = shader_id;
 
 		viral_core::render_material_data material_transparent_data;
-		material_transparent_data.ambient_color = viral_core::color(0.05f, 0.6f, 0, 0.2f);
-		material_transparent_data.diffuse_color = viral_core::color(0.05f, 0.6f, 0, 0.2f);
-		material_transparent_data.specular_color = viral_core::color(0, 0, 0, 0.2f);
+		material_transparent_data.ambient_color = viral_core::color(0.05f, 0.6f, 0, 0.1f);
+		material_transparent_data.diffuse_color = viral_core::color(0.05f, 0.6f, 0, 0.1f);
+		material_transparent_data.specular_color = viral_core::color(0, 0, 0, 0.1f);
 		material_transparent_data.blend = viral_core::render_material_data::blend_alpha;
 		material_transparent_data.cull = viral_core::render_material_data::cull_none;
 		material_transparent_data.shader = shader_id;
