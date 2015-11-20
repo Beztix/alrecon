@@ -64,6 +64,12 @@ namespace rec {
 		}
 
 
+		seAndFrust(frustum f) {
+			frust = f;
+		}
+
+
+
 
 
 		void setFrustum(frustum f) {

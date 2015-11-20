@@ -75,7 +75,7 @@
 #include "rec_frustum.h"
 #include "rec_file_camera.h"
 #include "rec_sensor.h"
-
+#include "rec_object3D.h"
 
 
 
@@ -122,7 +122,7 @@ int main() {
 		string combinedImagePart = "se_rosin_tree_" + inputName + "_combined_";
 
 		int quality = 200;
-		vector<int> qualityValues = { 50000, 10000, 1000, 200, 100 };
+		vector<int> qualityValues = { 500000, 30000, 5000, 1000, 300 };
 		int iterations = 1;
 		//++++++++++++++++++++++++++++
 
@@ -305,11 +305,36 @@ int main() {
 
 
 
+	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
 
 
-	//rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
+	tree<rec::object3D> testObject3DTree;
 
-	std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20, sensors);
+	rec::frustum frust1 = rec::frustum(viral_core::vector(1509.94, -1874.75, 1477.11), viral_core::vector(2040.75, -1467.17, 1133.68),
+		viral_core::vector(2097.66, -1102.83, 1582.4), viral_core::vector(1522.01, -1542.67, 1958.13),
+		viral_core::vector(-4191.19, -2845.71, -1208.58), viral_core::vector(1117, 1230.06, -4642.91),
+		viral_core::vector(1686.09, 4873.48, -155.649), viral_core::vector(-4070.46, 475.155, 3601.65));
+	rec::seAndFrust seAndFrust1 = rec::seAndFrust(frust1);
+	
+	rec::frustum frust2 = rec::frustum(viral_core::vector(-1324.97, 1678.19, 1431.2), viral_core::vector(-1879.34, 1417.92, 1046.51),
+		viral_core::vector(-1955.41, 1021.08, 1356.6), viral_core::vector(-1404.08, 1220.31, 1799.08),
+		viral_core::vector(4025.99, 2217.22, -1132.03), viral_core::vector(-1517.73, -385.52, -4978.93),
+		viral_core::vector(-2278.4, -4353.92, -1877.96), viral_core::vector(3234.9, -2361.54, 2546.8));
+	rec::seAndFrust seAndFrust2 = rec::seAndFrust(frust2);
+
+	std::vector<rec::seAndFrust> generatingFrustums;
+	generatingFrustums.push_back(frust1);
+	generatingFrustums.push_back(frust2);
+
+	std::vector<rec::seAndFrust*> generatingFrustumsP;
+	generatingFrustumsP.push_back(&(generatingFrustums.at(0)));
+	generatingFrustumsP.push_back(&(generatingFrustums.at(1)));
+
+	rec::object3D testObject3D = rec::object3D(generatingFrustumsP);
+
+
+	std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_object3DTree(50, sensors, object3DTree, 0);
+	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20, sensors);
 
 	rec::renderOccupiedPositions(cameras, sensors, occupiedWorldPositions, 10, 0.1f);
 

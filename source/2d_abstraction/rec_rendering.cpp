@@ -551,25 +551,6 @@ namespace rec {
 
 
 
-		vec1 = viral_core::vector(911.975342, 850.197632, -4847.10400)*scale;
-		vec2 = vec1 + viral_core::vector(-783, -411, 795) * 0.5;
-		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
-
-		vec1 = viral_core::vector(911.975342, 850.197632, -4847.10400)*scale;
-		vec2 = vec1 + viral_core::vector(300, 534, 265) * 0.2;
-		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
-
-
-		
-
-
-
-
-
-
-
-
-
 
 		/*
 

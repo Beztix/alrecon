@@ -25,7 +25,7 @@ namespace text_output {
 		std::ofstream outfile(location, std::ios_base::app);
 
 		for (int i = 0; i < 8; i++) {
-			outfile << frust.points[i].x << " " << frust.points[i].y << " " << frust.points[i].z << "\n";
+			outfile << frust.points[i].x << ", " << frust.points[i].y << ", " << frust.points[i].z << "\n";
 		}
 		
 		outfile.close();

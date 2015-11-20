@@ -24,7 +24,7 @@
 
 namespace rec {
 
-	void createObject3DTree(std::vector<viral_core::vector> cameraPositions, std::vector<std::vector<std::vector<viral_core::vector>>> &directionsGrids, 
+	tree<rec::object3D> createObject3DTree(std::vector<viral_core::vector> cameraPositions, std::vector<std::vector<std::vector<viral_core::vector>>> &directionsGrids,
 		std::vector<tree<rec::seAndFrust>> &seAndFrustTrees, int nrOfCams, int width, int height, int offset) {
 
 		double CAM_NEAR_PLANE = 500;
@@ -83,6 +83,8 @@ namespace rec {
 													far_bot_left, far_bot_right, far_top_right, far_top_left);
 			rootSeAndFrust.setFrustum(currentFrust);
 
+			text_output::appendFrustumToTextFile("frusts_cam" + std::to_string(i) + ".txt", currentFrust);
+
 			// add pointer to the rootSeAndFrust to the list of current seAndFrusts
 			currentSeAndFrustPList.push_back(&rootSeAndFrust);
 
@@ -108,7 +110,7 @@ namespace rec {
 		if (intersectionIT.size() != 1) {
 			//ERROR
 			//TODO: WHAT NOW?
-			return;
+			return object3DTree;
 		}
 
 		//add root node to the tree
@@ -128,20 +130,20 @@ namespace rec {
 
 
 		// as long as there are unprocessed levels of the 2D trees left:
-		for (int currentLevel = 0; currentLevel < depthOfSeAndFrustTrees; currentLevel++) {
-
+		//for (int currentLevel = 0; currentLevel < depthOfSeAndFrustTrees; currentLevel++) {
+		for (int currentLevel = 0; currentLevel < 1; currentLevel++) {
 			std::cout << std::endl;
 			std::cout << "==== processing level " + std::to_string(currentLevel) + " ====" << std::endl;
 			std::cout << std::endl;
 
 
 			tree<rec::object3D>::fixed_depth_iterator currentLevel3DIterator = object3DTree.begin_fixed(object3DTreeTop, currentLevel);
-
-			int o = 0;
+			int objectsOnNextLevel = 0;
+			int object = 0;
 			// for each object3D on the current level of the 3D tree
 			while (object3DTree.is_valid(currentLevel3DIterator)) {
 				
-				std::cout << "==== processing object " + std::to_string(o) + " ====" << std::endl;
+				std::cout << "==== processing object " + std::to_string(object) + " on level " + std::to_string(currentLevel) + " ====" << std::endl;
 
 				// get reference to current object3D
 				rec::object3D& currentObject3D = *currentLevel3DIterator;
@@ -149,8 +151,6 @@ namespace rec {
 				// process each camera = each generating frustum 
 				// (generating frustums live on currentLevel of the 2D trees)
 				for (int cam = 1; cam <= nrOfCams; cam++) {
-
-					std::cout << "processing camera " + std::to_string(cam) << std::endl;
 
 					tree<rec::seAndFrust>& currentSeAndFrustTree = seAndFrustTrees.at(cam-1);
 
@@ -202,30 +202,108 @@ namespace rec {
 
 				// ###### intersect current seAndFrustITLists ######
 				intersectionIT = rec::intersectAllFrustums(seAndFrustITLists);
+				std::cout << "intersection finished, Nr of new 3D children: " + std::to_string(intersectionIT.size()) << std::endl;
 				seAndFrustITLists.clear();
 
 				// add all objects received from intersection as children of the currentObject3D to the object3DTree
 				for (int i = 0; i < intersectionIT.size(); i++) {
-					rec::object3D currentIntersectionObject = object3D(intersectionIT.at(0));
+					rec::object3D currentIntersectionObject = object3D(intersectionIT.at(i));
 					object3DTree.append_child(currentLevel3DIterator, currentIntersectionObject);
 				}
 				
 
 				// proceed to next object of the current level
 				currentLevel3DIterator++;
-				o++;
+				object++;
+				objectsOnNextLevel += intersectionIT.size();
 			}
+
+			std::cout << std::endl;
+			std::cout << "==== total number of new objects on level " + std::to_string(currentLevel+1) + ": " + std::to_string(objectsOnNextLevel) + " ====" << std::endl;
+			std::cout << std::endl;
 
 			// proceed to next level of the trees
 		}
 
-
-
-		int a = 5;
-		
+		return object3DTree;
 	}
 
 
 
+
+
+
+
+
+
+
+
+
+
+	std::vector<viral_core::vector> reconstruct_object3DTree(int stepsize, std::vector<rec::sensor> sensors, tree<rec::object3D> object3DTree, int level) {
+
+		std::vector<viral_core::vector> occupiedWorldPositions;
+
+		tree<rec::object3D>::iterator object3DTreeTop = object3DTree.begin();
+		
+
+
+		std::cout << "Testing all world space positions for being occupied in the various 3D object" << std::endl;
+
+		bool firstIn = false;
+
+		// run through all positions in world space
+		for (int x = -2000; x < 2200; x += stepsize) {
+			if (x % 1 == 0) {
+				std::cout << "testing x = " + std::to_string(x) << std::endl;
+			}
+			for (int y = -2200; y < 2200; y += stepsize) {
+				for (int z = -880; z < 1600; z += stepsize) {
+					/*
+					if (x % 1 == 0) {
+						std::cout << "testing x = " + std::to_string(x) + "y = " + std::to_string(y) + "z = " + std::to_string(z) << std::endl;
+					}
+					*/
+					viral_core::vector vec((float)x, (float)y, (float)z);
+
+					//test if world space positions are occupied according to object3DTree
+				
+					bool inside = false;
+
+					int o = 0;
+					tree<rec::object3D>::fixed_depth_iterator currentLevel3DIterator = object3DTree.begin_fixed(object3DTreeTop, level);
+					while (object3DTree.is_valid(currentLevel3DIterator)) {
+
+						rec::object3D& currentObject3D = *currentLevel3DIterator;
+
+					
+						//std::cout << "testing object " + std::to_string(o) << std::endl;
+
+						if (currentObject3D.isPointInside(vec)) {
+							
+							inside = true;
+							if (!firstIn) {
+								std::cout << "inside at object " + std::to_string(o) << std::endl;
+								firstIn = true;
+							}
+							break;
+						}
+						currentLevel3DIterator++;
+						o++;
+					}
+
+
+					if (inside) {
+						//std::cout << "inside" << std::endl;
+						occupiedWorldPositions.emplace_back(vec);
+					}
+				}
+			}
+		}
+
+
+		return occupiedWorldPositions;
+
+	}
 
 }
