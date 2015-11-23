@@ -8,7 +8,8 @@
 
 namespace rec {
 	
-	void renderOccupiedPositions(std::vector<rec::file_camera> cameras, std::vector<rec::sensor> sensors, std::vector<viral_core::vector> occupiedPositions, float cubesize, float scale);
+	void renderWorkspace(std::vector<rec::file_camera> cameras, std::vector<rec::sensor> sensors, 
+		std::vector<std::vector<viral_core::vector>> occupiedPositions, float cubesize, float scale);
 
 }
 

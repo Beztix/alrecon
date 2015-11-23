@@ -123,6 +123,10 @@ namespace rec {
 
 
 
+
+
+
+
 	void addText(const viral_core::string text, viral_core::auto_pointer<viral_core::font> &font, viral_core::render_scene_data &scene_data, 
 		viral_core::auto_pointer<viral_core::render_command_queue> &q, viral_core::shared_pointer<viral_core::render_material_id> &material_texture_id,
 		viral_core::vector position, float scale) {
@@ -156,11 +160,199 @@ namespace rec {
 
 
 
+	/*
+	void addOccupiedPositionsAsCubes(std::vector<std::vector<viral_core::vector>> occupiedPositions_separate, float cubeSize, viral_core::render_scene_data &scene_data,
+		viral_core::auto_pointer<viral_core::render_command_queue> &q, viral_core::shared_pointer<viral_core::render_material_id> &material_id, float scale) {
 
-	void renderOccupiedPositions(std::vector<rec::file_camera> cameras, std::vector<rec::sensor> sensors, std::vector<viral_core::vector> occupiedPositions, float cubesize, float scale) {
+		std::vector<viral_core::vector> occupiedPositions_all;
+
+		// =======  collect all occupied positions =======
+
+		for (int i = 0; i < occupiedPositions_separate.size(); i++) {
+			std::vector<viral_core::vector> current_occupiedPositions_separate = occupiedPositions_separate.at(i);
+			occupiedPositions_all.insert(occupiedPositions_all.end(), current_occupiedPositions_separate.begin(), current_occupiedPositions_separate.end());
+		}
+
 
 		int nrOfPuppets = 100;
-		int cubesPerPuppet = (int) (occupiedPositions.size() / (nrOfPuppets-1));
+		int cubesPerPuppet = (int)(occupiedPositions_all.size() / (nrOfPuppets - 1));
+
+		// =======  create geometry =======
+
+		std::vector<viral_core::auto_pointer<viral_core::model>> geometry_cubes_container;
+
+		//create the geometry model for nrOfPuppets-1 puppets
+		for (int i = 0; i < nrOfPuppets - 1; i++) {
+			viral_core::auto_pointer<viral_core::mesh> current_geometry_mesh(new viral_core::mesh());
+			for (int k = i * cubesPerPuppet; k < (i + 1)*cubesPerPuppet; k++) {
+				viral_core::vector currentScaledPosition = occupiedPositions_all.at(k) * scale;
+				addCubeAroundVector(current_geometry_mesh, currentScaledPosition, cubeSize * scale);
+			}
+
+			viral_core::auto_pointer<viral_core::model> current_geometry(new viral_core::model());
+			current_geometry->insert_group("model_group", current_geometry_mesh);
+			current_geometry->rebuild_boundings();
+			current_geometry->validate();
+			geometry_cubes_container.emplace_back(current_geometry);
+		}
+		//create the geometry model for the last puppet (separate cause possibly less occupiedPositions than cubesPerPuppet left)
+		viral_core::auto_pointer<viral_core::mesh> current_geometry_mesh(new viral_core::mesh());
+		for (int k = (nrOfPuppets - 1) * cubesPerPuppet; k < occupiedPositions_all.size(); k++) {
+			viral_core::vector currentScaledPosition = occupiedPositions_all.at(k)*scale;
+			addCubeAroundVector(current_geometry_mesh, currentScaledPosition, cubeSize * scale);
+		}
+		viral_core::auto_pointer<viral_core::model> current_geometry(new viral_core::model());
+		current_geometry->insert_group("model_group", current_geometry_mesh);
+		current_geometry->rebuild_boundings();
+		current_geometry->validate();
+		geometry_cubes_container.emplace_back(current_geometry);
+
+
+
+		// =======  create IDs =======
+
+		std::vector<viral_core::shared_pointer<viral_core::render_model_id>> model_occupiedPositions_ids;
+		for (int i = 0; i < nrOfPuppets; i++) {
+			viral_core::shared_pointer<viral_core::render_model_id> current_model_id
+				(new viral_core::render_model_id("my_model_occupiedPositions_" + i));
+			model_occupiedPositions_ids.push_back(current_model_id);
+		}
+
+		std::vector<viral_core::shared_pointer<viral_core::render_puppet_id>> puppet_occupiedPositions_ids;
+		for (int i = 0; i < nrOfPuppets; i++) {
+			viral_core::shared_pointer<viral_core::render_puppet_id> current_puppet_id
+				(new viral_core::render_puppet_id("my_puppet_" + i));
+			puppet_occupiedPositions_ids.push_back(current_puppet_id);
+		}
+
+
+		// =======  create render_data =======
+
+		//add the geometry to the render_model_data
+		std::vector<viral_core::render_model_data> model_data_cubes_container;
+		for (int i = 0; i < nrOfPuppets; i++) {
+			viral_core::render_model_data model_data_cube;
+			model_data_cube.geometry = geometry_cubes_container.at(i);
+			model_data_cubes_container.emplace_back(model_data_cube);
+		}
+
+		//add the models to the render_puppet_data
+		std::vector<viral_core::render_puppet_data> puppet_data_cubes_container;
+		for (int i = 0; i < nrOfPuppets; i++) {
+			viral_core::render_puppet_data current_puppet_data;
+			current_puppet_data.position = viral_core::vector(0, 0, 0);
+			current_puppet_data.model = model_occupiedPositions_ids.at(i);
+			current_puppet_data.materials.insert("model_group", material_id);
+			puppet_data_cubes_container.emplace_back(current_puppet_data);
+		}
+
+
+		// =======  insert puppets in scene, commit IDs and data =======
+
+		for (int i = 0; i < nrOfPuppets; i++) {
+			scene_data.objects.insert(puppet_occupiedPositions_ids[i]);
+			q->commit(model_data_cubes_container[i], model_occupiedPositions_ids[i]);
+			q->commit(puppet_data_cubes_container[i], puppet_occupiedPositions_ids[i]);
+
+		}
+			
+	}
+
+
+
+
+	*/
+
+
+
+	void addOccupiedPositionsAsText(std::vector<std::vector<viral_core::vector>> occupiedPositions_separate, viral_core::auto_pointer<viral_core::font> &font, 
+		viral_core::render_scene_data &scene_data, viral_core::auto_pointer<viral_core::render_command_queue> &q, 
+		viral_core::shared_pointer<viral_core::render_material_id> &material_texture_id, float scale, float textScale) {
+
+		int nrOfPuppets = occupiedPositions_separate.size();
+
+		// =======  create geometry =======
+
+		std::vector<viral_core::auto_pointer<viral_core::model>> geometry_texts_container;
+
+
+		//create geometry model for each separate object in occupiedPositions_separate
+		for (int i = 0; i < nrOfPuppets; i++) {
+			std::vector<viral_core::vector> currentOccupiedPositions = occupiedPositions_separate.at(i);
+			viral_core::auto_pointer<viral_core::mesh> current_geometry_mesh(new viral_core::mesh());
+			std::string currentObject = std::to_string(i);
+			for (int k = 0; k < currentOccupiedPositions.size(); k++) {
+				viral_core::vector currentScaledPosition = currentOccupiedPositions.at(k)*scale;
+
+				// PROBLEM: MULTIPLE TEXTS SHOULD BE ADDED TO ONE MODEL
+
+				addText(currentObject.c_str(), font, scene_data, q, material_texture_id, currentScaledPosition, textScale);
+				
+			}
+			viral_core::auto_pointer<viral_core::model> current_geometry(new viral_core::model());
+			current_geometry->insert_group("model_group", current_geometry_mesh);
+			current_geometry->rebuild_boundings();
+			current_geometry->validate();
+			geometry_texts_container.emplace_back(current_geometry);
+		}
+
+
+		// =======  create IDs =======
+
+		std::vector<viral_core::shared_pointer<viral_core::render_model_id>> model_occupiedPositions_ids;
+		for (int i = 0; i < nrOfPuppets; i++) {
+			viral_core::shared_pointer<viral_core::render_model_id> current_model_id
+				(new viral_core::render_model_id("my_model_occupiedPositions_" + i));
+			model_occupiedPositions_ids.push_back(current_model_id);
+		}
+
+		std::vector<viral_core::shared_pointer<viral_core::render_puppet_id>> puppet_occupiedPositions_ids;
+		for (int i = 0; i < nrOfPuppets; i++) {
+			viral_core::shared_pointer<viral_core::render_puppet_id> current_puppet_id
+				(new viral_core::render_puppet_id("my_puppet_" + i));
+			puppet_occupiedPositions_ids.push_back(current_puppet_id);
+		}
+
+		// =======  create render_data =======
+
+		//add the geometry to the render_model_data
+		std::vector<viral_core::render_model_data> model_data_cubes_container;
+		for (int i = 0; i < nrOfPuppets; i++) {
+			viral_core::render_model_data model_data_cube;
+			model_data_cube.geometry = geometry_texts_container.at(i);
+			model_data_cubes_container.emplace_back(model_data_cube);
+		}
+
+		//add the models to the render_puppet_data
+		std::vector<viral_core::render_puppet_data> puppet_data_cubes_container;
+		for (int i = 0; i < nrOfPuppets; i++) {
+			viral_core::render_puppet_data current_puppet_data;
+			current_puppet_data.position = viral_core::vector(0, 0, 0);
+			current_puppet_data.model = model_occupiedPositions_ids.at(i);
+			current_puppet_data.materials.insert("model_group", material_texture_id);
+			puppet_data_cubes_container.emplace_back(current_puppet_data);
+		}
+
+
+
+		// =======  insert puppets in scene, commit IDs and data =======
+
+		for (int i = 0; i < nrOfPuppets; i++) {
+			scene_data.objects.insert(puppet_occupiedPositions_ids[i]);
+			q->commit(model_data_cubes_container[i], model_occupiedPositions_ids[i]);
+			q->commit(puppet_data_cubes_container[i], puppet_occupiedPositions_ids[i]);
+
+		}
+	}
+
+
+
+
+
+	void renderWorkspace(std::vector<rec::file_camera> cameras, std::vector<rec::sensor> sensors, 
+		std::vector<std::vector<viral_core::vector>> occupiedPositions, float cubesize, float scale) {
+
+		
 
 
 		std::cout << std::endl;
@@ -174,12 +366,7 @@ namespace rec {
 		viral_core::step_timer t(0.02f, 0.5f);
 
 		// ======= Resources ======= 
-		std::vector<viral_core::shared_pointer<viral_core::render_model_id>> model_cubes_ids;
-		for (int i = 0; i < nrOfPuppets; i++) {
-			viral_core::shared_pointer<viral_core::render_model_id> current_model_id
-				(new viral_core::render_model_id("my_model_" + i));
-			model_cubes_ids.emplace_back(current_model_id);
-		}  
+		 
 		viral_core::shared_pointer<viral_core::render_model_id> model_boundingBox_id
 			(new viral_core::render_model_id("my_boundingBox_model"));
 		viral_core::shared_pointer<viral_core::render_model_id> model_coordinateAxes_id
@@ -213,12 +400,7 @@ namespace rec {
 
 
 		// ======= Scene ======= 
-		std::vector<viral_core::shared_pointer<viral_core::render_puppet_id>> puppet_ids;
-		for (int i = 0; i < nrOfPuppets; i++) {
-			viral_core::shared_pointer<viral_core::render_puppet_id> current_puppet_id
-				(new viral_core::render_puppet_id("my_puppet_" + i));
-			puppet_ids.emplace_back(current_puppet_id);
-		}
+		
 		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_boundingBox_id
 			(new viral_core::render_puppet_id("my_boundingBox_puppet"));
 		viral_core::shared_pointer<viral_core::render_puppet_id> puppet_coordinateAxes_id
@@ -318,6 +500,10 @@ namespace rec {
 		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_frustums
 			(new viral_core::mesh());
 
+
+
+
+		addOccupiedPositionsAsText(occupiedPositions, dejaVuFont, scene_data, q, material_texture_id, scale, 0.2);
 
 
 		//=================================================
@@ -523,7 +709,7 @@ namespace rec {
 
 
 
-
+		
 
 
 
@@ -646,36 +832,7 @@ namespace rec {
 		geometry_frustums->validate();
 
 
-		std::vector<viral_core::auto_pointer<viral_core::model>> geometry_cubes_container;
-
-		//create the geometry model for nrOfPuppets-1 puppets
-		for (int i = 0; i < nrOfPuppets-1; i++) {
-			viral_core::auto_pointer<viral_core::mesh> current_geometry_mesh(new viral_core::mesh());
-			for (int k = i * cubesPerPuppet; k < (i + 1)*cubesPerPuppet; k++) {
-				viral_core::vector currentPosition = occupiedPositions.at(k);
-				viral_core::vector currentScaledPosition(currentPosition.x * scale, currentPosition.y * scale, currentPosition.z * scale);
-				addCubeAroundVector(current_geometry_mesh, currentScaledPosition, cubesize / 10);
-			}
-
-			viral_core::auto_pointer<viral_core::model> current_geometry(new viral_core::model());
-			current_geometry->insert_group("model_group", current_geometry_mesh);
-			current_geometry->rebuild_boundings();
-			current_geometry->validate();
-			geometry_cubes_container.emplace_back(current_geometry);
-		}
-
-		//create the geometry model for the last puppet (separate cause possibly less occupiedPositions than cubesPerPuppet left)
-		viral_core::auto_pointer<viral_core::mesh> current_geometry_mesh(new viral_core::mesh());
-		for (int k = (nrOfPuppets-1) * cubesPerPuppet; k < occupiedPositions.size(); k++) {
-			viral_core::vector currentPosition = occupiedPositions.at(k);
-			viral_core::vector currentScaledPosition(currentPosition.x * scale, currentPosition.y * scale, currentPosition.z * scale);
-			addCubeAroundVector(current_geometry_mesh, currentScaledPosition, cubesize / 10);
-		}
-		viral_core::auto_pointer<viral_core::model> current_geometry(new viral_core::model());
-		current_geometry->insert_group("model_group", current_geometry_mesh);
-		current_geometry->rebuild_boundings();
-		current_geometry->validate();
-		geometry_cubes_container.emplace_back(current_geometry);
+		
 
 
 		
@@ -685,14 +842,8 @@ namespace rec {
 		// ######################### Fill data structures for later render-side objects ######################### 
 		
 
-		//add the geometry models to the render_model_data
-		std::vector<viral_core::render_model_data> model_data_cubes_container;
-		for (int i = 0; i < nrOfPuppets; i++) {
-			viral_core::render_model_data model_data_cube;
-			model_data_cube.geometry = geometry_cubes_container.at(i);
-			model_data_cubes_container.emplace_back(model_data_cube);
-		}
-		
+	
+	
 	
 		viral_core::render_model_data model_data_boundingBox;
 		model_data_boundingBox.geometry = geometry_boundingBox;
@@ -817,16 +968,6 @@ namespace rec {
 
 
 
-		//add the cube models to the render_puppet_data
-		std::vector<viral_core::render_puppet_data> puppet_data_cubes_container;
-		for (int i = 0; i < nrOfPuppets; i++) {
-			viral_core::render_puppet_data current_puppet_data;
-			current_puppet_data.position = viral_core::vector(0, 0, 0);
-			current_puppet_data.model = model_cubes_ids.at(i);
-			current_puppet_data.materials.insert("model_group", material_id);
-			puppet_data_cubes_container.emplace_back(current_puppet_data);
-		}
-
 		viral_core::render_light_data light_data;
 		light_data.emitter = viral_core::render_light_data::emitter_parallel;
 		light_data.ambient_color = viral_core::color(0.05f, 0.3f, 0.05f, 1.f);
@@ -854,9 +995,6 @@ namespace rec {
 		scene_data.objects.insert(puppet_cameraRays_id);
 		scene_data.objects.insert(puppet_cameraDrawings2D_id);
 		scene_data.objects.insert(puppet_frustums_id);
-		for (int i = 0; i < nrOfPuppets; i++) {
-			scene_data.objects.insert(puppet_ids[i]);
-		}
 		scene_data.objects.insert(light_id);
 		scene_data.objects.insert(light2_id);
 
@@ -889,9 +1027,7 @@ namespace rec {
 		q->commit(model_data_cameraRays, model_cameraRays_id);
 		q->commit(model_data_cameraDrawings2D, model_cameraDrawings2D_id);
 		q->commit(model_data_frustums, model_frustums_id);
-		for (int i = 0; i < nrOfPuppets; i++)
-			q->commit(model_data_cubes_container[i], model_cubes_ids[i]);
-
+	
 		q->commit(shader_data, shader_id);
 		q->commit(gui_shader_data, gui_shader_id);
 		q->commit(material_data, material_id);
@@ -909,9 +1045,7 @@ namespace rec {
 		q->commit(puppet_data_cameraRays, puppet_cameraRays_id);
 		q->commit(puppet_data_cameraDrawings2D, puppet_cameraDrawings2D_id);
 		q->commit(puppet_data_frustums, puppet_frustums_id);
-		for (int i = 0; i < nrOfPuppets; i++)
-			q->commit(puppet_data_cubes_container[i], puppet_ids[i]);
-
+		
 		q->commit(light_data, light_id);
 		q->commit(light2_data, light2_id);
 		q->commit(scene_data, scene_id);
