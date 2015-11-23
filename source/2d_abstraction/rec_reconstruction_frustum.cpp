@@ -52,8 +52,8 @@ namespace rec {
 
 
 		// for each camera
-		for (int i = 0; i < nrOfCams; i++) {
-			tree<rec::seAndFrust>::pre_order_iterator seAndFrustTreeTop = seAndFrustTrees.at(i).begin();
+		for (int cam = 1; cam <= nrOfCams; cam++) {
+			tree<rec::seAndFrust>::pre_order_iterator seAndFrustTreeTop = seAndFrustTrees.at(cam - 1).begin();
 
 			// list of pointers to the current seAndFrusts
 			std::vector<rec::seAndFrust*> currentSeAndFrustPList;
@@ -65,11 +65,11 @@ namespace rec {
 			rec::seAndFrust& rootSeAndFrust = *seAndFrustTreeTop;
 
 			//calculate frustum of the root node (which represents the whole camera viewing frustum)
-			viral_core::vector camPosition = cameraPositions.at(i);
-			viral_core::vector direction1 = directionsGrids.at(i).at(rootSeAndFrust.corner1.y + rootSeAndFrust.offSetY + offset).at(rootSeAndFrust.corner1.x + rootSeAndFrust.offSetX + offset);
-			viral_core::vector direction2 = directionsGrids.at(i).at(rootSeAndFrust.corner2.y + rootSeAndFrust.offSetY + offset).at(rootSeAndFrust.corner2.x + rootSeAndFrust.offSetX + offset);
-			viral_core::vector direction3 = directionsGrids.at(i).at(rootSeAndFrust.corner3.y + rootSeAndFrust.offSetY + offset).at(rootSeAndFrust.corner3.x + rootSeAndFrust.offSetX + offset);
-			viral_core::vector direction4 = directionsGrids.at(i).at(rootSeAndFrust.corner4.y + rootSeAndFrust.offSetY + offset).at(rootSeAndFrust.corner4.x + rootSeAndFrust.offSetX + offset);
+			viral_core::vector camPosition = cameraPositions.at(cam - 1);
+			viral_core::vector direction1 = directionsGrids.at(cam - 1).at(rootSeAndFrust.corner1.y + rootSeAndFrust.offSetY + offset).at(rootSeAndFrust.corner1.x + rootSeAndFrust.offSetX + offset);
+			viral_core::vector direction2 = directionsGrids.at(cam - 1).at(rootSeAndFrust.corner2.y + rootSeAndFrust.offSetY + offset).at(rootSeAndFrust.corner2.x + rootSeAndFrust.offSetX + offset);
+			viral_core::vector direction3 = directionsGrids.at(cam - 1).at(rootSeAndFrust.corner3.y + rootSeAndFrust.offSetY + offset).at(rootSeAndFrust.corner3.x + rootSeAndFrust.offSetX + offset);
+			viral_core::vector direction4 = directionsGrids.at(cam - 1).at(rootSeAndFrust.corner4.y + rootSeAndFrust.offSetY + offset).at(rootSeAndFrust.corner4.x + rootSeAndFrust.offSetX + offset);
 			viral_core::vector near_bot_left = camPosition + (direction4 * CAM_NEAR_PLANE);
 			viral_core::vector near_bot_right = camPosition + (direction3 * CAM_NEAR_PLANE);
 			viral_core::vector near_top_right = camPosition + (direction2 * CAM_NEAR_PLANE);
@@ -83,7 +83,7 @@ namespace rec {
 													far_bot_left, far_bot_right, far_top_right, far_top_left);
 			rootSeAndFrust.setFrustum(currentFrust);
 
-			text_output::appendFrustumToTextFile("frusts_cam" + std::to_string(i) + ".txt", currentFrust);
+			//text_output::appendFrustumToTextFile("frusts_cam" + std::to_string(cam) + ".txt", currentFrust);
 
 			// add pointer to the rootSeAndFrust to the list of current seAndFrusts
 			currentSeAndFrustPList.push_back(&rootSeAndFrust);
@@ -131,7 +131,7 @@ namespace rec {
 
 		// as long as there are unprocessed levels of the 2D trees left:
 		//for (int currentLevel = 0; currentLevel < depthOfSeAndFrustTrees; currentLevel++) {
-		for (int currentLevel = 0; currentLevel < 1; currentLevel++) {
+		for (int currentLevel = 0; currentLevel < 2; currentLevel++) {
 			std::cout << std::endl;
 			std::cout << "==== processing level " + std::to_string(currentLevel) + " ====" << std::endl;
 			std::cout << std::endl;
@@ -291,6 +291,110 @@ namespace rec {
 						currentLevel3DIterator++;
 						o++;
 					}
+
+
+					if (inside) {
+						//std::cout << "inside" << std::endl;
+						occupiedWorldPositions.emplace_back(vec);
+					}
+				}
+			}
+		}
+
+
+		return occupiedWorldPositions;
+
+	}
+
+
+
+
+
+
+
+	std::vector<std::vector<viral_core::vector>> reconstruct_object3DTree_objectSeparated(int stepsize, std::vector<rec::sensor> sensors, tree<rec::object3D> object3DTree, int level) {
+
+		std::vector<std::vector<viral_core::vector>> allOccupiedWorldPositions;
+
+		tree<rec::object3D>::iterator object3DTreeTop = object3DTree.begin();
+
+
+
+		std::cout << "Testing all world space positions for being occupied in the various 3D object" << std::endl;
+
+
+
+		int o = 0;
+		tree<rec::object3D>::fixed_depth_iterator currentLevel3DIterator = object3DTree.begin_fixed(object3DTreeTop, level);
+
+
+		// run through all objects at the desired level
+		while (object3DTree.is_valid(currentLevel3DIterator)) {
+			rec::object3D& currentObject3D = *currentLevel3DIterator;
+
+			std::vector<viral_core::vector> currentOccupiedWorldPositions;
+
+			// run through all world space positions
+			for (int x = -2000; x < 2200; x += stepsize) {
+				if (x % 1 == 0) {
+					std::cout << "testing x = " + std::to_string(x) << std::endl;
+				}
+				for (int y = -2200; y < 2200; y += stepsize) {
+					for (int z = -880; z < 1600; z += stepsize) {
+						/*
+						if (x % 1 == 0) {
+						std::cout << "testing x = " + std::to_string(x) + "y = " + std::to_string(y) + "z = " + std::to_string(z) << std::endl;
+						}
+						*/
+						viral_core::vector vec((float)x, (float)y, (float)z);
+
+						//test if world space positions are occupied according to object3DTree
+
+
+						//std::cout << "testing object " + std::to_string(o) << std::endl;
+
+						if (currentObject3D.isPointInside(vec)) {
+							currentOccupiedWorldPositions.emplace_back(vec);
+						
+						}
+					}
+				}
+			}
+
+			allOccupiedWorldPositions.push_back(currentOccupiedWorldPositions);
+
+			currentLevel3DIterator++;
+			o++;
+		}
+
+
+
+
+
+
+
+
+
+
+		// run through all positions in world space
+		for (int x = -2000; x < 2200; x += stepsize) {
+			if (x % 1 == 0) {
+				std::cout << "testing x = " + std::to_string(x) << std::endl;
+			}
+			for (int y = -2200; y < 2200; y += stepsize) {
+				for (int z = -880; z < 1600; z += stepsize) {
+					/*
+					if (x % 1 == 0) {
+					std::cout << "testing x = " + std::to_string(x) + "y = " + std::to_string(y) + "z = " + std::to_string(z) << std::endl;
+					}
+					*/
+					viral_core::vector vec((float)x, (float)y, (float)z);
+
+					//test if world space positions are occupied according to object3DTree
+
+					bool inside = false;
+
+
 
 
 					if (inside) {

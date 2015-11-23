@@ -212,7 +212,8 @@ namespace text_input {
 
 		std::vector<rec::frustum> output;
 		float x, y, z;
-		while (infile >> x >> y >> z) {
+		char c;
+		while (infile >> x >> c >> y >> c >> z) {
 			std::vector<viral_core::vector> frustCorners;
 
 			viral_core::vector currentCorner = viral_core::vector(x, y, z);
@@ -220,7 +221,7 @@ namespace text_input {
 
 
 			for (int i = 0; i < 7; i++) {
-				infile >> x >> y >> z;
+				infile >> x >> c >> y >> c >> z;
 				currentCorner = viral_core::vector(x, y, z);
 				frustCorners.push_back(currentCorner);
 			}

@@ -56,10 +56,10 @@ namespace rec {
 		}
 
 
-		//TODO: ERROR
+
 		void collectGeneratingPlanes() {
 			for (int i = 0; i < generatingFrustums.size(); i++) {
-				rec::seAndFrust* currentseAndFrust = generatingFrustums.at(0);
+				rec::seAndFrust* currentseAndFrust = generatingFrustums.at(i);
 				for (int k = 0; k < 6; k++) {
 					viral_core::vector currentPlaneNormal = (*currentseAndFrust).frust.planeNormals[k];
 					planeNormals.push_back(currentPlaneNormal);

@@ -15,7 +15,9 @@ namespace rec {
 		std::vector<tree<rec::seAndFrust>> &seAndFrustTrees, int nrOfCams, int width, int height, int offset);
 
 
-	std::vector<viral_core::vector> reconstruct_object3DTree(int stepsize, std::vector<rec::sensor> sensors, tree<rec::object3D> tree, int level);
+	std::vector<viral_core::vector> reconstruct_object3DTree(int stepsize, std::vector<rec::sensor> sensors, tree<rec::object3D> object3DTree, int level);
+
+	std::vector<std::vector<viral_core::vector>> reconstruct_object3DTree_objectSeparated(int stepsize, std::vector<rec::sensor> sensors, tree<rec::object3D> object3DTree, int level);
 }
 
 

@@ -477,6 +477,17 @@ namespace rec {
 				*/
 			
 
+			
+
+
+		}	//end of for each camera
+
+
+
+
+
+		for (int cam = 1; cam <= 0; cam++) {
+
 			std::vector<rec::frustum> frustums = text_input::readFrustumsFromTextfile("frusts_cam" + std::to_string(cam) + ".txt");
 
 			for (int f = 0; f < frustums.size(); f++) {
@@ -506,12 +517,17 @@ namespace rec {
 
 
 			}
-			
-
-
-		}	//end of for each camera
-
 		
+		
+		}
+
+
+
+
+
+
+
+		/*
 
 		viral_core::vector vec1; 
 		viral_core::vector vec2;
@@ -548,7 +564,7 @@ namespace rec {
 		addLine(geometry_mesh_cameraDrawings2D, vec1, vec2);
 
 
-
+		*/
 
 
 
