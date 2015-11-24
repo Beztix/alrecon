@@ -1,5 +1,5 @@
-#ifndef REC_FRUSTUM_H
-#define REC_FRUSTUM_H
+#ifndef REC_PRIMITIVE3D_H
+#define REC_PRIMITIVE3D_H
 
 
 
@@ -107,6 +107,101 @@ namespace rec {
 	
 
 
+
+
+
+
+
+
+
+	// a struct representing a pyramid
+	struct pyramid {
+
+		viral_core::vector corners[5];			//the 4 corners of the base of the pyramid and the apex
+		viral_core::vector planeNormals[4];		//the normals of the 4 planes corresponding the the sides of the pyramid, normals pointing inside
+												//base corners of the normals are the corners at the same index
+
+
+
+		enum corner_type		//as seen from the apex
+		{
+			bot_left, bot_right, top_right, top_left, apex		
+
+		};
+
+		enum plane_type			//as seen from the apex
+		{
+			bot, right, top, left
+		};
+
+
+		//empty constructor
+		pyramid() {
+
+		}
+
+
+		//constructor receiving the apex and the 4 corners of the pyramid base, automatically building the plane information
+		pyramid(viral_core::vector apex_corner, viral_core::vector bot_left_corner, viral_core::vector bot_right_corner, 
+			viral_core::vector top_right_corner, viral_core::vector top_left_corner) {
+			corners[bot_left] = bot_left_corner;
+			corners[bot_right] = bot_right_corner;
+			corners[top_right] = top_right_corner;
+			corners[top_left] = top_left_corner;
+			corners[apex] = apex_corner;
+
+			buildPlanes();
+		}
+
+
+		//building the plane information
+		void buildPlanes() {
+			viral_core::vector vectorOne;
+			viral_core::vector vectorTwo;
+			viral_core::vector normal;
+			viral_core::vector normalBase;
+
+			//bot
+			vectorOne = corners[apex] - corners[bot_left];
+			vectorTwo = corners[bot_right] - corners[bot_left];
+			planeNormals[bot] = vectorOne.cross(vectorTwo).normalized();
+
+			//right
+			vectorOne = corners[apex] - corners[bot_right];
+			vectorTwo = corners[top_right] - corners[bot_right];
+			planeNormals[right] = vectorOne.cross(vectorTwo).normalized();
+
+			//top
+			vectorOne = corners[apex] - corners[top_right];
+			vectorTwo = corners[top_left] - corners[top_right];
+			planeNormals[top] = vectorOne.cross(vectorTwo).normalized();
+
+			//left
+			vectorOne = corners[apex] - corners[top_left];
+			vectorTwo = corners[bot_left] - corners[top_left];
+			planeNormals[left] = vectorOne.cross(vectorTwo).normalized();
+
+
+		}
+
+
+
+
+	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 
@@ -116,4 +211,4 @@ namespace rec {
 
 
 
-#endif /* REC_FRUSTUM_H*/
+#endif /* REC_PRIMITIVE3D_H*/

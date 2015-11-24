@@ -1,13 +1,13 @@
 /**
 *************************************************************************
 *
-* @file rec_seAndFrust.cpp
+* @file rec_containers.cpp
 *
 * 
 *
 ************************************************************************/
 
-#include "rec_seAndFrust.h"
+#include "rec_containers.h"
 
 
 namespace rec {
@@ -20,6 +20,18 @@ namespace rec {
 		//os << "contour size: " << c.contour.size() << "  offset: " <<  c.offSetX << ',' << c.offSetY;
 		return os;
 	}
+
+
+
+
+	std::ostream& operator<<(std::ostream& os, const rec::seAndPyramid& c)
+	{
+		os << c.fittedEllipse.xc << ',' << c.fittedEllipse.yc;
+
+		//os << "contour size: " << c.contour.size() << "  offset: " <<  c.offSetX << ',' << c.offSetY;
+		return os;
+	}
+
 
 
 }

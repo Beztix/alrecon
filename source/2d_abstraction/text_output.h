@@ -4,10 +4,12 @@
 #include <vector>
 #include <viral_core/geo_3d.hpp>
 
-#include "rec_frustum.h"
+#include "rec_object3D.h"
 
 
 namespace text_output {
+
+	void writeObject3DToTextFiles(std::string name, rec::object3D o);
 
 	void appendFrustumToTextFile(std::string location, rec::frustum frust);
 

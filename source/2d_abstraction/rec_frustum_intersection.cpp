@@ -8,8 +8,6 @@
 ************************************************************************/
 
 #include "rec_frustum_intersection.h"
-#include "rec_frustum.h"
-#include "rec_seAndFrust.h"
 #include "tree.hh"
 
 #include <viral_core/geo_3d.hpp>

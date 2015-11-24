@@ -29,6 +29,17 @@ namespace util {
 
 
 
+	int signFloat(float f) {
+		if (f > 0) return 1;
+		if (f < 0) return -1;
+		return 0;
+	}
+
+
+	bool allSameSignFloat()
+
+
+
 
 	/// sorts pixels from a text file lexicographically 
 	/**

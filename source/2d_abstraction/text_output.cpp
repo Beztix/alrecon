@@ -35,6 +35,32 @@ namespace text_output {
 
 
 
+	void writeObject3DToTextFiles(std::string name, rec::object3D o) {
+
+		std::vector<tree<rec::seAndFrust>::pre_order_iterator> generatingFrustumsIT = o.generatingFrustumsIT;
+
+		for (int k = 0; k < generatingFrustumsIT.size(); k++) {
+			tree<rec::seAndFrust>::pre_order_iterator seFrustIT = generatingFrustumsIT.at(k);
+			rec::seAndFrust seFrust = *seFrustIT;
+			rec::frustum frust = seFrust.frust;
+
+			std::ofstream outfile(name + std::to_string(k) + ".txt", std::ios_base::app);
+
+			for (int i = 0; i < 8; i++) {
+				outfile << frust.points[i].x << ", " << frust.points[i].y << ", " << frust.points[i].z << "\n";
+			}
+
+			outfile.close();
+
+		}
+
+
+
+	}
+
+
+
+
 
 	void writePositionsGridToTextfile(std::string location, std::vector<std::vector<viral_core::vector>> positionsGrid) {
 

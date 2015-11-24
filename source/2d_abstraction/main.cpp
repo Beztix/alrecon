@@ -68,14 +68,15 @@
 
 // Reconstruction 
 #include "rec_reconstruction_trivial.h"
-#include "rec_reconstruction_frustum.h"
+//#include "rec_reconstruction_frustum.h"
+#include "rec_reconstruction_pyramid.h"
 #include "rec_rendering.h"
 #include "rec_sampling.h"
 #include "rec_frustum_intersection.h"
-#include "rec_frustum.h"
 #include "rec_file_camera.h"
 #include "rec_sensor.h"
 #include "rec_object3D.h"
+#include "rec_containers.h"
 
 
 
@@ -105,7 +106,8 @@ int main() {
 	cout << endl;
 	cout << endl;
 
-	std::vector<tree<rec::seAndFrust>> seAndFrustTrees;
+	//std::vector<tree<rec::seAndPyramid>> seAndFrustTrees;
+	std::vector<tree<rec::seAndPyramid>> seAndPyramidTrees;
 	std::vector<tree<se::contourAndSe>> contourAndSeTrees;
 
 
@@ -155,12 +157,15 @@ int main() {
 		// ===========   SE COMPUTATION   ===========
 
 		tree<se::contourAndSe> contourAndSeTree;
-		tree<rec::seAndFrust> seAndFrustTree;
+		//tree<rec::seAndFrust> seAndFrustTree;
+		tree<rec::seAndPyramid> seAndPyramidTree;
+
 
 		//do the whole computation multiple times (performance averaging)
 		for (int i = 0; i < iterations; i++) {
 			contourAndSeTree.clear();
-			seAndFrustTree.clear();
+			//seAndFrustTree.clear();
+			seAndPyramidTree.clear();
 
 
 			QueryPerformanceCounter(&t3);
@@ -169,6 +174,7 @@ int main() {
 			se::contourAndSe rootContourAndSe = se::contourAndSe();
 			contourAndSeTree.set_head(rootContourAndSe);
 
+			/*
 			//add root node to the seAndFrustTree (seAndFrust containing the whole image as bounding box)
 			viral_core::vector2f corner1(0.f, 0.f);
 			viral_core::vector2f corner2((float)width, 0.f);
@@ -176,36 +182,50 @@ int main() {
 			viral_core::vector2f corner4(0.f, (float)height);
 			rec::seAndFrust rootSeAndFrust(cam, 0, 0, corner1, corner2, corner3, corner4);
 			seAndFrustTree.set_head(rootSeAndFrust);
+			*/
+
+
+			//add root node to the seAndPyramidTree (seAndPyramid containing the whole image as bounding box)
+			viral_core::vector2f corner1(0.f, 0.f);
+			viral_core::vector2f corner2((float)width, 0.f);
+			viral_core::vector2f corner3((float)width, (float)height);
+			viral_core::vector2f corner4(0.f, (float)height);
+			rec::seAndPyramid rootSeAndPyramid(cam, 0, 0, corner1, corner2, corner3, corner4);
+			seAndPyramidTree.set_head(rootSeAndPyramid);
 
 
 
 
-			if (DEBUG) {
-				cout << endl;
-				cout << "initial setTree" << endl;
-				kptree::print_tree_bracketed(contourAndSeTree);
-				cout << endl;
-				cout << "initial seAndFrustTree" << endl;
-				kptree::print_tree_bracketed(seAndFrustTree);
-				cout << endl;
-			}
+			//std::cout << std::endl;
+			//std::cout << "initial setTree" << std::endl;
+			//kptree::print_tree_bracketed(contourAndSeTree);
+			//std::cout << std::endl;
+			///*
+			//std::cout << "initial seAndFrustTree" << std::endl;
+			//kptree::print_tree_bracketed(seAndFrustTree);
+			//std::cout << std::endl;
+			//*/
+
 
 			//start the main computation
-			startRosinTree(cam, contourAndSeTree, seAndFrustTree, contours, width, height, qualityValues);
+			startRosinTree(cam, contourAndSeTree, seAndPyramidTree, contours, width, height, qualityValues);
+			//startRosinTree(cam, contourAndSeTree, seAndFrustTree, contours, width, height, qualityValues);
 
-			if (DEBUG) {
-				cout << endl;
-				cout << "final seTree" << endl;
-				kptree::print_tree_bracketed(contourAndSeTree);
-				cout << endl;
-				cout << "final seAndFrustTree" << endl;
-				kptree::print_tree_bracketed(seAndFrustTree);
-				cout << endl;
-			}
+			//std::cout << std::endl;
+			//std::cout << "final seTree" << std::endl;
+			//kptree::print_tree_bracketed(contourAndSeTree);
+			//std::cout << endl;
+			///*
+			//std::cout << "final seAndFrustTree" << std::endl;
+			//kptree::print_tree_bracketed(seAndFrustTree);
+			//std::cout << std::endl;
+			//*/
 
 			//add the trees of the current camera to the lsit of all trees
 			contourAndSeTrees.push_back(contourAndSeTree);
-			seAndFrustTrees.push_back(seAndFrustTree);
+			//seAndFrustTrees.push_back(seAndFrustTree);
+			seAndPyramidTrees.push_back(seAndPyramidTree);
+
 
 			QueryPerformanceCounter(&t4);
 			double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
@@ -342,15 +362,16 @@ int main() {
 
 
 
+	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, 7, 640, 480, 300);
 
-	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
+	//tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
 
 	
 
 
 	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_object3DTree(50, sensors, object3DTree, 1);
 
-	std::vector<std::vector<viral_core::vector>> separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_objectSeparated(100, sensors, object3DTree, 1);
+	std::vector<std::vector<viral_core::vector>> separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_objectSeparated(50, sensors, object3DTree, 1);
 	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20, sensors);
 
 	rec::renderWorkspace(cameras, sensors, separatedOccupiedWorldPositions, 10, 0.1f);

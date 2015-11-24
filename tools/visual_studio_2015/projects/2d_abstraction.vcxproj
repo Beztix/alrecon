@@ -19,14 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\source\2d_abstraction\rec_seAndFrust.cpp" />
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_containers.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_file_camera.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_frustum_intersection.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\convex_hull.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\image_output.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\image_input.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\main.cpp" />
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_pyramid_intersection.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_reconstruction_frustum.cpp" />
+    <ClCompile Include="..\..\..\source\2d_abstraction\rec_reconstruction_pyramid.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_rendering.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_rendering_util.cpp" />
     <ClCompile Include="..\..\..\source\2d_abstraction\rec_sampling.cpp" />
@@ -44,16 +46,18 @@
     <ClCompile Include="..\..\..\source\2d_abstraction\util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\source\2d_abstraction\rec_seAndFrust.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_containers.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_file_camera.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_primitive3D.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_frustum_intersection.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\convexHull.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\convexHullForC.h" />
-    <ClInclude Include="..\..\..\source\2d_abstraction\rec_frustum.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\image_output.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\image_input.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_pyramid_intersection.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_reconstruction_frustum.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_object3D.h" />
+    <ClInclude Include="..\..\..\source\2d_abstraction\rec_reconstruction_pyramid.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_rendering.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_rendering_util.h" />
     <ClInclude Include="..\..\..\source\2d_abstraction\rec_sampling.h" />

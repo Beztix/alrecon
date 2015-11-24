@@ -2,8 +2,8 @@
 #define REC_FRUSTUM_INTERSECTION_H
 
 
-#include "rec_frustum.h"
-#include "rec_seAndFrust.h"
+#include "rec_object3D.h"
+#include "rec_containers.h"
 #include "tree.hh"
 #include <vector>
 

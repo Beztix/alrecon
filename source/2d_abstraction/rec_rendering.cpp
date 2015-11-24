@@ -160,7 +160,7 @@ namespace rec {
 
 
 
-	/*
+	
 	void addOccupiedPositionsAsCubes(std::vector<std::vector<viral_core::vector>> occupiedPositions_separate, float cubeSize, viral_core::render_scene_data &scene_data,
 		viral_core::auto_pointer<viral_core::render_command_queue> &q, viral_core::shared_pointer<viral_core::render_material_id> &material_id, float scale) {
 
@@ -170,7 +170,9 @@ namespace rec {
 
 		for (int i = 0; i < occupiedPositions_separate.size(); i++) {
 			std::vector<viral_core::vector> current_occupiedPositions_separate = occupiedPositions_separate.at(i);
-			occupiedPositions_all.insert(occupiedPositions_all.end(), current_occupiedPositions_separate.begin(), current_occupiedPositions_separate.end());
+			for (int k = 0; k < current_occupiedPositions_separate.size(); k++) {
+				occupiedPositions_all.push_back(current_occupiedPositions_separate.at(k));
+			}
 		}
 
 
@@ -261,7 +263,7 @@ namespace rec {
 
 
 
-	*/
+	
 
 
 
@@ -503,7 +505,9 @@ namespace rec {
 
 
 
-		addOccupiedPositionsAsText(occupiedPositions, dejaVuFont, scene_data, q, material_texture_id, scale, 0.2);
+		//addOccupiedPositionsAsText(occupiedPositions, dejaVuFont, scene_data, q, material_texture_id, scale, 0.2);
+		addOccupiedPositionsAsCubes(occupiedPositions, 25, scene_data, q, material_id, scale);
+
 
 
 		//=================================================
@@ -672,9 +676,10 @@ namespace rec {
 
 
 
-		for (int cam = 1; cam <= 0; cam++) {
+		for (int cam = 1; cam <= 3; cam++) {
 
-			std::vector<rec::frustum> frustums = text_input::readFrustumsFromTextfile("frusts_cam" + std::to_string(cam) + ".txt");
+			/*
+			std::vector<rec::frustum> frustums = text_input::readFrustumsFromTextfile("frusts_cam" + std::to_string(cam-1) + ".txt");
 
 			for (int f = 0; f < frustums.size(); f++) {
 				rec::frustum currentFrust = frustums.at(f);
@@ -703,8 +708,40 @@ namespace rec {
 
 
 			}
-		
-		
+			*/
+
+			/*
+			std::vector<rec::frustum> frustums = text_input::readFrustumsFromTextfile("testObject" + std::to_string(cam-1) + ".txt");
+
+			for (int f = 0; f < frustums.size(); f++) {
+				rec::frustum currentFrust = frustums.at(f);
+
+				near_bot_left = currentFrust.points[0] * scale;
+				near_bot_right = currentFrust.points[1] * scale;
+				near_top_right = currentFrust.points[2] * scale;
+				near_top_left = currentFrust.points[3] * scale;
+				far_bot_left = currentFrust.points[4] * scale;
+				far_bot_right = currentFrust.points[5] * scale;
+				far_top_right = currentFrust.points[6] * scale;
+				far_top_left = currentFrust.points[7] * scale;
+
+				addBoxWithCorners(geometry_mesh_frustums, near_top_left, near_top_right, near_bot_left, near_bot_right,
+					far_top_left, far_top_right, far_bot_left, far_bot_right);
+				addBoxWithCorners(geometry_mesh_boundingBox, near_top_left, near_top_right, near_bot_left, near_bot_right,
+					far_top_left, far_top_right, far_bot_left, far_bot_right);
+				addText("near_bot_left", dejaVuFont, scene_data, q, material_texture_id, near_bot_left + viral_core::vector(0, -5, 0), 0.1);
+				addText("near_bot_right", dejaVuFont, scene_data, q, material_texture_id, near_bot_right + viral_core::vector(0, -5, 0), 0.1);
+				addText("near_top_right", dejaVuFont, scene_data, q, material_texture_id, near_top_right + viral_core::vector(0, -5, 0), 0.1);
+				addText("near_top_left", dejaVuFont, scene_data, q, material_texture_id, near_top_left + viral_core::vector(0, -5, 0), 0.1);
+				addText("far_bot_left", dejaVuFont, scene_data, q, material_texture_id, far_bot_left + viral_core::vector(0, -5, 0), 0.1);
+				addText("far_bot_right", dejaVuFont, scene_data, q, material_texture_id, far_bot_right + viral_core::vector(0, -5, 0), 0.1);
+				addText("far_top_right", dejaVuFont, scene_data, q, material_texture_id, far_top_right + viral_core::vector(0, -5, 0), 0.1);
+				addText("far_top_left", dejaVuFont, scene_data, q, material_texture_id, far_top_left + viral_core::vector(0, -5, 0), 0.1);
+
+
+			}
+			*/
+
 		}
 
 
