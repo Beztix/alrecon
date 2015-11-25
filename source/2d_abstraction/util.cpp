@@ -36,8 +36,24 @@ namespace util {
 	}
 
 
-	bool allSameSignFloat()
+	bool allPositiveOrZeroFloat(std::vector<float> floats) {
+		for (int i = 0; i < floats.size(); i++) {
+			if (floats.at(i) < 0) {
+				return false;
+			}
+		}
+		return true;
+	}
 
+
+	bool allNegativeOrZeroFloat(std::vector<float> floats) {
+		for (int i = 0; i < floats.size(); i++) {
+			if (floats.at(i) > 0) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 
 

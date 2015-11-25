@@ -9,6 +9,7 @@
 
 #include "rec_pyramid_intersection.h"
 #include "tree.hh"
+#include "util.h"
 
 #include <viral_core/geo_3d.hpp>
 
@@ -20,19 +21,66 @@ namespace rec {
 
 
 
+	bool testIfApexPlaneSeparatesPyramid(viral_core::vector planeNormalBase, viral_core::vector planeNormal, rec::pyramid firstPyramid, rec::pyramid secondPyramid) {
+
+		viral_core::vector testVector;
+
+		std::vector<float> testDotsSecondPyramid;
+		testVector = secondPyramid.corners[pyramid::bot_left] - planeNormalBase;
+		testDotsSecondPyramid.push_back(planeNormal.dot(testVector));
+		testVector = secondPyramid.corners[pyramid::bot_right] - planeNormalBase;
+		testDotsSecondPyramid.push_back(planeNormal.dot(testVector));
+		testVector = secondPyramid.corners[pyramid::top_right] - planeNormalBase;
+		testDotsSecondPyramid.push_back(planeNormal.dot(testVector));
+		testVector = secondPyramid.corners[pyramid::top_left] - planeNormalBase;
+		testDotsSecondPyramid.push_back(planeNormal.dot(testVector));
+
+		std::vector<float> testDotsFirstPyramid;
+		testVector = firstPyramid.corners[pyramid::bot_left] - planeNormalBase;
+		testDotsFirstPyramid.push_back(planeNormal.dot(testVector));
+		testVector = firstPyramid.corners[pyramid::bot_right] - planeNormalBase;
+		testDotsFirstPyramid.push_back(planeNormal.dot(testVector));
+		testVector = firstPyramid.corners[pyramid::top_right] - planeNormalBase;
+		testDotsFirstPyramid.push_back(planeNormal.dot(testVector));
+		testVector = firstPyramid.corners[pyramid::top_left] - planeNormalBase;
+		testDotsFirstPyramid.push_back(planeNormal.dot(testVector));
+
+		if (util::allNegativeOrZeroFloat(testDotsSecondPyramid)) {
+			//all corners of second pyramid are on the negative side of the plane
+			if (util::allPositiveOrZeroFloat(testDotsFirstPyramid)) {
+				//the tested plane separates both pyramids 
+				return true;
+			}
+		}
+
+		if (util::allPositiveOrZeroFloat(testDotsSecondPyramid)) {
+			//all corners of the second pyramid are on the positive side of the plane
+			if (util::allNegativeOrZeroFloat(testDotsFirstPyramid)) {
+				//the tested plane separates both pyramids
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 
-	//TODO: METHODEN ANPASSEN
+
+
 
 
 	//testing two pyramids for intersection
 	bool doPyramidsIntersect(rec::pyramid firstPyramid, rec::pyramid secondPyramid) {
 
 
+		//testing pyramids for intersection by trying to find a separating plane between the pyramids
+
+
 		bool pointInside;
 
-
-		//========== test planes of first pyramid ===========
+		//=============================================================
+		//==========      test planes of first pyramid      ===========
+		//=============================================================
 
 		//bottom plane
 		pointInside = false;
@@ -90,8 +138,9 @@ namespace rec {
 		
 
 
-
-		//========== test planes of second pyramid ===========
+		//==============================================================
+		//==========      test planes of second pyramid      ===========
+		//==============================================================
 
 		//bottom plane
 		pointInside = false;
@@ -149,44 +198,99 @@ namespace rec {
 
 
 
+		//=====================================================================================
+		//==========      test planes connected to the apexes of both pyramids      ===========
+		//=====================================================================================
 
-		//========== test planes connected to the apexes of both pyramids ===========
 
+		viral_core::vector planeNormalBase = secondPyramid.corners[pyramid::apex];
 
-		viral_core::vector vectorOne = firstPyramid.corners[pyramid::apex] - secondPyramid.corners[pyramid::apex];
-		viral_core::vector vectorTwo, planeNormal, testVector;
+		viral_core::vector vectorOne = firstPyramid.corners[pyramid::apex] - planeNormalBase;
+		viral_core::vector vectorTwo, planeNormal;
 
 
 		//========== test planes connected to the base corners of the first pyramid ===========
 
-		//bot_left
-		vectorTwo = firstPyramid.corners[pyramid::bot_left] - secondPyramid.corners[pyramid::apex];
+		// bot_left
+		vectorTwo = firstPyramid.corners[pyramid::bot_left] - planeNormalBase;
 		planeNormal = vectorOne.cross(vectorTwo).normalized();
-		//test if corners of second pyramid are all on the same side of the plane
-		testVector = secondPyramid.corners[pyramid::bot_left] - secondPyramid.corners[pyramid::apex];
-		float dot_bot_left = planeNormal.dot(testVector);
-		testVector = secondPyramid.corners[pyramid::bot_right] - secondPyramid.corners[pyramid::apex];
-		float dot_bot_right = planeNormal.dot(testVector);
-		testVector = secondPyramid.corners[pyramid::top_right] - secondPyramid.corners[pyramid::apex];
-		float dot_top_right = planeNormal.dot(testVector);
-		testVector = secondPyramid.corners[pyramid::top_left] - secondPyramid.corners[pyramid::apex];
-		float dot_top_left = planeNormal.dot(testVector);
 
+		if (testIfApexPlaneSeparatesPyramid(planeNormalBase, planeNormal, firstPyramid, secondPyramid)) {
+			return false;
+		}
 
+		// bot_right
+		vectorTwo = firstPyramid.corners[pyramid::bot_right] - planeNormalBase;
+		planeNormal = vectorOne.cross(vectorTwo).normalized();
 
+		if (testIfApexPlaneSeparatesPyramid(planeNormalBase, planeNormal, firstPyramid, secondPyramid)) {
+			return false;
+		}
 
+		// top_right
+		vectorTwo = firstPyramid.corners[pyramid::top_right] - planeNormalBase;
+		planeNormal = vectorOne.cross(vectorTwo).normalized();
 
+		if (testIfApexPlaneSeparatesPyramid(planeNormalBase, planeNormal, firstPyramid, secondPyramid)) {
+			return false;
+		}
 
+		// top_left
+		vectorTwo = firstPyramid.corners[pyramid::top_left] - planeNormalBase;
+		planeNormal = vectorOne.cross(vectorTwo).normalized();
 
-
-
-
-		//none of the planes separates the two pyramids: there is an intersection
-
-
+		if (testIfApexPlaneSeparatesPyramid(planeNormalBase, planeNormal, firstPyramid, secondPyramid)) {
+			return false;
+		}
 		
+
+
+		//========== test planes connected to the base corners of the second pyramid ===========
+
+		// bot_left
+		vectorTwo = secondPyramid.corners[pyramid::bot_left] - planeNormalBase;
+		planeNormal = vectorOne.cross(vectorTwo).normalized();
+
+		if (testIfApexPlaneSeparatesPyramid(planeNormalBase, planeNormal, firstPyramid, secondPyramid)) {
+			return false;
+		}
+
+		// bot_right
+		vectorTwo = secondPyramid.corners[pyramid::bot_right] - planeNormalBase;
+		planeNormal = vectorOne.cross(vectorTwo).normalized();
+
+		if (testIfApexPlaneSeparatesPyramid(planeNormalBase, planeNormal, firstPyramid, secondPyramid)) {
+			return false;
+		}
+
+		// top_right
+		vectorTwo = secondPyramid.corners[pyramid::top_right] - planeNormalBase;
+		planeNormal = vectorOne.cross(vectorTwo).normalized();
+
+		if (testIfApexPlaneSeparatesPyramid(planeNormalBase, planeNormal, firstPyramid, secondPyramid)) {
+			return false;
+		}
+
+		// top_left
+		vectorTwo = secondPyramid.corners[pyramid::top_left] - planeNormalBase;
+		planeNormal = vectorOne.cross(vectorTwo).normalized();
+
+		if (testIfApexPlaneSeparatesPyramid(planeNormalBase, planeNormal, firstPyramid, secondPyramid)) {
+			return false;
+		}
+
+
+
+
+
+
+		//none of the tested planes separates the two pyramids: there is an intersection	
 		return true;
 	}
+
+
+
+
 
 
 

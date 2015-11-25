@@ -17,6 +17,9 @@ namespace text_input {
 	std::vector<int> readIntVectorFromTextfile(std::string input);
 
 	std::vector<rec::frustum> readFrustumsFromTextfile(std::string input);
+
+	std::vector<rec::pyramid> readPyramidsFromTextfile(std::string input);
+
 }
 
 

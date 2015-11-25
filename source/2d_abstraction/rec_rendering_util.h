@@ -26,6 +26,9 @@ namespace rec {
 		viral_core::vector near_top_left, viral_core::vector near_top_right, viral_core::vector near_bot_left, viral_core::vector near_bot_right,
 		viral_core::vector far_top_left, viral_core::vector far_top_right, viral_core::vector far_bot_left, viral_core::vector far_bot_right);
 
+	void addPyramidWithCorners(viral_core::auto_pointer<viral_core::mesh> &geometry_mesh, viral_core::vector apex,
+		viral_core::vector bot_left, viral_core::vector bot_right, viral_core::vector top_right, viral_core::vector top_left);
+
 
 	void addCoordinateSystem(viral_core::auto_pointer<viral_core::mesh> &geometry_mesh, float sizeX, float sizeY, float sizeZ);
 }

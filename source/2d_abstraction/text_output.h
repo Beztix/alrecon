@@ -9,7 +9,9 @@
 
 namespace text_output {
 
-	void writeObject3DToTextFiles(std::string name, rec::object3D o);
+	void writeObject3DToFrustumTextFiles(std::string name, rec::object3D o);
+
+	void writeObject3DToPyramidTextFiles(std::string name, rec::object3D o);
 
 	void appendFrustumToTextFile(std::string location, rec::frustum frust);
 

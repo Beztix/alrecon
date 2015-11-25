@@ -303,6 +303,74 @@ namespace rec {
 
 
 
+	void addPyramidWithCorners(viral_core::auto_pointer<viral_core::mesh> &geometry_mesh, viral_core::vector apex, 
+		viral_core::vector bot_left, viral_core::vector bot_right, viral_core::vector top_right, viral_core::vector top_left) {
+
+		int start_index = geometry_mesh->vertex_count();
+
+		viral_core::mesh::const_stream_iterator normals_it = geometry_mesh->find_vertex_stream(viral_core::mesh_stream_registry::normal_stream_name);
+		if (!normals_it) {
+			viral_core::auto_pointer<viral_core::mesh_stream_vector> new_normals(new viral_core::mesh_stream_vector());
+			normals_it = geometry_mesh->insert_vertex_stream(viral_core::mesh_stream_registry::normal_stream_name, new_normals);
+		}
+		viral_core::mesh_stream_vector& normals = static_cast<viral_core::mesh_stream_vector&>(*normals_it->value);
+
+
+
+
+		// === bot face ===
+		geometry_mesh->vertices().push_back(viral_core::vector(apex));		//0
+		geometry_mesh->vertices().push_back(viral_core::vector(bot_left));	//1	
+		geometry_mesh->vertices().push_back(viral_core::vector(bot_right));	//2
+
+		geometry_mesh->triangles().push_back(viral_core::mesh_triangle(start_index + 0, start_index + 1, start_index + 2));
+
+		normals.push_back(viral_core::vector(0, 1, 0).normalized());
+		normals.push_back(viral_core::vector(0, 1, 0).normalized());
+		normals.push_back(viral_core::vector(0, 1, 0).normalized());
+
+
+		// === right face ===
+		geometry_mesh->vertices().push_back(viral_core::vector(apex));		//3
+		geometry_mesh->vertices().push_back(viral_core::vector(bot_right));	//4	
+		geometry_mesh->vertices().push_back(viral_core::vector(top_right));	//5
+
+		geometry_mesh->triangles().push_back(viral_core::mesh_triangle(start_index + 3, start_index + 4, start_index + 5));
+
+		normals.push_back(viral_core::vector(1, 0, 0).normalized());
+		normals.push_back(viral_core::vector(1, 0, 0).normalized());
+		normals.push_back(viral_core::vector(1, 0, 0).normalized());
+
+
+		// === top face ===
+		geometry_mesh->vertices().push_back(viral_core::vector(apex));		//6
+		geometry_mesh->vertices().push_back(viral_core::vector(top_right));	//7	
+		geometry_mesh->vertices().push_back(viral_core::vector(top_left));	//8
+
+		geometry_mesh->triangles().push_back(viral_core::mesh_triangle(start_index + 6, start_index + 7, start_index + 8));
+
+		normals.push_back(viral_core::vector(0, -1, 0).normalized());
+		normals.push_back(viral_core::vector(0, -1, 0).normalized());
+		normals.push_back(viral_core::vector(0, -1, 0).normalized());
+
+
+		// === left face ===
+		geometry_mesh->vertices().push_back(viral_core::vector(apex));		//9
+		geometry_mesh->vertices().push_back(viral_core::vector(top_left));	//10	
+		geometry_mesh->vertices().push_back(viral_core::vector(bot_left));	//11
+
+		geometry_mesh->triangles().push_back(viral_core::mesh_triangle(start_index + 9, start_index + 10, start_index + 11));
+
+		normals.push_back(viral_core::vector(-1, 0, 0).normalized());
+		normals.push_back(viral_core::vector(-1, 0, 0).normalized());
+		normals.push_back(viral_core::vector(-1, 0, 0).normalized());
+
+		
+	}
+
+
+
+
 
 	void addCoordinateSystem(viral_core::auto_pointer<viral_core::mesh> &geometry_mesh, float sizeX, float sizeY, float sizeZ) {
 		float size = 0.5;

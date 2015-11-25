@@ -38,6 +38,9 @@ namespace util {
 	};
 
 
+	bool allPositiveOrZeroFloat(std::vector<float> floats);
+
+	bool allNegativeOrZeroFloat(std::vector<float> floats);
 
 	void sortPixelFile(std::string input, std::string output);
 

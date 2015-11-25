@@ -75,7 +75,7 @@ namespace rec {
 			viral_core::vector top_right = camPosition + (direction2 * CAM_FAR_PLANE);
 			viral_core::vector top_left = camPosition + (direction1 * CAM_FAR_PLANE);
 
-			rec::pyramid currentPyramid = rec::pyramid(camPosition, bot_left, bot_right, top_right, top_left);
+			rec::pyramid currentPyramid = rec::pyramid(bot_left, bot_right, top_right, top_left, camPosition);
 			rootSeAndPyramid.setPyramid(currentPyramid);
 
 			//text_output::appendPyramidToTextFile("Pyramids_cam" + std::to_string(cam) + ".txt", currentPyramid);
@@ -126,7 +126,7 @@ namespace rec {
 
 		// as long as there are unprocessed levels of the 2D trees left:
 		//for (int currentLevel = 0; currentLevel < depthOfSeAndPyramidTrees; currentLevel++) {
-		for (int currentLevel = 0; currentLevel < 2; currentLevel++) {
+		for (int currentLevel = 0; currentLevel < 1; currentLevel++) {
 			std::cout << std::endl;
 			std::cout << "==== processing level " + std::to_string(currentLevel) + " ====" << std::endl;
 			std::cout << std::endl;
@@ -177,7 +177,7 @@ namespace rec {
 						viral_core::vector top_right = camPosition + (direction2 * CAM_FAR_PLANE);
 						viral_core::vector top_left = camPosition + (direction1 * CAM_FAR_PLANE);
 						
-						rec::pyramid currentPyramid = rec::pyramid(camPosition, bot_left, bot_right, top_right, top_left);
+						rec::pyramid currentPyramid = rec::pyramid(bot_left, bot_right, top_right, top_left, camPosition);
 						currentChild.setPyramid(currentPyramid);
 
 						//text_output::appendPyramidToTextFile("Pyramids_cam" + std::to_string(cam) + ".txt", currentPyramid);
@@ -325,8 +325,8 @@ namespace rec {
 
 			std::vector<viral_core::vector> currentOccupiedWorldPositions;
 
-			if (o < 1000) {
-				//text_output::writeObject3DToTextFiles("testObject", currentObject3D);
+			if (o == 0) {
+				text_output::writeObject3DToPyramidTextFiles("testObject_pyr", currentObject3D);
 
 				// run through all world space positions
 				for (int x = -3000; x < 3200; x += stepsize) {

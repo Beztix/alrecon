@@ -240,4 +240,37 @@ namespace text_input {
 
 
 
+
+	std::vector<rec::pyramid> readPyramidsFromTextfile(std::string input) {
+		ifstream infile(input);
+
+		std::vector<rec::pyramid> output;
+		float x, y, z;
+		char c;
+		while (infile >> x >> c >> y >> c >> z) {
+			std::vector<viral_core::vector> pyramidCorners;
+
+			viral_core::vector currentCorner = viral_core::vector(x, y, z);
+			pyramidCorners.push_back(currentCorner);
+
+
+			for (int i = 0; i < 4; i++) {
+				infile >> x >> c >> y >> c >> z;
+				currentCorner = viral_core::vector(x, y, z);
+				pyramidCorners.push_back(currentCorner);
+			}
+
+			rec::pyramid currentPyramid(pyramidCorners.at(0), pyramidCorners.at(1), pyramidCorners.at(2), pyramidCorners.at(3), pyramidCorners.at(4));
+			output.push_back(currentPyramid);
+
+
+		}
+		infile.close();
+
+		return output;
+
+	}
+
+
+
 }

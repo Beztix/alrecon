@@ -142,8 +142,8 @@ namespace rec {
 
 
 		//constructor receiving the apex and the 4 corners of the pyramid base, automatically building the plane information
-		pyramid(viral_core::vector apex_corner, viral_core::vector bot_left_corner, viral_core::vector bot_right_corner, 
-			viral_core::vector top_right_corner, viral_core::vector top_left_corner) {
+		pyramid(viral_core::vector bot_left_corner, viral_core::vector bot_right_corner, 
+			viral_core::vector top_right_corner, viral_core::vector top_left_corner, viral_core::vector apex_corner) {
 			corners[bot_left] = bot_left_corner;
 			corners[bot_right] = bot_right_corner;
 			corners[top_right] = top_right_corner;

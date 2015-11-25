@@ -35,7 +35,7 @@ namespace text_output {
 
 
 
-	void writeObject3DToTextFiles(std::string name, rec::object3D o) {
+	void writeObject3DToFrustumTextFiles(std::string name, rec::object3D o) {
 
 		std::vector<tree<rec::seAndFrust>::pre_order_iterator> generatingFrustumsIT = o.generatingFrustumsIT;
 
@@ -57,6 +57,33 @@ namespace text_output {
 
 
 	}
+
+
+
+
+	void writeObject3DToPyramidTextFiles(std::string name, rec::object3D o) {
+
+		std::vector<tree<rec::seAndPyramid>::pre_order_iterator> generatingPyramidsIT = o.generatingPyramidsIT;
+
+		for (int k = 0; k < generatingPyramidsIT.size(); k++) {
+			tree<rec::seAndPyramid>::pre_order_iterator sePyrIT = generatingPyramidsIT.at(k);
+			rec::seAndPyramid sePyr = *sePyrIT;
+			rec::pyramid pyr = sePyr.pyr;
+
+			std::ofstream outfile(name + std::to_string(k) + ".txt", std::ios_base::app);
+
+			for (int i = 0; i < 5; i++) {
+				outfile << pyr.corners[i].x << ", " << pyr.corners[i].y << ", " << pyr.corners[i].z << "\n";
+			}
+
+			outfile.close();
+
+		}
+
+
+
+	}
+
 
 
 
