@@ -326,7 +326,17 @@ namespace rec {
 				viral_core::vector hitPoint;
 				float hitDistance;
 				if (currentTriangle.intersect_line(secondPyramid.corners[rec::pyramid::apex], currentEdgeDirection, hitPoint, hitDistance)) {
-					allIntersectionPoints.push_back(hitPoint);
+
+					//standard case: add intersection point to the list of all intersection points
+					if (hitDistance > 0) {
+						allIntersectionPoints.push_back(hitPoint);
+					}
+					//intersection point is outside of the frustum (on the "wrong" side of the apex) -> intersection of the frustums is inifinite 
+					else {
+						//calculate intersection point of the ray with the workspace bounding box
+						hitPoint = util::calculateIntersectionPointRayInAABBwithAABB(secondPyramid.corners[rec::pyramid::apex], currentEdgeDirection, workspace);
+						allIntersectionPoints.push_back(hitPoint);
+					}
 				}
 			}
 		}

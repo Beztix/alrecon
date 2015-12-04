@@ -214,13 +214,14 @@ namespace rec {
 
 		//empty constructor, generating bounding box of maximum size
 		aabb() {
-			extremalValues[this->minX] = std::numeric_limits<float>::min();
+			extremalValues[this->minX] = std::numeric_limits<float>::lowest();
 			extremalValues[this->maxX] = std::numeric_limits<float>::max();
-			extremalValues[this->minY] = std::numeric_limits<float>::min();
+			extremalValues[this->minY] = std::numeric_limits<float>::lowest();
 			extremalValues[this->maxY] = std::numeric_limits<float>::max();
-			extremalValues[this->minZ] = std::numeric_limits<float>::min();
+			extremalValues[this->minZ] = std::numeric_limits<float>::lowest();
 			extremalValues[this->maxZ] = std::numeric_limits<float>::max();
 
+			createCornersFromExtremalValues();
 
 		}
 
@@ -267,14 +268,14 @@ namespace rec {
 
 		void createCornersFromExtremalValues() {
 
-			corners[near_xneg_ypos] = viral_core::vector(extremalValues[this->minZ], extremalValues[this->minX], extremalValues[this->maxY]);
-			corners[near_xpos_ypos] = viral_core::vector(extremalValues[this->minZ], extremalValues[this->maxX], extremalValues[this->maxY]);
-			corners[near_xpos_yneg] = viral_core::vector(extremalValues[this->minZ], extremalValues[this->maxX], extremalValues[this->minY]);
-			corners[near_xneg_yneg] = viral_core::vector(extremalValues[this->minZ], extremalValues[this->minX], extremalValues[this->minY]);
-			corners[far_xneg_ypos] = viral_core::vector(extremalValues[this->maxZ], extremalValues[this->minX], extremalValues[this->maxY]);
-			corners[far_xpos_ypos] = viral_core::vector(extremalValues[this->maxZ], extremalValues[this->maxX], extremalValues[this->maxY]);
-			corners[far_xpos_yneg] = viral_core::vector(extremalValues[this->maxZ], extremalValues[this->maxX], extremalValues[this->minY]);
-			corners[far_xneg_yneg] = viral_core::vector(extremalValues[this->maxZ], extremalValues[this->minX], extremalValues[this->minY]);
+			corners[near_xneg_ypos] = viral_core::vector(extremalValues[this->minX], extremalValues[this->maxY], extremalValues[this->minZ]);
+			corners[near_xpos_ypos] = viral_core::vector(extremalValues[this->maxX], extremalValues[this->maxY], extremalValues[this->minZ]);
+			corners[near_xpos_yneg] = viral_core::vector(extremalValues[this->maxX], extremalValues[this->minY], extremalValues[this->minZ]);
+			corners[near_xneg_yneg] = viral_core::vector(extremalValues[this->minX], extremalValues[this->minY], extremalValues[this->minZ]);
+			corners[far_xneg_ypos] = viral_core::vector(extremalValues[this->minX], extremalValues[this->maxY], extremalValues[this->maxZ]);
+			corners[far_xpos_ypos] = viral_core::vector(extremalValues[this->maxX], extremalValues[this->maxY], extremalValues[this->maxZ]);
+			corners[far_xpos_yneg] = viral_core::vector(extremalValues[this->maxX], extremalValues[this->minY], extremalValues[this->maxZ]);
+			corners[far_xneg_yneg] = viral_core::vector(extremalValues[this->minX], extremalValues[this->minY], extremalValues[this->maxZ]);
 		}
 
 

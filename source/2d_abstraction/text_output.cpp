@@ -34,6 +34,20 @@ namespace text_output {
 
 
 
+	void appendPyramidToTextFile(std::string location, rec::pyramid pyr) {
+
+		std::ofstream outfile(location, std::ios_base::app);
+
+		for (int i = 0; i < 5; i++) {
+			outfile << pyr.corners[i].x << ", " << pyr.corners[i].y << ", " << pyr.corners[i].z << "\n";
+		}
+
+		outfile.close();
+
+	}
+
+
+
 
 	void writeObject3DToFrustumTextFiles(std::string name, rec::object3D o) {
 

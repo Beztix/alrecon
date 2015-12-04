@@ -371,7 +371,8 @@ int main() {
 
 	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_object3DTree(50, sensors, object3DTree, 1);
 
-	std::vector<std::vector<viral_core::vector>> separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_objectSeparated(50, sensors, object3DTree, 1);
+	std::vector<std::vector<viral_core::vector>> separatedOccupiedWorldPositions;
+	//separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_objectSeparated(50, sensors, object3DTree, 0);
 	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20, sensors);
 
 	rec::renderWorkspace(workspace, cameras, sensors, separatedOccupiedWorldPositions, 10, 0.1f);

@@ -463,8 +463,10 @@ namespace rec {
 			(new viral_core::mesh());
 
 		addBoxWithCorners(geometry_mesh_boundingBox,
-			workspace.corners[rec::aabb::near_xneg_yneg], workspace.corners[rec::aabb::near_xpos_yneg], workspace.corners[rec::aabb::near_xneg_ypos], workspace.corners[rec::aabb::near_xpos_ypos], 
-			workspace.corners[rec::aabb::far_xneg_yneg], workspace.corners[rec::aabb::far_xpos_yneg], workspace.corners[rec::aabb::far_xneg_ypos], workspace.corners[rec::aabb::far_xpos_ypos]);
+			workspace.corners[rec::aabb::near_xneg_yneg] * scale, workspace.corners[rec::aabb::near_xpos_yneg] * scale, 
+			workspace.corners[rec::aabb::near_xneg_ypos] * scale, workspace.corners[rec::aabb::near_xpos_ypos] * scale,
+			workspace.corners[rec::aabb::far_xneg_yneg] * scale, workspace.corners[rec::aabb::far_xpos_yneg] * scale, 
+			workspace.corners[rec::aabb::far_xneg_ypos] * scale, workspace.corners[rec::aabb::far_xpos_ypos] * scale);
 
 
 	
@@ -669,7 +671,7 @@ namespace rec {
 
 
 
-		for (int cam = 1; cam <= 3; cam++) {
+		for (int cam = 2; cam <= 3; cam++) {
 
 			/*
 			std::vector<rec::frustum> frustums = text_input::readFrustumsFromTextfile("frusts_cam" + std::to_string(cam-1) + ".txt");
@@ -736,6 +738,28 @@ namespace rec {
 			*/
 
 
+			std::vector<rec::pyramid> pyramids = text_input::readPyramidsFromTextfile("Pyramids_cam" + std::to_string(cam) + ".txt");
+
+			for (int f = 0; f < pyramids.size(); f++) {
+				rec::pyramid currentPyr = pyramids.at(f);
+
+				viral_core::vector bot_left = currentPyr.corners[rec::pyramid::bot_left] * scale;
+				viral_core::vector bot_right = currentPyr.corners[rec::pyramid::bot_right] * scale;
+				viral_core::vector top_right = currentPyr.corners[rec::pyramid::top_right] * scale;
+				viral_core::vector top_left = currentPyr.corners[rec::pyramid::top_left] * scale;
+				viral_core::vector apex = currentPyr.corners[rec::pyramid::apex] * scale;
+
+
+				addPyramidWithCorners(geometry_mesh_frustums, apex, bot_left, bot_right, top_right, top_left);
+				addPyramidWithCorners(geometry_mesh_boundingBox, apex, bot_left, bot_right, top_right, top_left);
+
+				addText("bot_left", dejaVuFont, scene_data, q, material_texture_id, bot_left + viral_core::vector(0, -5, 0), 0.1);
+				addText("bot_right", dejaVuFont, scene_data, q, material_texture_id, bot_right + viral_core::vector(0, -5, 0), 0.1);
+				addText("top_right", dejaVuFont, scene_data, q, material_texture_id, top_right + viral_core::vector(0, -5, 0), 0.1);
+				addText("top_left", dejaVuFont, scene_data, q, material_texture_id, top_left + viral_core::vector(0, -5, 0), 0.1);
+			}
+
+			/*
 
 			std::vector<rec::pyramid> pyramids = text_input::readPyramidsFromTextfile("testObject_pyr" + std::to_string(cam - 1) + ".txt");
 
@@ -757,6 +781,8 @@ namespace rec {
 				addText("top_right", dejaVuFont, scene_data, q, material_texture_id, top_right + viral_core::vector(0, -5, 0), 0.1);
 				addText("top_left", dejaVuFont, scene_data, q, material_texture_id, top_left + viral_core::vector(0, -5, 0), 0.1);
 			}
+
+			*/
 
 		}
 

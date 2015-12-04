@@ -15,6 +15,8 @@ namespace text_output {
 
 	void appendFrustumToTextFile(std::string location, rec::frustum frust);
 
+	void appendPyramidToTextFile(std::string location, rec::pyramid pyr);
+
 	void writePositionsGridToTextfile(std::string location, std::vector<std::vector<viral_core::vector>> positionsGrid);
 
 	void writePositionsGridToBinaryfile(std::string location, std::vector<std::vector<viral_core::vector>> positionsGrid);

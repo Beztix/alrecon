@@ -578,9 +578,9 @@ namespace util {
 		float minX = std::numeric_limits<float>::max();
 		float minY = std::numeric_limits<float>::max();
 		float minZ = std::numeric_limits<float>::max();
-		float maxX = std::numeric_limits<float>::min();
-		float maxY = std::numeric_limits<float>::min();
-		float maxZ = std::numeric_limits<float>::min();
+		float maxX = std::numeric_limits<float>::lowest();
+		float maxY = std::numeric_limits<float>::lowest();
+		float maxZ = std::numeric_limits<float>::lowest();
 
 		for (viral_core::vector currentPoint : points) {
 			if (currentPoint.x < minX) minX = currentPoint.x;
