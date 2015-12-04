@@ -3,6 +3,8 @@
 
 #include <string>
 #include <opencv2/core/core.hpp>
+#include <viral_core/geo_vector.hpp>
+#include "rec_primitive3D.h"
 
 namespace util {
 
@@ -65,6 +67,11 @@ namespace util {
 	float3 ClosestPointLineLine(float3 start0, float3 end0, float3 start1, float3 end1);
 
 	std::vector<int> createBoundingBoxLinesFromCorners(std::vector<int> cornerPixels);
+
+
+	rec::aabb createBoundingBoxOfPoints(std::vector<viral_core::vector> points);
+
+
 }
 
 

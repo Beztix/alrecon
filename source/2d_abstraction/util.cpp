@@ -574,6 +574,26 @@ namespace util {
 	}
 
 
+	rec::aabb createBoundingBoxOfPoints(std::vector<viral_core::vector> points) {
+		float minX = std::numeric_limits<float>::max();
+		float minY = std::numeric_limits<float>::max();
+		float minZ = std::numeric_limits<float>::max();
+		float maxX = std::numeric_limits<float>::min();
+		float maxY = std::numeric_limits<float>::min();
+		float maxZ = std::numeric_limits<float>::min();
+
+		for (viral_core::vector currentPoint : points) {
+			if (currentPoint.x < minX) minX = currentPoint.x;
+			if (currentPoint.x > maxX) maxX = currentPoint.x;
+			if (currentPoint.y < minY) minY = currentPoint.y;
+			if (currentPoint.y > maxY) maxY = currentPoint.y;
+			if (currentPoint.z < minZ) minZ = currentPoint.z;
+			if (currentPoint.z > maxZ) maxZ = currentPoint.z;
+		}
+
+
+		return rec::aabb(minX, maxX, minY, maxY, minZ, maxZ);
+	}
 
 
 

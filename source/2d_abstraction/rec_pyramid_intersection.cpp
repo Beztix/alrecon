@@ -11,7 +11,8 @@
 #include "tree.hh"
 #include "util.h"
 
-#include <viral_core/geo_3d.hpp>
+#include <viral_core/geo_vector.hpp>
+#include <viral_core/geo_primitive.hpp>
 
 using namespace std;
 
@@ -69,7 +70,7 @@ namespace rec {
 
 
 
-	//testing two pyramids for intersection
+	//testing two pyramids for intersection using a separating axis test
 	bool doPyramidsIntersect(rec::pyramid firstPyramid, rec::pyramid secondPyramid) {
 
 
@@ -288,6 +289,82 @@ namespace rec {
 		return true;
 	}
 
+
+
+
+
+
+	//calculates an axis aligned bounding box of the intersection of two pyramids by calculating all possible corners of the intersection object and building an aabb around it
+	rec::aabb computePyramidIntersectionBoundingBox(rec::pyramid firstPyramid, rec::pyramid secondPyramid) {
+
+		std::vector<viral_core::vector> allIntersectionPoints;
+
+		viral_core::triangle currentTriangle;
+
+
+		//=== process triangles of first pyramid with edges of second pyramid ===
+
+		//generate edges of second pyramid
+		viral_core::vector secondPyramidEdgeDirections[4];
+		secondPyramidEdgeDirections[0] = (secondPyramid.corners[rec::pyramid::bot_left] - secondPyramid.corners[rec::pyramid::apex]).normalized();
+		secondPyramidEdgeDirections[1] = (secondPyramid.corners[rec::pyramid::bot_right] - secondPyramid.corners[rec::pyramid::apex]).normalized();
+		secondPyramidEdgeDirections[2] = (secondPyramid.corners[rec::pyramid::top_right] - secondPyramid.corners[rec::pyramid::apex]).normalized();
+		secondPyramidEdgeDirections[3] = (secondPyramid.corners[rec::pyramid::top_left] - secondPyramid.corners[rec::pyramid::apex]).normalized();
+
+
+		//generate triangles of first pyramid
+		viral_core::triangle firstPyramidTriangles[4];
+		firstPyramidTriangles[0] = viral_core::triangle(firstPyramid.corners[rec::pyramid::apex], firstPyramid.corners[rec::pyramid::bot_left], firstPyramid.corners[rec::pyramid::bot_right]);
+		firstPyramidTriangles[1] = viral_core::triangle(firstPyramid.corners[rec::pyramid::apex], firstPyramid.corners[rec::pyramid::bot_right], firstPyramid.corners[rec::pyramid::top_right]);
+		firstPyramidTriangles[2] = viral_core::triangle(firstPyramid.corners[rec::pyramid::apex], firstPyramid.corners[rec::pyramid::top_right], firstPyramid.corners[rec::pyramid::top_left]);
+		firstPyramidTriangles[3] = viral_core::triangle(firstPyramid.corners[rec::pyramid::apex], firstPyramid.corners[rec::pyramid::top_left], firstPyramid.corners[rec::pyramid::bot_left]);
+
+
+		//intersect all edges of the second pyramid with the triangles of the first pyramid and save the intersection points
+		for (viral_core::triangle currentTriangle : firstPyramidTriangles) {
+			for (viral_core::vector currentEdgeDirection : secondPyramidEdgeDirections) {
+				viral_core::vector hitPoint;
+				float hitDistance;
+				if (currentTriangle.intersect_line(secondPyramid.corners[rec::pyramid::apex], currentEdgeDirection, hitPoint, hitDistance)) {
+					allIntersectionPoints.push_back(hitPoint);
+				}
+			}
+		}
+
+
+
+		//=== process triangles of second pyramid with edges of first pyramid ===
+
+		//generate edges of first pyramid
+		viral_core::vector firstPyramidEdgeDirections[4];
+		firstPyramidEdgeDirections[0] = (firstPyramid.corners[rec::pyramid::bot_left] - firstPyramid.corners[rec::pyramid::apex]).normalized();
+		firstPyramidEdgeDirections[1] = (firstPyramid.corners[rec::pyramid::bot_right] - firstPyramid.corners[rec::pyramid::apex]).normalized();
+		firstPyramidEdgeDirections[2] = (firstPyramid.corners[rec::pyramid::top_right] - firstPyramid.corners[rec::pyramid::apex]).normalized();
+		firstPyramidEdgeDirections[3] = (firstPyramid.corners[rec::pyramid::top_left] - firstPyramid.corners[rec::pyramid::apex]).normalized();
+
+
+		//generate triangles of second pyramid
+		viral_core::triangle secondPyramidTriangles[4];
+		secondPyramidTriangles[0] = viral_core::triangle(secondPyramid.corners[rec::pyramid::apex], secondPyramid.corners[rec::pyramid::bot_left], secondPyramid.corners[rec::pyramid::bot_right]);
+		secondPyramidTriangles[1] = viral_core::triangle(secondPyramid.corners[rec::pyramid::apex], secondPyramid.corners[rec::pyramid::bot_right], secondPyramid.corners[rec::pyramid::top_right]);
+		secondPyramidTriangles[2] = viral_core::triangle(secondPyramid.corners[rec::pyramid::apex], secondPyramid.corners[rec::pyramid::top_right], secondPyramid.corners[rec::pyramid::top_left]);
+		secondPyramidTriangles[3] = viral_core::triangle(secondPyramid.corners[rec::pyramid::apex], secondPyramid.corners[rec::pyramid::top_left], secondPyramid.corners[rec::pyramid::bot_left]);
+
+
+		//intersect all edges of the first pyramid with the triangles of the second pyramid and save the intersection points
+		for (viral_core::triangle currentTriangle : secondPyramidTriangles) {
+			for (viral_core::vector currentEdgeDirection : firstPyramidEdgeDirections) {
+				viral_core::vector hitPoint;
+				float hitDistance;
+				if (currentTriangle.intersect_line(firstPyramid.corners[rec::pyramid::apex], currentEdgeDirection, hitPoint, hitDistance)) {
+					allIntersectionPoints.push_back(hitPoint);
+				}
+			}
+		}
+
+
+		return util::createBoundingBoxOfPoints(allIntersectionPoints);
+	}
 
 
 

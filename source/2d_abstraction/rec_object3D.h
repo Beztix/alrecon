@@ -5,7 +5,7 @@
 
 #include "rec_containers.h"
 #include "tree.hh"
-#include <viral_core/geo_3d.hpp>
+#include <viral_core/geo_vector.hpp>
 #include <vector>
 
 

@@ -4,7 +4,7 @@
 
 
 
-#include <viral_core/geo_3d.hpp>
+#include <viral_core/geo_vector.hpp>
 
 
 
@@ -193,8 +193,79 @@ namespace rec {
 
 
 
+	struct aabb {
+
+		viral_core::vector corners[8];		//the 8 corners of the aabb
+		float extremalValues[6];
 
 
+		enum vertex_type
+		{
+			near_xneg_ypos, near_xpos_ypos, near_xpos_yneg, near_xneg_yneg,
+			far_xneg_ypos, far_xpos_ypos, far_xpos_yneg, far_xneg_yneg
+		};
+
+		enum extremal_type
+		{
+			minX, maxX, minY, maxY, minZ, maxZ
+		};
+
+
+		//empty constructor
+		aabb() {
+
+		}
+
+
+		//constructor receiving the 8 corner points, automatically building the extremal values information
+		aabb (const viral_core::vector &n_xn_yp, const viral_core::vector &n_xp_yp,
+			const viral_core::vector &n_xp_yn, const viral_core::vector &n_xn_yn,
+			const viral_core::vector &f_xn_yp, const viral_core::vector &f_xp_yp,
+			const viral_core::vector &f_xp_yn, const viral_core::vector &f_xn_yn)
+		{
+			corners[near_xneg_ypos] = n_xn_yp;
+			corners[near_xpos_ypos] = n_xp_yp;
+			corners[near_xpos_yneg] = n_xp_yn;
+			corners[near_xneg_yneg] = n_xn_yn;
+			corners[far_xneg_ypos] = f_xn_yp;
+			corners[far_xpos_ypos] = f_xp_yp;
+			corners[far_xpos_yneg] = f_xp_yn;
+			corners[far_xneg_yneg] = f_xn_yn;
+
+			extremalValues[this->minX] = n_xn_yp.x;
+			extremalValues[this->maxX] = n_xp_yp.x;
+			extremalValues[this->minY] = n_xn_yn.y;
+			extremalValues[this->maxY] = n_xn_yp.y;
+			extremalValues[this->minZ] = n_xn_yn.z;
+			extremalValues[this->maxZ] = f_xn_yn.z;
+
+		}
+
+
+		//constructor receiving the extremal value information, automatically building the 8 corner points
+		aabb(const float minX, const float maxX, const float minY, const float maxY, const float minZ, const float maxZ) {
+			extremalValues[this->minX] = minX;
+			extremalValues[this->maxX] = maxX;
+			extremalValues[this->minY] = minY;
+			extremalValues[this->maxY] = maxY;
+			extremalValues[this->minZ] = minZ;
+			extremalValues[this->maxZ] = maxZ;
+
+			corners[near_xneg_ypos] = viral_core::vector(minZ, minX, maxY);
+			corners[near_xpos_ypos] = viral_core::vector(minZ, maxX, maxY);
+			corners[near_xpos_yneg] = viral_core::vector(minZ, maxX, minY);
+			corners[near_xneg_yneg] = viral_core::vector(minZ, minX, minY);
+			corners[far_xneg_ypos] = viral_core::vector(maxZ, minX, maxY);
+			corners[far_xpos_ypos] = viral_core::vector(maxZ, maxX, maxY);
+			corners[far_xpos_yneg] = viral_core::vector(maxZ, maxX, minY);
+			corners[far_xneg_yneg] = viral_core::vector(maxZ, minX, minY);
+
+
+		}
+
+
+
+	};
 
 
 

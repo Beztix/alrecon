@@ -2,7 +2,8 @@
 #define REC_SENSOR_H
 
 
-#include <viral_core/geo_3d.hpp>
+#include <viral_core/geo_vector.hpp>
+#include <viral_core/geo_transform.hpp>
 #include <viral_core/geo_2d.hpp>
 
 

@@ -3,7 +3,7 @@
 
 
 #include <vector>
-#include <viral_core/geo_3d.hpp>
+#include <viral_core/geo_vector.hpp>
 #include "rec_sensor.h"
 
 namespace rec {

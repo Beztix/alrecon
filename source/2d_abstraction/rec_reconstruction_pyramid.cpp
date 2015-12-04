@@ -326,7 +326,7 @@ namespace rec {
 			std::vector<viral_core::vector> currentOccupiedWorldPositions;
 
 			if (o == 0) {
-				text_output::writeObject3DToPyramidTextFiles("testObject_pyr", currentObject3D);
+				//text_output::writeObject3DToPyramidTextFiles("testObject_pyr", currentObject3D);
 
 				// run through all world space positions
 				for (int x = -3000; x < 3200; x += stepsize) {

@@ -676,7 +676,7 @@ namespace rec {
 
 
 
-		for (int cam = 1; cam <= 1; cam++) {
+		for (int cam = 1; cam <= 3; cam++) {
 
 			/*
 			std::vector<rec::frustum> frustums = text_input::readFrustumsFromTextfile("frusts_cam" + std::to_string(cam-1) + ".txt");
