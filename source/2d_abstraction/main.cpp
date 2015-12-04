@@ -357,12 +357,12 @@ int main() {
 
 
 
+	rec::aabb workspace = rec::aabb(-2000, 2200, -2200, 2200, -880, 1600);
 
 
 
 
-
-	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, 7, 640, 480, 300);
+	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, 7, 640, 480, 300, workspace);
 
 	//tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
 
@@ -374,7 +374,7 @@ int main() {
 	std::vector<std::vector<viral_core::vector>> separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_objectSeparated(50, sensors, object3DTree, 1);
 	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20, sensors);
 
-	rec::renderWorkspace(cameras, sensors, separatedOccupiedWorldPositions, 10, 0.1f);
+	rec::renderWorkspace(workspace, cameras, sensors, separatedOccupiedWorldPositions, 10, 0.1f);
 
 
 

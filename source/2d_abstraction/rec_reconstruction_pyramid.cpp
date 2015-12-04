@@ -24,7 +24,7 @@
 namespace rec {
 
 	tree<rec::object3D> createObject3DTree(std::vector<viral_core::vector> cameraPositions, std::vector<std::vector<std::vector<viral_core::vector>>> &directionsGrids,
-		std::vector<tree<rec::seAndPyramid>> &seAndPyramidTrees, int nrOfCams, int width, int height, int offset) {
+		std::vector<tree<rec::seAndPyramid>> &seAndPyramidTrees, int nrOfCams, int width, int height, int offset, rec::aabb workspace) {
 
 		double CAM_NEAR_PLANE = 500;
 		double CAM_FAR_PLANE = 5000;
@@ -97,7 +97,7 @@ namespace rec {
 		
 
 		// ###### intersect initial seAndPyramidITLists ######
-		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectionIT = rec::intersectAllPyramids(seAndPyramidITLists);
+		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectionIT = rec::intersectAllPyramids(seAndPyramidITLists, workspace);
 		seAndPyramidITLists.clear();
 
 
@@ -192,7 +192,7 @@ namespace rec {
 
 
 				// ###### intersect current seAndPyramidITLists ######
-				intersectionIT = rec::intersectAllPyramids(seAndPyramidITLists);
+				intersectionIT = rec::intersectAllPyramids(seAndPyramidITLists, workspace);
 				std::cout << "intersection finished, Nr of new 3D children: " + std::to_string(intersectionIT.size()) << std::endl;
 				seAndPyramidITLists.clear();
 

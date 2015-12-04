@@ -11,24 +11,13 @@
 
 namespace rec {
 
-	bool doPyramidsIntersect(rec::pyramid firstPyramid, rec::pyramid secondPyramid);
-
 	
 
 
 
+	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectAllPyramids
+		(std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> PyramidLists, rec::aabb workspace);
 
-
-	bool doPyramidsIntersect(tree<rec::seAndPyramid>::pre_order_iterator firstPyramid, tree<rec::seAndPyramid>::pre_order_iterator secondPyramid);
-
-	bool doMultiplePyramidsIntersect(std::vector<tree<rec::seAndPyramid>::pre_order_iterator> fList, tree<rec::seAndPyramid>::pre_order_iterator b);
-
-
-	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectAllPyramids(std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> PyramidLists);
-
-
-	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> testMultiplePyramidsWithMultiplePyramidsForIntersection
-		(std::vector<tree<rec::seAndPyramid>::pre_order_iterator> fList, std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> PyramidLists, int currentList);
 
 }
 

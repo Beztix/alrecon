@@ -392,98 +392,35 @@ namespace rec {
 
 
 
-	// TODO: LOOKUP
-	bool doPyramidsIntersect(tree<rec::seAndPyramid>::pre_order_iterator firstPyramid, tree<rec::seAndPyramid>::pre_order_iterator secondPyramid) {
-		rec::pyramid firstPyr = (*firstPyramid).pyr;
-		rec::pyramid secondPyr = (*secondPyramid).pyr;
-		return doPyramidsIntersect(firstPyr, secondPyr);
-	}
-
-
-
-
-
-
 	/**
 	*	Tests if all pyramids in pyramidOneList intersect pyramid Two.
 	*	If each pyramidOne intersects pyramidTwo it returns true, otherwise false.
 	*/
-	bool doMultiplePyramidsIntersect(std::vector<tree<rec::seAndPyramid>::pre_order_iterator> pyramidOneList, tree<rec::seAndPyramid>::pre_order_iterator pyramidTwo) {
+	bool doMultiplePyramidsIntersectInsideWorkspace(std::vector<tree<rec::seAndPyramid>::pre_order_iterator> pyramidOneList, tree<rec::seAndPyramid>::pre_order_iterator pyramidTwo,
+		rec::aabb workspace, rec::aabb &totalIntersectionBoundingBox) {
+
+		rec::pyramid pyrTwo = (*pyramidTwo).pyr;
 
 		for (int i = 0; i < pyramidOneList.size(); i++) {
 			tree<rec::seAndPyramid>::pre_order_iterator currentPyramidOne = pyramidOneList.at(i);
-			if (!doPyramidsIntersect(currentPyramidOne, pyramidTwo)) {
+			rec::pyramid currentPyrOne = (*currentPyramidOne).pyr;
+			if (!doPyramidsIntersect(currentPyrOne, pyrTwo)) {
 				return false;
 			}
+			rec::aabb currentIntersectionBoundingBox;
+			if (!computePyramidIntersectionBoundingBoxInWorkspace(currentPyrOne, pyrTwo, workspace, currentIntersectionBoundingBox)) {
+				//intersection bounding box is completely outside of the workspace
+				return false;
+			}
+			if (!util::doAABBsIntersect(totalIntersectionBoundingBox, currentIntersectionBoundingBox)) {
+				//no intersection between the intersection bounding boxes
+				return false;
+			}
+			//update totalIntersectionBoundingBox by intersecting it with the currentIntersectionBoundingBox
+			totalIntersectionBoundingBox = util::calculateAABBIntersection(totalIntersectionBoundingBox, currentIntersectionBoundingBox);
 		}
 		return true;
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	/**
-	*	Tests pyramids of n different cameras for intersection, n is the size of cameraPyramidLists.
-	*	cameraPyramidLists contains n cameraPyramidLists, each containing an amout of pyramids which is larger or equal to 1.
-	*
-	*	The recursive function testMultiplePyramidsWithMultiplePyramidsForIntersection is used to test for n pyramids of the n different cameraPyramidLists if they have a common intersection.
-	*
-	*
-	*	-cameraPyramidLists: A List of n cameraPyramidLists, with each cameraPyramidList containing the pyramids of the corresponding camera
-	*	-returns:			 A List of x resulting combinations, each combination contains of n pyramids with each pyramid from one of the n cameras, while all have a common intersection.
-	*/
-
-	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectAllPyramids(std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> cameraPyramidLists) {
-
-		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinations;
-
-		//begin recursive computation with the pyramidList of camera 0
-		std::vector<tree<rec::seAndPyramid>::pre_order_iterator> camera0PyramidList = cameraPyramidLists.at(0);
-
-		for (int i = 0; i < camera0PyramidList.size(); i++) {
-			tree<rec::seAndPyramid>::pre_order_iterator currentPyramid = camera0PyramidList.at(i);
-
-			//fList contains the pyramids of the cameras already gathered and tested for intersection 
-			std::vector<tree<rec::seAndPyramid>::pre_order_iterator> fList;
-			fList.push_back(currentPyramid);
-
-			//start recursive computation
-			std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinationsPart = testMultiplePyramidsWithMultiplePyramidsForIntersection(fList, cameraPyramidLists, 1);
-
-			//append received part of the result to the whole result
-			resultCombinations.insert(resultCombinations.end(), resultCombinationsPart.begin(), resultCombinationsPart.end());
-		}
-
-		return resultCombinations;
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -505,7 +442,8 @@ namespace rec {
 	*/
 
 	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> testMultiplePyramidsWithMultiplePyramidsForIntersection
-		(std::vector<tree<rec::seAndPyramid>::pre_order_iterator> fList, std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> cameraPyramidLists, int currentList) {
+		(std::vector<tree<rec::seAndPyramid>::pre_order_iterator> fList, std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> cameraPyramidLists, 
+			int currentList, rec::aabb workspace, rec::aabb &totalIntersectionBoundingBox) {
 
 		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinations;
 
@@ -516,15 +454,16 @@ namespace rec {
 		for (int i = 0; i < currentCameraPyramidList.size(); i++) {
 			tree<rec::seAndPyramid>::pre_order_iterator currentPyramid = currentCameraPyramidList.at(i);
 
-			//test if all already in fList gathered pyramids intersect the currentPyramidm
-			if (doMultiplePyramidsIntersect(fList, currentPyramid)) {
+			//test if all already in fList gathered pyramids intersect the currentPyramid
+			if (doMultiplePyramidsIntersectInsideWorkspace(fList, currentPyramid, workspace, totalIntersectionBoundingBox)) {
 				std::vector<tree<rec::seAndPyramid>::pre_order_iterator> newfList = fList;
 				newfList.push_back(currentPyramid);
 
 				//this was not the last computation to be performed, there are cameraPyramidLists not evaluated yet
 				if (currentList + 1 < cameraPyramidLists.size()) {
 					//perform another recursive computation on the next cameraPyramidList
-					std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinationsPart = testMultiplePyramidsWithMultiplePyramidsForIntersection(newfList, cameraPyramidLists, currentList + 1);
+					std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinationsPart = 
+						testMultiplePyramidsWithMultiplePyramidsForIntersection(newfList, cameraPyramidLists, currentList + 1, workspace, totalIntersectionBoundingBox);
 					//append received part of the result to the whole result
 					resultCombinations.insert(resultCombinations.end(), resultCombinationsPart.begin(), resultCombinationsPart.end());
 				}
@@ -543,6 +482,59 @@ namespace rec {
 		return resultCombinations;
 
 	}
+
+
+
+
+
+
+
+
+
+	/**
+	*	Tests pyramids of n different cameras for intersection, n is the size of cameraPyramidLists.
+	*	cameraPyramidLists contains n cameraPyramidLists, each containing an amout of pyramids which is larger or equal to 1.
+	*
+	*	The recursive function testMultiplePyramidsWithMultiplePyramidsForIntersection is used to test for n pyramids of the n different cameraPyramidLists if they have a common intersection.
+	*
+	*
+	*	-cameraPyramidLists: A List of n cameraPyramidLists, with each cameraPyramidList containing the pyramids of the corresponding camera
+	*	-returns:			 A List of x resulting combinations, each combination contains of n pyramids with each pyramid from one of the n cameras, while all have a common intersection.
+	*/
+
+	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectAllPyramids
+		(std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> cameraPyramidLists, rec::aabb workspace) {
+
+		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinations;
+
+		//begin recursive computation with the pyramidList of camera 0
+		std::vector<tree<rec::seAndPyramid>::pre_order_iterator> camera0PyramidList = cameraPyramidLists.at(0);
+
+		for (int i = 0; i < camera0PyramidList.size(); i++) {
+			tree<rec::seAndPyramid>::pre_order_iterator currentPyramid = camera0PyramidList.at(i);
+
+			//fList contains the pyramids of the cameras already gathered and tested for intersection 
+			std::vector<tree<rec::seAndPyramid>::pre_order_iterator> fList;
+			fList.push_back(currentPyramid);
+			rec::aabb totalIntersectionBoundingBox = rec::aabb(); //initialize with maximum size bounding box
+
+																  //start recursive computation
+			std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinationsPart =
+				testMultiplePyramidsWithMultiplePyramidsForIntersection(fList, cameraPyramidLists, 1, workspace, totalIntersectionBoundingBox);
+
+			//append received part of the result to the whole result
+			resultCombinations.insert(resultCombinations.end(), resultCombinationsPart.begin(), resultCombinationsPart.end());
+		}
+
+		return resultCombinations;
+	}
+
+
+
+
+
+
+
 
 
 

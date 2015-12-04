@@ -351,7 +351,7 @@ namespace rec {
 
 
 
-	void renderWorkspace(std::vector<rec::file_camera> cameras, std::vector<rec::sensor> sensors, 
+	void renderWorkspace(rec::aabb workspace, std::vector<rec::file_camera> cameras, std::vector<rec::sensor> sensors, 
 		std::vector<std::vector<viral_core::vector>> occupiedPositions, float cubesize, float scale) {
 
 		
@@ -462,19 +462,12 @@ namespace rec {
 		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_boundingBox
 			(new viral_core::mesh());
 
-		viral_core::vector near_top_left(-2000 * scale, -2200 * scale, -880 * scale);
-		viral_core::vector near_top_right(2200 * scale, -2200 * scale, -880 * scale);
-		viral_core::vector near_bot_left(-2000 * scale, 2200 * scale, -880 * scale);
-		viral_core::vector near_bot_right(2200 * scale, 2200 * scale, -880 * scale);
-		viral_core::vector far_top_left(-2000 * scale, -2200 * scale, 1600 * scale);
-		viral_core::vector far_top_right(2200 * scale, -2200 * scale, 1600 * scale);
-		viral_core::vector far_bot_left(-2000 * scale, 2200 * scale, 1600 * scale);
-		viral_core::vector far_bot_right(2200 * scale, 2200 * scale, 1600 * scale);
-		addBoxWithCorners(geometry_mesh_boundingBox, near_top_left, near_top_right, near_bot_left, near_bot_right,
-			far_top_left, far_top_right, far_bot_left, far_bot_right);
+		addBoxWithCorners(geometry_mesh_boundingBox,
+			workspace.corners[rec::aabb::near_xneg_yneg], workspace.corners[rec::aabb::near_xpos_yneg], workspace.corners[rec::aabb::near_xneg_ypos], workspace.corners[rec::aabb::near_xpos_ypos], 
+			workspace.corners[rec::aabb::far_xneg_yneg], workspace.corners[rec::aabb::far_xpos_yneg], workspace.corners[rec::aabb::far_xneg_ypos], workspace.corners[rec::aabb::far_xpos_ypos]);
 
-		
 
+	
 
 		//create the coordinate axes of the world space
 		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_coordinateAxes
