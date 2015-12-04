@@ -71,7 +71,11 @@ namespace util {
 
 	rec::aabb createBoundingBoxOfPoints(std::vector<viral_core::vector> points);
 
+	viral_core::vector calculateIntersectionPointRayInAABBwithAABB(viral_core::vector startPoint, viral_core::vector direction, rec::aabb boundingBox);
 
+	bool doAABBsIntersect(rec::aabb bb1, rec::aabb bb2);
+
+	rec::aabb calculateAABBIntersection(rec::aabb bb1, rec::aabb bb2);
 }
 
 

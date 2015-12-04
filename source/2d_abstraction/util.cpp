@@ -599,6 +599,121 @@ namespace util {
 
 
 
+
+
+
+	viral_core::vector calculateIntersectionPointRayInAABBwithAABB(viral_core::vector startPoint, viral_core::vector direction, rec::aabb boundingBox) {
+
+
+		//intersection with maxX plane
+		if (direction.x > 0) {
+			float length = (boundingBox.extremalValues[rec::aabb::maxX] - startPoint.x) / direction.x;
+			viral_core::vector possibleIntersectionPoint = startPoint + (direction*length);
+			if (possibleIntersectionPoint.y <= boundingBox.extremalValues[rec::aabb::maxY] &&
+				possibleIntersectionPoint.y >= boundingBox.extremalValues[rec::aabb::minY] &&
+				possibleIntersectionPoint.z <= boundingBox.extremalValues[rec::aabb::maxZ] &&
+				possibleIntersectionPoint.z >= boundingBox.extremalValues[rec::aabb::minZ]) {
+				return possibleIntersectionPoint;
+			}
+		}
+
+		//intersection with minX plane
+		else if(direction.x < 0) {
+			float length = (boundingBox.extremalValues[rec::aabb::minX] - startPoint.x) / direction.x;
+			viral_core::vector possibleIntersectionPoint = startPoint + (direction*length);
+			if (possibleIntersectionPoint.y <= boundingBox.extremalValues[rec::aabb::maxY] &&
+				possibleIntersectionPoint.y >= boundingBox.extremalValues[rec::aabb::minY] &&
+				possibleIntersectionPoint.z <= boundingBox.extremalValues[rec::aabb::maxZ] &&
+				possibleIntersectionPoint.z >= boundingBox.extremalValues[rec::aabb::minZ]) {
+				return possibleIntersectionPoint;
+			}
+		}
+
+		//intersection with maxY plane
+		if (direction.y > 0) {
+			float length = (boundingBox.extremalValues[rec::aabb::maxY] - startPoint.y) / direction.y;
+			viral_core::vector possibleIntersectionPoint = startPoint + (direction*length);
+			if (possibleIntersectionPoint.x <= boundingBox.extremalValues[rec::aabb::maxX] &&
+				possibleIntersectionPoint.x >= boundingBox.extremalValues[rec::aabb::minX] &&
+				possibleIntersectionPoint.z <= boundingBox.extremalValues[rec::aabb::maxZ] &&
+				possibleIntersectionPoint.z >= boundingBox.extremalValues[rec::aabb::minZ]) {
+				return possibleIntersectionPoint;
+			}
+		}
+
+		//intersection with minY plane
+		else if(direction.y < 0) {
+			float length = (boundingBox.extremalValues[rec::aabb::minY] - startPoint.y) / direction.y;
+			viral_core::vector possibleIntersectionPoint = startPoint + (direction*length);
+			if (possibleIntersectionPoint.x <= boundingBox.extremalValues[rec::aabb::maxX] &&
+				possibleIntersectionPoint.x >= boundingBox.extremalValues[rec::aabb::minX] &&
+				possibleIntersectionPoint.z <= boundingBox.extremalValues[rec::aabb::maxZ] &&
+				possibleIntersectionPoint.z >= boundingBox.extremalValues[rec::aabb::minZ]) {
+				return possibleIntersectionPoint;
+			}
+		}
+
+
+		//intersection with maxZ plane
+		if (direction.z > 0) {
+			float length = (boundingBox.extremalValues[rec::aabb::maxZ] - startPoint.z) / direction.z;
+			viral_core::vector possibleIntersectionPoint = startPoint + (direction*length);
+			if (possibleIntersectionPoint.y <= boundingBox.extremalValues[rec::aabb::maxY] &&
+				possibleIntersectionPoint.y >= boundingBox.extremalValues[rec::aabb::minY] &&
+				possibleIntersectionPoint.x <= boundingBox.extremalValues[rec::aabb::maxX] &&
+				possibleIntersectionPoint.x >= boundingBox.extremalValues[rec::aabb::minX]) {
+				return possibleIntersectionPoint;
+			}
+		}
+
+		//intersection with minZ plane
+		else if(direction.z < 0) {
+			float length = (boundingBox.extremalValues[rec::aabb::minZ] - startPoint.z) / direction.z;
+			viral_core::vector possibleIntersectionPoint = startPoint + (direction*length);
+			if (possibleIntersectionPoint.y <= boundingBox.extremalValues[rec::aabb::maxY] &&
+				possibleIntersectionPoint.y >= boundingBox.extremalValues[rec::aabb::minY] &&
+				possibleIntersectionPoint.x <= boundingBox.extremalValues[rec::aabb::maxX] &&
+				possibleIntersectionPoint.x >= boundingBox.extremalValues[rec::aabb::minX]) {
+				return possibleIntersectionPoint;
+			}
+		}
+
+
+		std::cerr << "ERROR! no real intersection point found by calculateIntersectionPointRayInAABBwithAABB()" << std::endl;
+		return viral_core::vector();
+
+
+	}
+
+
+
+
+
+
+
+
+
+	bool doAABBsIntersect(rec::aabb bb1, rec::aabb bb2) {
+		if (bb1.extremalValues[rec::aabb::maxX] < bb2.extremalValues[rec::aabb::minX] || bb1.extremalValues[rec::aabb::minX] > bb2.extremalValues[rec::aabb::maxX] ||
+			bb1.extremalValues[rec::aabb::maxY] < bb2.extremalValues[rec::aabb::minY] || bb1.extremalValues[rec::aabb::minY] > bb2.extremalValues[rec::aabb::maxY] ||
+			bb1.extremalValues[rec::aabb::maxZ] < bb2.extremalValues[rec::aabb::minZ] || bb1.extremalValues[rec::aabb::minZ] > bb2.extremalValues[rec::aabb::maxZ]) {
+			return false;
+		}
+		return true;
+	}
+
+
+	rec::aabb calculateAABBIntersection(rec::aabb bb1, rec::aabb bb2) {
+		float newMinX = std::max(bb1.extremalValues[rec::aabb::minX], bb2.extremalValues[rec::aabb::minX]);
+		float newMaxX = std::min(bb1.extremalValues[rec::aabb::maxX], bb2.extremalValues[rec::aabb::maxX]);
+		float newMinY = std::max(bb1.extremalValues[rec::aabb::minY], bb2.extremalValues[rec::aabb::minY]);
+		float newMaxY = std::min(bb1.extremalValues[rec::aabb::maxY], bb2.extremalValues[rec::aabb::maxY]);
+		float newMinZ = std::max(bb1.extremalValues[rec::aabb::minZ], bb2.extremalValues[rec::aabb::minZ]);
+		float newMaxZ = std::min(bb1.extremalValues[rec::aabb::maxZ], bb2.extremalValues[rec::aabb::maxZ]);
+
+		return rec::aabb(newMinX, newMaxX, newMinY, newMaxY, newMinZ, newMaxZ);
+	}
+
 }
 
 

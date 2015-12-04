@@ -295,7 +295,7 @@ namespace rec {
 
 
 	//calculates an axis aligned bounding box of the intersection of two pyramids by calculating all possible corners of the intersection object and building an aabb around it
-	rec::aabb computePyramidIntersectionBoundingBox(rec::pyramid firstPyramid, rec::pyramid secondPyramid) {
+	bool computePyramidIntersectionBoundingBoxInWorkspace(rec::pyramid firstPyramid, rec::pyramid secondPyramid, rec::aabb workspace, rec::aabb &result) {
 
 		std::vector<viral_core::vector> allIntersectionPoints;
 
@@ -356,14 +356,32 @@ namespace rec {
 			for (viral_core::vector currentEdgeDirection : firstPyramidEdgeDirections) {
 				viral_core::vector hitPoint;
 				float hitDistance;
+				//there is an intersection point
 				if (currentTriangle.intersect_line(firstPyramid.corners[rec::pyramid::apex], currentEdgeDirection, hitPoint, hitDistance)) {
-					allIntersectionPoints.push_back(hitPoint);
+				
+					//standard case: add intersection point to the list of all intersection points
+					if (hitDistance > 0) {
+						allIntersectionPoints.push_back(hitPoint);
+					}
+					//intersection point is outside of the frustum (on the "wrong" side of the apex) -> intersection of the frustums is inifinite 
+					else {
+						//calculate intersection point of the ray with the workspace bounding box
+						hitPoint = util::calculateIntersectionPointRayInAABBwithAABB(firstPyramid.corners[rec::pyramid::apex], currentEdgeDirection, workspace);
+						allIntersectionPoints.push_back(hitPoint);
+					}
 				}
 			}
 		}
 
 
-		return util::createBoundingBoxOfPoints(allIntersectionPoints);
+		rec:aabb intersectionBoundingBox = util::createBoundingBoxOfPoints(allIntersectionPoints);
+
+		//intersect bounding box with the workspace bounding box
+		if (util::doAABBsIntersect(intersectionBoundingBox, workspace)) {
+			result = util::calculateAABBIntersection(intersectionBoundingBox, workspace);
+			return true;
+		}
+		return false;
 	}
 
 
