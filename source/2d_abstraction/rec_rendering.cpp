@@ -539,6 +539,7 @@ namespace rec {
 			}
 			*/
 
+			/*
 
 			
 			// ========    (extended) viewing plane d = 700    ========
@@ -564,6 +565,7 @@ namespace rec {
 						positionGrid700.at(y + rasterSize700).at(x + rasterSize700)*scale);
 				}
 			}
+			*/
 
 			
 
@@ -602,6 +604,7 @@ namespace rec {
 			*/
 
 
+			/*
 			// ========    frustums    ========
 
 			std::string locationStringCorners = "se_rosin_tree_occMask_" + std::to_string(cam) + "_bb_1.txt";
@@ -625,7 +628,7 @@ namespace rec {
 			}
 
 		
-
+			*/
 
 			
 			/*
@@ -668,10 +671,34 @@ namespace rec {
 		}	//end of for each camera
 
 
+		/*
+		std::vector<viral_core::vector> vectorListAll = text_input::readVectorListFromTextFile("allIntersectionPoints.txt");
+
+		for (viral_core::vector v : vectorListAll) {
+			addCubeAroundVector(geometry_mesh_cameraDrawings2D, v*scale, 3);
+		}
+		*/
 
 
+		
+		std::vector<viral_core::vector> vectorListTrianglesFirst = text_input::readVectorListFromTextFile("intersectionPointsTrianglesFirstEdgesSecond.txt");
 
-		for (int cam = 2; cam <= 3; cam++) {
+		for (viral_core::vector v : vectorListTrianglesFirst) {
+			addCubeAroundVector(geometry_mesh_cameraDrawings2D, v*scale, 3);
+		}
+		
+
+
+		/*
+		std::vector<viral_core::vector> vectorListTrianglesSecond = text_input::readVectorListFromTextFile("intersectionPointsTrianglesSecondEdgesFirst.txt");
+
+		for (viral_core::vector v : vectorListTrianglesSecond) {
+			addCubeAroundVector(geometry_mesh_cameraDrawings2D, v*scale, 3);
+		}
+		*/
+
+
+		for (int cam = 1; cam <= 2; cam++) {
 
 			/*
 			std::vector<rec::frustum> frustums = text_input::readFrustumsFromTextfile("frusts_cam" + std::to_string(cam-1) + ".txt");

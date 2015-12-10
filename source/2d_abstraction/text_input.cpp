@@ -21,6 +21,23 @@ using namespace std;
 namespace text_input {
 
 
+
+	std::vector<viral_core::vector> readVectorListFromTextFile(std::string input) {
+		std::vector<viral_core::vector> result;
+
+		ifstream infile(input);
+		double x, y, z;
+
+		while (infile >> x >> y >> z) {
+			result.push_back(viral_core::vector(x, y, z));
+		}
+
+		infile.close();
+		return result;
+	}
+
+
+
 	/// reads a list of pixels from a text file in ronin format, width and height are estimated by pixel position
 	/**
 	*
@@ -45,6 +62,7 @@ namespace text_input {
 			result.push_back(x);
 			result.push_back(y);
 		}
+		infile.close();
 		extractedWidth += 10;
 		extractedHeight += 10;
 		width = extractedWidth;

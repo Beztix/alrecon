@@ -18,6 +18,18 @@
 
 namespace text_output {
 
+	void writeVectorListToTextFile(std::string name, std::vector<viral_core::vector> vectors) {
+
+		std::ofstream outfile(name, std::ios_base::app);
+
+		for (viral_core::vector v : vectors) {
+			outfile << v.x << " " << v.y << " " << v.z << "\n";
+		}
+		outfile.close();
+
+	}
+
+
 
 
 	void appendFrustumToTextFile(std::string location, rec::frustum frust) {

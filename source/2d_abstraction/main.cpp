@@ -362,7 +362,7 @@ int main() {
 
 
 
-	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, 7, 640, 480, 300, workspace);
+//	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, 7, 640, 480, 300, workspace);
 
 	//tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
 

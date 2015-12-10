@@ -10,6 +10,7 @@
 #include "rec_pyramid_intersection.h"
 #include "tree.hh"
 #include "util.h"
+#include "text_output.h"
 
 #include <viral_core/geo_vector.hpp>
 #include <viral_core/geo_primitive.hpp>
@@ -298,6 +299,8 @@ namespace rec {
 	bool computePyramidIntersectionBoundingBoxInWorkspace(rec::pyramid firstPyramid, rec::pyramid secondPyramid, rec::aabb workspace, rec::aabb &result) {
 
 		std::vector<viral_core::vector> allIntersectionPoints;
+		std::vector<viral_core::vector> intersectionPointsTrianglesFirstEdgesSecond;
+		std::vector<viral_core::vector> intersectionPointsTrianglesSecondEdgesFirst;
 
 		viral_core::triangle currentTriangle;
 
@@ -330,12 +333,14 @@ namespace rec {
 					//standard case: add intersection point to the list of all intersection points
 					if (hitDistance > 0) {
 						allIntersectionPoints.push_back(hitPoint);
+						intersectionPointsTrianglesFirstEdgesSecond.push_back(hitPoint);
 					}
 					//intersection point is outside of the frustum (on the "wrong" side of the apex) -> intersection of the frustums is inifinite 
 					else {
 						//calculate intersection point of the ray with the workspace bounding box
 						hitPoint = util::calculateIntersectionPointRayInAABBwithAABB(secondPyramid.corners[rec::pyramid::apex], currentEdgeDirection, workspace);
 						allIntersectionPoints.push_back(hitPoint);
+						intersectionPointsTrianglesFirstEdgesSecond.push_back(hitPoint);
 					}
 				}
 			}
@@ -372,16 +377,23 @@ namespace rec {
 					//standard case: add intersection point to the list of all intersection points
 					if (hitDistance > 0) {
 						allIntersectionPoints.push_back(hitPoint);
+						intersectionPointsTrianglesSecondEdgesFirst.push_back(hitPoint);
 					}
 					//intersection point is outside of the frustum (on the "wrong" side of the apex) -> intersection of the frustums is inifinite 
 					else {
 						//calculate intersection point of the ray with the workspace bounding box
 						hitPoint = util::calculateIntersectionPointRayInAABBwithAABB(firstPyramid.corners[rec::pyramid::apex], currentEdgeDirection, workspace);
 						allIntersectionPoints.push_back(hitPoint);
+						intersectionPointsTrianglesSecondEdgesFirst.push_back(hitPoint);
 					}
 				}
 			}
 		}
+		
+		//text_output::writeVectorListToTextFile("intersectionPointsTrianglesSecondEdgesFirst.txt", intersectionPointsTrianglesSecondEdgesFirst);
+		//text_output::writeVectorListToTextFile("intersectionPointsTrianglesFirstEdgesSecond.txt", intersectionPointsTrianglesFirstEdgesSecond);
+
+		//text_output::writeVectorListToTextFile("allIntersectionPoints.txt", allIntersectionPoints);
 
 
 		rec:aabb intersectionBoundingBox = util::createBoundingBoxOfPoints(allIntersectionPoints);
