@@ -714,9 +714,36 @@ namespace util {
 		return rec::aabb(newMinX, newMaxX, newMinY, newMaxY, newMinZ, newMaxZ);
 	}
 
+
+
+	bool pairSortBySecondComponent(std::pair<viral_core::vector, float> a, std::pair<viral_core::vector, float> b) {
+		return a.second < b.second;
+	}
+
+	std::vector<viral_core::vector> orderPointsByDistance(viral_core::vector startPoint, std::vector<viral_core::vector> points) {
+		std::vector<std::pair<viral_core::vector, float>> pointsAndDistances(points.size());
+
+		for (int i = 0; i < points.size(); i++) {
+			viral_core::vector p = points.at(i);
+			float xd = p.x - startPoint.x;
+			float yd = p.y - startPoint.y;
+			float zd = p.z - startPoint.z;
+			float squaredDistance = xd*xd + yd*yd + zd*zd;
+			pair<viral_core::vector, float> currentPair = pair<viral_core::vector, float>(p, squaredDistance);
+			pointsAndDistances[i] = currentPair;
+		}
+
+		sort(pointsAndDistances.begin(), pointsAndDistances.end(), pairSortBySecondComponent);
+		
+		std::vector<viral_core::vector> sortedPoints(points.size());
+
+		for (int i = 0; i < points.size(); i++) {
+			sortedPoints[i] = pointsAndDistances.at(i).first;
+		}
+		return sortedPoints;
+	}
+
 }
-
-
 
 
 

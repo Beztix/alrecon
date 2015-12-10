@@ -1981,6 +1981,118 @@ e.rtask().execute(q);
 //###########################################################################################################################################
 
 
+//
+////calculates an axis aligned bounding box of the intersection of two pyramids by calculating all possible corners of the intersection object and building an aabb around it
+//bool computePyramidIntersectionBoundingBoxInWorkspace(rec::pyramid firstPyramid, rec::pyramid secondPyramid, rec::aabb workspace, rec::aabb &result) {
+//
+//	std::vector<viral_core::vector> allIntersectionPoints;
+//	std::vector<viral_core::vector> intersectionPointsTrianglesFirstEdgesSecond;
+//	std::vector<viral_core::vector> intersectionPointsTrianglesSecondEdgesFirst;
+//
+//	viral_core::triangle currentTriangle;
+//
+//
+//	//=== process triangles of first pyramid with edges of second pyramid ===
+//
+//	//generate edges of second pyramid
+//	viral_core::vector secondPyramidEdgeDirections[4];
+//	secondPyramidEdgeDirections[0] = (secondPyramid.corners[rec::pyramid::bot_left] - secondPyramid.corners[rec::pyramid::apex]).normalized();
+//	secondPyramidEdgeDirections[1] = (secondPyramid.corners[rec::pyramid::bot_right] - secondPyramid.corners[rec::pyramid::apex]).normalized();
+//	secondPyramidEdgeDirections[2] = (secondPyramid.corners[rec::pyramid::top_right] - secondPyramid.corners[rec::pyramid::apex]).normalized();
+//	secondPyramidEdgeDirections[3] = (secondPyramid.corners[rec::pyramid::top_left] - secondPyramid.corners[rec::pyramid::apex]).normalized();
+//
+//
+//	//generate triangles of first pyramid
+//	viral_core::triangle firstPyramidTriangles[4];
+//	firstPyramidTriangles[0] = viral_core::triangle(firstPyramid.corners[rec::pyramid::apex], firstPyramid.corners[rec::pyramid::bot_left], firstPyramid.corners[rec::pyramid::bot_right]);
+//	firstPyramidTriangles[1] = viral_core::triangle(firstPyramid.corners[rec::pyramid::apex], firstPyramid.corners[rec::pyramid::bot_right], firstPyramid.corners[rec::pyramid::top_right]);
+//	firstPyramidTriangles[2] = viral_core::triangle(firstPyramid.corners[rec::pyramid::apex], firstPyramid.corners[rec::pyramid::top_right], firstPyramid.corners[rec::pyramid::top_left]);
+//	firstPyramidTriangles[3] = viral_core::triangle(firstPyramid.corners[rec::pyramid::apex], firstPyramid.corners[rec::pyramid::top_left], firstPyramid.corners[rec::pyramid::bot_left]);
+//
+//
+//	//intersect all edges of the second pyramid with the triangles of the first pyramid and save the intersection points
+//	for (viral_core::triangle currentTriangle : firstPyramidTriangles) {
+//		for (viral_core::vector currentEdgeDirection : secondPyramidEdgeDirections) {
+//			viral_core::vector hitPoint;
+//			float hitDistance;
+//			if (currentTriangle.intersect_line(secondPyramid.corners[rec::pyramid::apex], currentEdgeDirection, hitPoint, hitDistance)) {
+//
+//				//standard case: add intersection point to the list of all intersection points
+//				if (hitDistance > 0) {
+//					allIntersectionPoints.push_back(hitPoint);
+//					intersectionPointsTrianglesFirstEdgesSecond.push_back(hitPoint);
+//				}
+//				//intersection point is outside of the frustum (on the "wrong" side of the apex) -> intersection of the frustums is inifinite 
+//				else {
+//					//calculate intersection point of the ray with the workspace bounding box
+//					hitPoint = util::calculateIntersectionPointRayInAABBwithAABB(secondPyramid.corners[rec::pyramid::apex], currentEdgeDirection, workspace);
+//					allIntersectionPoints.push_back(hitPoint);
+//					intersectionPointsTrianglesFirstEdgesSecond.push_back(hitPoint);
+//				}
+//			}
+//		}
+//	}
+//
+//
+//
+//	//=== process triangles of second pyramid with edges of first pyramid ===
+//
+//	//generate edges of first pyramid
+//	viral_core::vector firstPyramidEdgeDirections[4];
+//	firstPyramidEdgeDirections[0] = (firstPyramid.corners[rec::pyramid::bot_left] - firstPyramid.corners[rec::pyramid::apex]).normalized();
+//	firstPyramidEdgeDirections[1] = (firstPyramid.corners[rec::pyramid::bot_right] - firstPyramid.corners[rec::pyramid::apex]).normalized();
+//	firstPyramidEdgeDirections[2] = (firstPyramid.corners[rec::pyramid::top_right] - firstPyramid.corners[rec::pyramid::apex]).normalized();
+//	firstPyramidEdgeDirections[3] = (firstPyramid.corners[rec::pyramid::top_left] - firstPyramid.corners[rec::pyramid::apex]).normalized();
+//
+//
+//	//generate triangles of second pyramid
+//	viral_core::triangle secondPyramidTriangles[4];
+//	secondPyramidTriangles[0] = viral_core::triangle(secondPyramid.corners[rec::pyramid::apex], secondPyramid.corners[rec::pyramid::bot_left], secondPyramid.corners[rec::pyramid::bot_right]);
+//	secondPyramidTriangles[1] = viral_core::triangle(secondPyramid.corners[rec::pyramid::apex], secondPyramid.corners[rec::pyramid::bot_right], secondPyramid.corners[rec::pyramid::top_right]);
+//	secondPyramidTriangles[2] = viral_core::triangle(secondPyramid.corners[rec::pyramid::apex], secondPyramid.corners[rec::pyramid::top_right], secondPyramid.corners[rec::pyramid::top_left]);
+//	secondPyramidTriangles[3] = viral_core::triangle(secondPyramid.corners[rec::pyramid::apex], secondPyramid.corners[rec::pyramid::top_left], secondPyramid.corners[rec::pyramid::bot_left]);
+//
+//
+//	//intersect all edges of the first pyramid with the triangles of the second pyramid and save the intersection points
+//	for (viral_core::triangle currentTriangle : secondPyramidTriangles) {
+//		for (viral_core::vector currentEdgeDirection : firstPyramidEdgeDirections) {
+//			viral_core::vector hitPoint;
+//			float hitDistance;
+//			//there is an intersection point
+//			if (currentTriangle.intersect_line(firstPyramid.corners[rec::pyramid::apex], currentEdgeDirection, hitPoint, hitDistance)) {
+//
+//				//standard case: add intersection point to the list of all intersection points
+//				if (hitDistance > 0) {
+//					allIntersectionPoints.push_back(hitPoint);
+//					intersectionPointsTrianglesSecondEdgesFirst.push_back(hitPoint);
+//				}
+//				//intersection point is outside of the frustum (on the "wrong" side of the apex) -> intersection of the frustums is inifinite 
+//				else {
+//					//calculate intersection point of the ray with the workspace bounding box
+//					hitPoint = util::calculateIntersectionPointRayInAABBwithAABB(firstPyramid.corners[rec::pyramid::apex], currentEdgeDirection, workspace);
+//					allIntersectionPoints.push_back(hitPoint);
+//					intersectionPointsTrianglesSecondEdgesFirst.push_back(hitPoint);
+//				}
+//			}
+//		}
+//	}
+//
+//	//text_output::writeVectorListToTextFile("intersectionPointsTrianglesSecondEdgesFirst.txt", intersectionPointsTrianglesSecondEdgesFirst);
+//	//text_output::writeVectorListToTextFile("intersectionPointsTrianglesFirstEdgesSecond.txt", intersectionPointsTrianglesFirstEdgesSecond);
+//
+//	//text_output::writeVectorListToTextFile("allIntersectionPoints.txt", allIntersectionPoints);
+//
+//
+//rec:aabb intersectionBoundingBox = util::createBoundingBoxOfPoints(allIntersectionPoints);
+//
+//	//intersect bounding box with the workspace bounding box
+//	if (util::doAABBsIntersect(intersectionBoundingBox, workspace)) {
+//		result = util::calculateAABBIntersection(intersectionBoundingBox, workspace);
+//		return true;
+//	}
+//	return false;
+//}
+
 
 
 //###########################################################################################################################################

@@ -76,6 +76,11 @@ namespace util {
 	bool doAABBsIntersect(rec::aabb bb1, rec::aabb bb2);
 
 	rec::aabb calculateAABBIntersection(rec::aabb bb1, rec::aabb bb2);
+
+
+	std::vector<viral_core::vector> orderPointsByDistance(viral_core::vector startPoint, std::vector<viral_core::vector> points);
+
+
 }
 
 
