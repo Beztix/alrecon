@@ -331,12 +331,15 @@ namespace rec {
 			//intersect current ray with triangles of the second pyramid
 			for (viral_core::triangle currentTriangle : secondPyramidTriangles) {
 				//there is an intersection point
+				//TODO
+				/*
 				if (currentTriangle.intersect_line(firstPyramid.corners[rec::pyramid::apex], currentEdgeDirection, hitPoint, hitDistance)) {
 					//it is on the correct site of the ray
 					if (hitDistance > 0) {
 						currentIntersectionPoints.push_back(hitPoint);
 					}
 				}
+				*/
 			}
 			//intersect current ray with the workspace bounding box
 			workspaceIntersectionPoint = util::calculateIntersectionPointRayInAABBwithAABB(firstPyramid.corners[rec::pyramid::apex], currentEdgeDirection, workspace);
@@ -407,12 +410,15 @@ namespace rec {
 			//intersect current ray with triangles of the first pyramid
 			for (viral_core::triangle currentTriangle : firstPyramidTriangles) {
 				//there is an intersection point
+				//TODO
+				/*
 				if (currentTriangle.intersect_line(secondPyramid.corners[rec::pyramid::apex], currentEdgeDirection, hitPoint, hitDistance)) {
 					//it is on the correct site of the ray
 					if (hitDistance > 0) {
 						currentIntersectionPoints.push_back(hitPoint);
 					}
 				}
+				*/
 			}
 			//intersect current ray with the workspace bounding box
 			workspaceIntersectionPoint = util::calculateIntersectionPointRayInAABBwithAABB(secondPyramid.corners[rec::pyramid::apex], currentEdgeDirection, workspace);
@@ -456,7 +462,7 @@ namespace rec {
 		//text_output::writeVectorListToTextFile("intersectionPointsTrianglesSecondEdgesFirst.txt", intersectionPointsTrianglesSecondEdgesFirst);
 		//text_output::writeVectorListToTextFile("intersectionPointsTrianglesFirstEdgesSecond.txt", intersectionPointsTrianglesFirstEdgesSecond);
 
-		//text_output::writeVectorListToTextFile("allIntersectionPoints.txt", allIntersectionPoints);
+		text_output::writeVectorListToTextFile("allIntersectionPoints.txt", allIntersectionPoints);
 
 
 		rec:aabb intersectionBoundingBox = util::createBoundingBoxOfPoints(allIntersectionPoints);
@@ -496,7 +502,7 @@ namespace rec {
 				return false;
 			}
 			rec::aabb currentIntersectionBoundingBox;
-			if (!computePyramidIntersectionBoundingBoxInWorkspace(currentPyrOne, pyrTwo, workspace, currentIntersectionBoundingBox)) {
+			if (!computePyramidIntersectionBoundingBoxInWorkspace(currentPyrOne, pyrTwo, workspace, true, true, currentIntersectionBoundingBox)) {
 				//intersection bounding box is completely outside of the workspace
 				return false;
 			}

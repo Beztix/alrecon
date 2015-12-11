@@ -469,12 +469,12 @@ namespace rec {
 			workspace.corners[rec::aabb::far_xneg_ypos] * scale, workspace.corners[rec::aabb::far_xpos_ypos] * scale);
 
 
-	
+		
 
 		//create the coordinate axes of the world space
 		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_coordinateAxes
 			(new viral_core::mesh());
-		addCoordinateSystem(geometry_mesh_coordinateAxes, 500, 500, 300);
+		//addCoordinateSystem(geometry_mesh_coordinateAxes, 500, 500, 300);
 
 		
 
@@ -671,6 +671,27 @@ namespace rec {
 		}	//end of for each camera
 
 
+
+		viral_core::vector a = viral_core::vector(-1919, 1618, 1715);
+		viral_core::vector b = viral_core::vector(-2493, -7937, -4034);
+		viral_core::vector c = viral_core::vector(6327, -4749, 3045);
+
+		viral_core::vector orig = viral_core::vector(2143, -1766, 1775);
+		viral_core::vector dir = viral_core::vector(-0.894, -0.152, -0.421);
+
+
+		viral_core::triangle triangle = viral_core::triangle(a, b, c);
+
+
+		addLine(geometry_mesh_cameraDrawings2D, a*scale, b*scale);
+		addLine(geometry_mesh_cameraDrawings2D, b*scale, c*scale);
+		addLine(geometry_mesh_cameraDrawings2D, c*scale, a*scale);
+
+		addLine(geometry_mesh_cameraDrawings2D, orig*scale, orig*scale + dir*1000);
+
+
+
+
 		/*
 		std::vector<viral_core::vector> vectorListAll = text_input::readVectorListFromTextFile("allIntersectionPoints.txt");
 
@@ -680,13 +701,13 @@ namespace rec {
 		*/
 
 
-		
+		/*
 		std::vector<viral_core::vector> vectorListTrianglesFirst = text_input::readVectorListFromTextFile("intersectionPointsTrianglesFirstEdgesSecond.txt");
 
 		for (viral_core::vector v : vectorListTrianglesFirst) {
 			addCubeAroundVector(geometry_mesh_cameraDrawings2D, v*scale, 3);
 		}
-		
+		*/
 
 
 		/*
@@ -698,7 +719,7 @@ namespace rec {
 		*/
 
 
-		for (int cam = 1; cam <= 2; cam++) {
+		for (int cam = 1; cam <= 0; cam++) {
 
 			/*
 			std::vector<rec::frustum> frustums = text_input::readFrustumsFromTextfile("frusts_cam" + std::to_string(cam-1) + ".txt");

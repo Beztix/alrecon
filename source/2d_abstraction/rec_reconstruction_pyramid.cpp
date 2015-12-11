@@ -27,7 +27,7 @@ namespace rec {
 		std::vector<tree<rec::seAndPyramid>> &seAndPyramidTrees, int nrOfCams, int width, int height, int offset, rec::aabb workspace) {
 
 		double CAM_NEAR_PLANE = 500;
-		double CAM_FAR_PLANE = 5000;
+		double CAM_FAR_PLANE = 8000;
 
 
 		int depthOfSeAndPyramidTrees = seAndPyramidTrees.at(0).max_depth();
@@ -78,7 +78,7 @@ namespace rec {
 			rec::pyramid currentPyramid = rec::pyramid(bot_left, bot_right, top_right, top_left, camPosition);
 			rootSeAndPyramid.setPyramid(currentPyramid);
 
-			//text_output::appendPyramidToTextFile("Pyramids_cam" + std::to_string(cam) + ".txt", currentPyramid);
+			text_output::appendPyramidToTextFile("Pyramids_cam" + std::to_string(cam) + ".txt", currentPyramid);
 
 			// add pointer to the rootSeAndPyramid to the list of current seAndPyramids
 			currentSeAndPyramidPList.push_back(&rootSeAndPyramid);
