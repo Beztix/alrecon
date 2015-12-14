@@ -186,6 +186,20 @@ namespace rec {
 		}
 
 
+		bool isPointInside(viral_core::vector p) {
+
+			//test each defining plane
+			for (int i = 0; i < 4; i++) {
+				viral_core::vector testVector = p - corners[i];
+				float dot = planeNormals[i].dot(testVector);
+				//if p is on the wrong side of the plane -> outside: return false
+				if (dot < 0) return false;
+			}
+
+			//p is on the right side of each plane -> inside: return true
+			return true;
+		}
+
 
 
 	};

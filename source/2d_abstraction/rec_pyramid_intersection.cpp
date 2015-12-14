@@ -14,11 +14,14 @@
 
 #include <viral_core/geo_vector.hpp>
 #include <viral_core/geo_primitive.hpp>
+#include <viral_core/geo_intersect.hpp>
 
 using namespace std;
 
 
 namespace rec {
+
+	
 
 
 
@@ -65,6 +68,10 @@ namespace rec {
 
 		return false;
 	}
+
+
+
+
 
 
 
@@ -136,9 +143,6 @@ namespace rec {
 			return false;
 		}
 
-	
-		
-
 
 		//==============================================================
 		//==========      test planes of second pyramid      ===========
@@ -195,9 +199,6 @@ namespace rec {
 			//-> the plane separates the pyramids -> no intersection 
 			return false;
 		}
-
-
-
 
 
 		//=====================================================================================
@@ -283,9 +284,6 @@ namespace rec {
 
 
 
-
-
-
 		//none of the tested planes separates the two pyramids: there is an intersection	
 		return true;
 	}
@@ -295,9 +293,12 @@ namespace rec {
 
 
 
+
+
+
 	//calculates an axis aligned bounding box of the intersection of two pyramids by calculating all possible corners of the intersection object and building an aabb around it
 	bool computePyramidIntersectionBoundingBoxInWorkspace(rec::pyramid firstPyramid, rec::pyramid secondPyramid, rec::aabb workspace,
-		bool firstCamInSecondPyramid, bool secondCamInFirstPyramid, rec::aabb &result) {
+		bool firstCamInSecondPyramid, bool secondCamInFirstPyramid, rec::aabb &result, int currentCamera, int currentCameraPyrIndex, int currentPyrOneIndex) {
 
 		std::vector<viral_core::vector> allIntersectionPoints;
 
@@ -324,6 +325,7 @@ namespace rec {
 
 		//process each ray of the first pyramid
 		for (viral_core::vector currentEdgeDirection : firstPyramidEdgeDirections) {
+			viral_core::line currentRay = viral_core::line(firstPyramid.corners[rec::pyramid::apex], currentEdgeDirection);
 			std::vector<viral_core::vector> currentIntersectionPoints;
 			viral_core::vector workspaceIntersectionPoint;
 			viral_core::vector hitPoint;
@@ -331,15 +333,13 @@ namespace rec {
 			//intersect current ray with triangles of the second pyramid
 			for (viral_core::triangle currentTriangle : secondPyramidTriangles) {
 				//there is an intersection point
-				//TODO
-				/*
-				if (currentTriangle.intersect_line(firstPyramid.corners[rec::pyramid::apex], currentEdgeDirection, hitPoint, hitDistance)) {
+				if (viral_core::geo_intersect::intersect(currentRay, currentTriangle, hitPoint, hitDistance)) {
 					//it is on the correct site of the ray
 					if (hitDistance > 0) {
 						currentIntersectionPoints.push_back(hitPoint);
 					}
 				}
-				*/
+				
 			}
 			//intersect current ray with the workspace bounding box
 			workspaceIntersectionPoint = util::calculateIntersectionPointRayInAABBwithAABB(firstPyramid.corners[rec::pyramid::apex], currentEdgeDirection, workspace);
@@ -363,7 +363,6 @@ namespace rec {
 						break;
 					}
 				}
-
 				//intersection point intersects other pyramid
 				else {
 					if (inside) {
@@ -403,6 +402,7 @@ namespace rec {
 
 		//process each ray of the second pyramid
 		for (viral_core::vector currentEdgeDirection : secondPyramidEdgeDirections) {
+			viral_core::line currentRay = viral_core::line(secondPyramid.corners[rec::pyramid::apex], currentEdgeDirection);
 			std::vector<viral_core::vector> currentIntersectionPoints;
 			viral_core::vector workspaceIntersectionPoint;
 			viral_core::vector hitPoint;
@@ -410,15 +410,13 @@ namespace rec {
 			//intersect current ray with triangles of the first pyramid
 			for (viral_core::triangle currentTriangle : firstPyramidTriangles) {
 				//there is an intersection point
-				//TODO
-				/*
-				if (currentTriangle.intersect_line(secondPyramid.corners[rec::pyramid::apex], currentEdgeDirection, hitPoint, hitDistance)) {
+				if (viral_core::geo_intersect::intersect(currentRay, currentTriangle, hitPoint, hitDistance)) {
 					//it is on the correct site of the ray
 					if (hitDistance > 0) {
 						currentIntersectionPoints.push_back(hitPoint);
 					}
 				}
-				*/
+				
 			}
 			//intersect current ray with the workspace bounding box
 			workspaceIntersectionPoint = util::calculateIntersectionPointRayInAABBwithAABB(secondPyramid.corners[rec::pyramid::apex], currentEdgeDirection, workspace);
@@ -442,7 +440,6 @@ namespace rec {
 						break;
 					}
 				}
-
 				//intersection point intersects other pyramid
 				else {
 					if (inside) {
@@ -457,24 +454,20 @@ namespace rec {
 			}
 		}
 
-
 		
-		//text_output::writeVectorListToTextFile("intersectionPointsTrianglesSecondEdgesFirst.txt", intersectionPointsTrianglesSecondEdgesFirst);
-		//text_output::writeVectorListToTextFile("intersectionPointsTrianglesFirstEdgesSecond.txt", intersectionPointsTrianglesFirstEdgesSecond);
+		text_output::writeVectorListToTextFile("a-" + std::to_string(currentCamera) +"_" + std::to_string(currentCameraPyrIndex) + "_" + std::to_string(currentPyrOneIndex) + "intersectPoints.txt", allIntersectionPoints);
+		text_output::appendPyramidToTextFile("a-" + std::to_string(currentCamera) + "_" + std::to_string(currentCameraPyrIndex) + "_" + std::to_string(currentPyrOneIndex) + "firstPyr.txt", firstPyramid);
+		text_output::appendPyramidToTextFile("a-" + std::to_string(currentCamera) + "_" + std::to_string(currentCameraPyrIndex) + "_" + std::to_string(currentPyrOneIndex) + "secondPyr.txt", secondPyramid);
 
-		text_output::writeVectorListToTextFile("allIntersectionPoints.txt", allIntersectionPoints);
 
-
-		rec:aabb intersectionBoundingBox = util::createBoundingBoxOfPoints(allIntersectionPoints);
-
-		/*
-		//intersect bounding box with the workspace bounding box
-		if (util::doAABBsIntersect(intersectionBoundingBox, workspace)) {
-			result = util::calculateAABBIntersection(intersectionBoundingBox, workspace);
+		//there is some part of the intersection inside of the workspace bounding box
+		if (allIntersectionPoints.size() > 0) {
+			rec:aabb intersectionBoundingBox = util::createBoundingBoxOfPoints(allIntersectionPoints);
+			result = intersectionBoundingBox;
 			return true;
 		}
-		*/
-		
+
+		//the intersection is completely outside of the workspace bounding box
 		return false;
 	}
 
@@ -491,26 +484,43 @@ namespace rec {
 	*	If each pyramidOne intersects pyramidTwo it returns true, otherwise false.
 	*/
 	bool doMultiplePyramidsIntersectInsideWorkspace(std::vector<tree<rec::seAndPyramid>::pre_order_iterator> pyramidOneList, tree<rec::seAndPyramid>::pre_order_iterator pyramidTwo,
-		rec::aabb workspace, rec::aabb &totalIntersectionBoundingBox) {
+		rec::aabb workspace, rec::aabb &totalIntersectionBoundingBox, int currentCamera, int currentCameraPyrIndex) {
 
 		rec::pyramid pyrTwo = (*pyramidTwo).pyr;
 
 		for (int i = 0; i < pyramidOneList.size(); i++) {
 			tree<rec::seAndPyramid>::pre_order_iterator currentPyramidOne = pyramidOneList.at(i);
 			rec::pyramid currentPyrOne = (*currentPyramidOne).pyr;
+
+			//calculate camera containment
+			bool firstCamInSecondPyramid = false;
+			bool secondCamInFirstPyramid = false;
+			if (pyrTwo.isPointInside(currentPyrOne.corners[rec::pyramid::apex])) {
+				firstCamInSecondPyramid = true;
+			}
+			if (currentPyrOne.isPointInside(pyrTwo.corners[rec::pyramid::apex])) {
+				secondCamInFirstPyramid = true;
+			}
+
+			//check for intersection of the two pyramids
 			if (!doPyramidsIntersect(currentPyrOne, pyrTwo)) {
+				//no intersection between pyramids
 				return false;
 			}
+
+			//calculate intersection bounding box
 			rec::aabb currentIntersectionBoundingBox;
-			if (!computePyramidIntersectionBoundingBoxInWorkspace(currentPyrOne, pyrTwo, workspace, true, true, currentIntersectionBoundingBox)) {
+			if (!computePyramidIntersectionBoundingBoxInWorkspace(currentPyrOne, pyrTwo, workspace, firstCamInSecondPyramid, secondCamInFirstPyramid, 
+				currentIntersectionBoundingBox, currentCamera, currentCameraPyrIndex, i)) {
 				//intersection bounding box is completely outside of the workspace
 				return false;
 			}
+
+			//update totalIntersectionBoundingBox by intersecting it with the currentIntersectionBoundingBox
 			if (!util::doAABBsIntersect(totalIntersectionBoundingBox, currentIntersectionBoundingBox)) {
 				//no intersection between the intersection bounding boxes
 				return false;
 			}
-			//update totalIntersectionBoundingBox by intersecting it with the currentIntersectionBoundingBox
 			totalIntersectionBoundingBox = util::calculateAABBIntersection(totalIntersectionBoundingBox, currentIntersectionBoundingBox);
 		}
 		return true;
@@ -537,27 +547,27 @@ namespace rec {
 
 	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> testMultiplePyramidsWithMultiplePyramidsForIntersection
 		(std::vector<tree<rec::seAndPyramid>::pre_order_iterator> fList, std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> cameraPyramidLists, 
-			int currentList, rec::aabb workspace, rec::aabb &totalIntersectionBoundingBox) {
+			int currentCamera, rec::aabb workspace, rec::aabb &totalIntersectionBoundingBox) {
 
 		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinations;
 
 		//get cameraPyramidList which has to be processed in this recursion step
-		std::vector<tree<rec::seAndPyramid>::pre_order_iterator> currentCameraPyramidList = cameraPyramidLists.at(currentList);
+		std::vector<tree<rec::seAndPyramid>::pre_order_iterator> currentCameraPyramidList = cameraPyramidLists.at(currentCamera);
 
 		//process each pyramid in currentCameraPyramidList
 		for (int i = 0; i < currentCameraPyramidList.size(); i++) {
 			tree<rec::seAndPyramid>::pre_order_iterator currentPyramid = currentCameraPyramidList.at(i);
 
 			//test if all already in fList gathered pyramids intersect the currentPyramid
-			if (doMultiplePyramidsIntersectInsideWorkspace(fList, currentPyramid, workspace, totalIntersectionBoundingBox)) {
+			if (doMultiplePyramidsIntersectInsideWorkspace(fList, currentPyramid, workspace, totalIntersectionBoundingBox, currentCamera, i)) {
 				std::vector<tree<rec::seAndPyramid>::pre_order_iterator> newfList = fList;
 				newfList.push_back(currentPyramid);
 
 				//this was not the last computation to be performed, there are cameraPyramidLists not evaluated yet
-				if (currentList + 1 < cameraPyramidLists.size()) {
+				if (currentCamera + 1 < cameraPyramidLists.size()) {
 					//perform another recursive computation on the next cameraPyramidList
 					std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinationsPart = 
-						testMultiplePyramidsWithMultiplePyramidsForIntersection(newfList, cameraPyramidLists, currentList + 1, workspace, totalIntersectionBoundingBox);
+						testMultiplePyramidsWithMultiplePyramidsForIntersection(newfList, cameraPyramidLists, currentCamera + 1, workspace, totalIntersectionBoundingBox);
 					//append received part of the result to the whole result
 					resultCombinations.insert(resultCombinations.end(), resultCombinationsPart.begin(), resultCombinationsPart.end());
 				}
@@ -612,7 +622,7 @@ namespace rec {
 			fList.push_back(currentPyramid);
 			rec::aabb totalIntersectionBoundingBox = rec::aabb(); //initialize with maximum size bounding box
 
-																  //start recursive computation
+			//start recursive computation
 			std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinationsPart =
 				testMultiplePyramidsWithMultiplePyramidsForIntersection(fList, cameraPyramidLists, 1, workspace, totalIntersectionBoundingBox);
 

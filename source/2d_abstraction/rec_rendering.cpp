@@ -474,7 +474,7 @@ namespace rec {
 		//create the coordinate axes of the world space
 		viral_core::auto_pointer<viral_core::mesh> geometry_mesh_coordinateAxes
 			(new viral_core::mesh());
-		//addCoordinateSystem(geometry_mesh_coordinateAxes, 500, 500, 300);
+		addCoordinateSystem(geometry_mesh_coordinateAxes, 500, 500, 300);
 
 		
 
@@ -670,26 +670,56 @@ namespace rec {
 
 		}	//end of for each camera
 
+		/*
+		std::vector<viral_core::vector> vectorListIntersections = text_input::readVectorListFromTextFile("a-2_0_0intersectPoints.txt");
+		for (viral_core::vector v : vectorListIntersections) {
+			addCubeAroundVector(geometry_mesh_cameraDrawings2D, v*scale, 3);
+		}
+
+		std::vector<rec::pyramid> pyramidOne = text_input::readPyramidsFromTextfile("a-2_0_0firstPyr.txt");
+
+		for (int f = 0; f < pyramidOne.size(); f++) {
+			rec::pyramid currentPyr = pyramidOne.at(f);
+
+			viral_core::vector bot_left = currentPyr.corners[rec::pyramid::bot_left] * scale;
+			viral_core::vector bot_right = currentPyr.corners[rec::pyramid::bot_right] * scale;
+			viral_core::vector top_right = currentPyr.corners[rec::pyramid::top_right] * scale;
+			viral_core::vector top_left = currentPyr.corners[rec::pyramid::top_left] * scale;
+			viral_core::vector apex = currentPyr.corners[rec::pyramid::apex] * scale;
 
 
-		viral_core::vector a = viral_core::vector(-1919, 1618, 1715);
-		viral_core::vector b = viral_core::vector(-2493, -7937, -4034);
-		viral_core::vector c = viral_core::vector(6327, -4749, 3045);
+			addPyramidWithCorners(geometry_mesh_frustums, apex, bot_left, bot_right, top_right, top_left);
+			addPyramidWithCorners(geometry_mesh_boundingBox, apex, bot_left, bot_right, top_right, top_left);
 
-		viral_core::vector orig = viral_core::vector(2143, -1766, 1775);
-		viral_core::vector dir = viral_core::vector(-0.894, -0.152, -0.421);
-
-
-		viral_core::triangle triangle = viral_core::triangle(a, b, c);
-
-
-		addLine(geometry_mesh_cameraDrawings2D, a*scale, b*scale);
-		addLine(geometry_mesh_cameraDrawings2D, b*scale, c*scale);
-		addLine(geometry_mesh_cameraDrawings2D, c*scale, a*scale);
-
-		addLine(geometry_mesh_cameraDrawings2D, orig*scale, orig*scale + dir*1000);
+			addText("bot_left", dejaVuFont, scene_data, q, material_texture_id, bot_left + viral_core::vector(0, -5, 0), 0.1);
+			addText("bot_right", dejaVuFont, scene_data, q, material_texture_id, bot_right + viral_core::vector(0, -5, 0), 0.1);
+			addText("top_right", dejaVuFont, scene_data, q, material_texture_id, top_right + viral_core::vector(0, -5, 0), 0.1);
+			addText("top_left", dejaVuFont, scene_data, q, material_texture_id, top_left + viral_core::vector(0, -5, 0), 0.1);
+		}
 
 
+		std::vector<rec::pyramid> pyramidTwo = text_input::readPyramidsFromTextfile("a-2_0_0secondPyr.txt");
+
+		for (int f = 0; f < pyramidTwo.size(); f++) {
+			rec::pyramid currentPyr = pyramidTwo.at(f);
+
+			viral_core::vector bot_left = currentPyr.corners[rec::pyramid::bot_left] * scale;
+			viral_core::vector bot_right = currentPyr.corners[rec::pyramid::bot_right] * scale;
+			viral_core::vector top_right = currentPyr.corners[rec::pyramid::top_right] * scale;
+			viral_core::vector top_left = currentPyr.corners[rec::pyramid::top_left] * scale;
+			viral_core::vector apex = currentPyr.corners[rec::pyramid::apex] * scale;
+
+
+			addPyramidWithCorners(geometry_mesh_frustums, apex, bot_left, bot_right, top_right, top_left);
+			addPyramidWithCorners(geometry_mesh_boundingBox, apex, bot_left, bot_right, top_right, top_left);
+
+			addText("bot_left", dejaVuFont, scene_data, q, material_texture_id, bot_left + viral_core::vector(0, -5, 0), 0.1);
+			addText("bot_right", dejaVuFont, scene_data, q, material_texture_id, bot_right + viral_core::vector(0, -5, 0), 0.1);
+			addText("top_right", dejaVuFont, scene_data, q, material_texture_id, top_right + viral_core::vector(0, -5, 0), 0.1);
+			addText("top_left", dejaVuFont, scene_data, q, material_texture_id, top_left + viral_core::vector(0, -5, 0), 0.1);
+		}
+
+		*/
 
 
 		/*
@@ -785,6 +815,8 @@ namespace rec {
 			}
 			*/
 
+			/*
+
 
 			std::vector<rec::pyramid> pyramids = text_input::readPyramidsFromTextfile("Pyramids_cam" + std::to_string(cam) + ".txt");
 
@@ -807,6 +839,7 @@ namespace rec {
 				addText("top_left", dejaVuFont, scene_data, q, material_texture_id, top_left + viral_core::vector(0, -5, 0), 0.1);
 			}
 
+			*/
 			/*
 
 			std::vector<rec::pyramid> pyramids = text_input::readPyramidsFromTextfile("testObject_pyr" + std::to_string(cam - 1) + ".txt");

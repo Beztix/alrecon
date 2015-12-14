@@ -363,31 +363,12 @@ int main() {
 
 
 
-	viral_core::vector a = viral_core::vector(-1919, 1618, 1715);
-	viral_core::vector b = viral_core::vector(-2493, -7937, -4034);
-	viral_core::vector c = viral_core::vector(6327, -4749, 3045);
-
-	viral_core::vector orig = viral_core::vector(2143, -1766, 1775);
-	viral_core::vector dir = viral_core::vector(-0.894, -0.152, -0.421);
-
-
-	viral_core::triangle triangle = viral_core::triangle(a, b, c);
-
-	viral_core::vector hitPoint;
-	float dist;
-
-	viral_core::line l = viral_core::line(orig, dir);
-
-	//bool intersect = triangle.intersect_line(orig, dir, hitPoint, dist);
-	bool intersect = viral_core::geo_intersect::intersect(l, triangle, hitPoint, dist);
 
 
 
 
 
-
-
-// 	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, 7, 640, 480, 300, workspace);
+ 	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, 7, 640, 480, 300, workspace);
 
 	//tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndFrustTrees, 7, 640, 480, 300);
 
@@ -397,7 +378,7 @@ int main() {
 	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_object3DTree(50, sensors, object3DTree, 1);
 
 	std::vector<std::vector<viral_core::vector>> separatedOccupiedWorldPositions;
-	//separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_objectSeparated(50, sensors, object3DTree, 0);
+	separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_objectSeparated(50, sensors, object3DTree, 0);
 	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(20, sensors);
 
 	rec::renderWorkspace(workspace, cameras, sensors, separatedOccupiedWorldPositions, 10, 0.1f);
