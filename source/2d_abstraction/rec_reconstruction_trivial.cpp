@@ -68,12 +68,13 @@ namespace rec {
 
 		// run through all positions in world space
 		for (int x = -2000; x < 2200; x+=stepsize) {
+			if (x % 100 == 0) {
+				std::cout << "testing x = " + std::to_string(x) << std::endl;
+			}
 			for (int y = -2200; y < 2200; y+=stepsize) {
 				for (int z = -880; z < 1600; z+=stepsize) {
 
-					if (x % 100 == 0) {
-						std::cout << "testing x = " + std::to_string(x) << std::endl;
-					}
+				
 					
 					viral_core::vector vec((float)x, (float)y, (float)z);
 

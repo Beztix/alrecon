@@ -500,8 +500,8 @@ namespace rec {
 
 
 
-		//addOccupiedPositionsAsText(occupiedPositions, dejaVuFont, scene_data, q, material_texture_id, scale, 0.2);
-		addOccupiedPositionsAsCubes(occupiedPositions, 25, scene_data, q, material_id, scale);
+		addOccupiedPositionsAsText(occupiedPositions, dejaVuFont, scene_data, q, material_texture_id, scale, 0.2);
+		//addOccupiedPositionsAsCubes(occupiedPositions, 25, scene_data, q, material_id, scale);
 
 
 
@@ -604,7 +604,7 @@ namespace rec {
 			*/
 
 
-			/*
+			
 			// ========    frustums    ========
 
 			std::string locationStringCorners = "se_rosin_tree_occMask_" + std::to_string(cam) + "_bb_1.txt";
@@ -628,7 +628,7 @@ namespace rec {
 			}
 
 		
-			*/
+			
 
 			
 			/*
@@ -749,7 +749,7 @@ namespace rec {
 		*/
 
 
-		for (int cam = 1; cam <= 0; cam++) {
+		for (int cam = 6; cam <= 5; cam++) {
 
 			/*
 			std::vector<rec::frustum> frustums = text_input::readFrustumsFromTextfile("frusts_cam" + std::to_string(cam-1) + ".txt");
@@ -815,7 +815,7 @@ namespace rec {
 			}
 			*/
 
-			/*
+			
 
 
 			std::vector<rec::pyramid> pyramids = text_input::readPyramidsFromTextfile("Pyramids_cam" + std::to_string(cam) + ".txt");
@@ -839,7 +839,7 @@ namespace rec {
 				addText("top_left", dejaVuFont, scene_data, q, material_texture_id, top_left + viral_core::vector(0, -5, 0), 0.1);
 			}
 
-			*/
+			
 			/*
 
 			std::vector<rec::pyramid> pyramids = text_input::readPyramidsFromTextfile("testObject_pyr" + std::to_string(cam - 1) + ".txt");

@@ -81,7 +81,7 @@ namespace rec {
 			rec::pyramid currentPyramid = rec::pyramid(bot_left, bot_right, top_right, top_left, camPosition);
 			rootSeAndPyramid.setPyramid(currentPyramid);
 
-			text_output::appendPyramidToTextFile("Pyramids_cam" + std::to_string(cam) + ".txt", currentPyramid);
+			//text_output::appendPyramidToTextFile("Pyramids_cam" + std::to_string(cam) + ".txt", currentPyramid);
 
 			// add pointer to the rootSeAndPyramid to the list of current seAndPyramids
 			currentSeAndPyramidPList.push_back(&rootSeAndPyramid);
@@ -183,7 +183,7 @@ namespace rec {
 						rec::pyramid currentPyramid = rec::pyramid(bot_left, bot_right, top_right, top_left, camPosition);
 						currentChild.setPyramid(currentPyramid);
 
-						//text_output::appendPyramidToTextFile("Pyramids_cam" + std::to_string(cam) + ".txt", currentPyramid);
+						text_output::appendPyramidToTextFile("Pyramids_cam" + std::to_string(cam) + ".txt", currentPyramid);
 
 
 						currentSeAndPyramidITList.push_back(tree<rec::seAndPyramid>::pre_order_iterator(childrenITbegin));
@@ -328,7 +328,7 @@ namespace rec {
 
 			std::vector<viral_core::vector> currentOccupiedWorldPositions;
 
-			if (o == 0) {
+		
 				//text_output::writeObject3DToPyramidTextFiles("testObject_pyr", currentObject3D);
 
 				// run through all world space positions
@@ -358,7 +358,7 @@ namespace rec {
 					}
 				}
 
-			}
+			
 		
 
 			allOccupiedWorldPositions.push_back(currentOccupiedWorldPositions);
