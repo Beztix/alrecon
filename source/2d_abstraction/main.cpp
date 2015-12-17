@@ -78,6 +78,7 @@
 #include "rec_sensor.h"
 #include "rec_object3D.h"
 #include "rec_containers.h"
+#include "rec_test.h"
 
 
 
@@ -357,27 +358,51 @@ int main() {
 	*/
 
 
+	
+
+	/*
+	viral_core::vector testPoint = viral_core::vector(0, 0, 100);
+	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectionIT = rec::testPyramidsWithGivenPoint(testPoint);
+
+
+
+
+
+	std::vector<tree<rec::seAndPyramid>::pre_order_iterator> firstIntersectionIT = intersectionIT.at(0);
+	bool inPyramids = true;
+	for (tree<rec::seAndPyramid>::pre_order_iterator currentPyrIt : firstIntersectionIT) {
+	rec::seAndPyramid currentSeAndPyr = (*currentPyrIt);
+	rec::pyramid currentPyr = currentSeAndPyr.pyr;
+	if (!currentPyr.isPointInside(testPoint)) {
+	inPyramids = false;
+	}
+	}
+
+	rec::object3D firstObject = rec::object3D(firstIntersectionIT);
+	bool inObject = firstObject.isPointInside(testPoint);
+	//separatedOccupiedWorldPositions = rec::testReconstruct(100, sensors, intersectionIT);
+	*/
+
+
+
+
+
+
 
 	rec::aabb extendedWorkspace = rec::aabb(-2500, 2700, -2700, 2700, -1080, 2000);
-	rec::aabb workspace = rec::aabb(-2500, 2700, -2700, 2700, -1080, 2000);
-
-
-
 
  	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, 7, 640, 480, 300, extendedWorkspace);
 
-
-
-
-	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_object3DTree(50, sensors, object3DTree, 1);
-
 	std::vector<std::vector<viral_core::vector>> separatedOccupiedWorldPositions;
-	separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_objectSeparated(50, sensors, object3DTree, 1);
+
 	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(50, sensors);
-	//separatedOccupiedWorldPositions.push_back(occupiedWorldPositions);
+
+	//separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_objectSeparated(extendedWorkspace, 50, sensors, object3DTree, 2);
+	std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_object3DTree(50, sensors, object3DTree, 3);
+	separatedOccupiedWorldPositions.push_back(occupiedWorldPositions);
 
 
-	rec::renderWorkspace(workspace, cameras, sensors, separatedOccupiedWorldPositions, 10, 0.1f);
+	rec::renderWorkspace(extendedWorkspace, cameras, sensors, separatedOccupiedWorldPositions, 10, 0.1f);
 
 
 

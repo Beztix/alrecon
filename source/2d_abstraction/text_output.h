@@ -13,6 +13,8 @@ namespace text_output {
 
 	void writeObject3DToPyramidTextFiles(std::string name, rec::object3D o);
 
+	void writeObject3DToTextFile(std::string name, rec::object3D o);
+
 	void writeVectorListToTextFile(std::string name, std::vector<viral_core::vector> vectors);
 
 	void appendFrustumToTextFile(std::string location, rec::frustum frust);

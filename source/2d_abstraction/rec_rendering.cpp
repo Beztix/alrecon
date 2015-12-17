@@ -500,8 +500,8 @@ namespace rec {
 
 
 
-		addOccupiedPositionsAsText(occupiedPositions, dejaVuFont, scene_data, q, material_texture_id, scale, 0.2);
-		//addOccupiedPositionsAsCubes(occupiedPositions, 25, scene_data, q, material_id, scale);
+		//addOccupiedPositionsAsText(occupiedPositions, dejaVuFont, scene_data, q, material_texture_id, scale, 0.2);
+		addOccupiedPositionsAsCubes(occupiedPositions, 25, scene_data, q, material_id, scale);
 
 
 

@@ -112,6 +112,17 @@ namespace text_output {
 
 
 
+	void writeObject3DToTextFile(std::string name, rec::object3D o) {
+
+		std::ofstream outfile(name, std::ios_base::app);
+
+		for (int i = 0; i < o.planeNormals.size(); i++) {
+			outfile << o.planeNormals[i].x << ", " << o.planeNormals[i].y << ", " << o.planeNormals[i].z << "\n";
+		}
+
+		outfile.close();
+	}
+
 
 
 

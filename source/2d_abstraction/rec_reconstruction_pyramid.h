@@ -17,7 +17,7 @@ namespace rec {
 
 	std::vector<viral_core::vector> reconstruct_object3DTree(int stepsize, std::vector<rec::sensor> sensors, tree<rec::object3D> object3DTree, int level);
 
-	std::vector<std::vector<viral_core::vector>> reconstruct_object3DTree_objectSeparated(int stepsize, std::vector<rec::sensor> sensors, tree<rec::object3D> object3DTree, int level);
+	std::vector<std::vector<viral_core::vector>> reconstruct_object3DTree_objectSeparated(rec::aabb workspace, int stepsize, std::vector<rec::sensor> sensors, tree<rec::object3D> object3DTree, int level);
 }
 
 

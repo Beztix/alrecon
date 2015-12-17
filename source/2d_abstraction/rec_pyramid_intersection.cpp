@@ -454,15 +454,15 @@ namespace rec {
 			}
 		}
 
-		
+		/*
 		text_output::writeVectorListToTextFile("a-" + std::to_string(currentCamera) +"_" + std::to_string(currentCameraPyrIndex) + "_" + std::to_string(currentPyrOneIndex) + "intersectPoints.txt", allIntersectionPoints);
 		text_output::appendPyramidToTextFile("a-" + std::to_string(currentCamera) + "_" + std::to_string(currentCameraPyrIndex) + "_" + std::to_string(currentPyrOneIndex) + "firstPyr.txt", firstPyramid);
 		text_output::appendPyramidToTextFile("a-" + std::to_string(currentCamera) + "_" + std::to_string(currentCameraPyrIndex) + "_" + std::to_string(currentPyrOneIndex) + "secondPyr.txt", secondPyramid);
-
+		*/
 
 		//there is some part of the intersection inside of the workspace bounding box
 		if (allIntersectionPoints.size() > 0) {
-			rec:aabb intersectionBoundingBox = util::createBoundingBoxOfPoints(allIntersectionPoints);
+			rec::aabb intersectionBoundingBox = util::createBoundingBoxOfPoints(allIntersectionPoints);
 			result = intersectionBoundingBox;
 			return true;
 		}
@@ -484,7 +484,7 @@ namespace rec {
 	*	If each pyramidOne intersects pyramidTwo it returns true, otherwise false.
 	*/
 	bool doMultiplePyramidsIntersectInsideWorkspace(std::vector<tree<rec::seAndPyramid>::pre_order_iterator> pyramidOneList, tree<rec::seAndPyramid>::pre_order_iterator pyramidTwo,
-		rec::aabb workspace, rec::aabb &totalIntersectionBoundingBox, int currentCamera, int currentCameraPyrIndex) {
+		rec::aabb workspace, rec::aabb totalIntersectionBoundingBox, rec::aabb &newTotalIntersectionBoundingBox, int currentCamera, int currentCameraPyrIndex) {
 
 		rec::pyramid pyrTwo = (*pyramidTwo).pyr;
 
@@ -521,7 +521,7 @@ namespace rec {
 				//no intersection between the intersection bounding boxes
 				return false;
 			}
-			totalIntersectionBoundingBox = util::calculateAABBIntersection(totalIntersectionBoundingBox, currentIntersectionBoundingBox);
+			newTotalIntersectionBoundingBox = util::calculateAABBIntersection(totalIntersectionBoundingBox, currentIntersectionBoundingBox);
 		}
 		return true;
 	}
@@ -559,7 +559,8 @@ namespace rec {
 			tree<rec::seAndPyramid>::pre_order_iterator currentPyramid = currentCameraPyramidList.at(i);
 
 			//test if all already in fList gathered pyramids intersect the currentPyramid
-			if (doMultiplePyramidsIntersectInsideWorkspace(fList, currentPyramid, workspace, totalIntersectionBoundingBox, currentCamera, i)) {
+			rec::aabb newTotalIntersectionBoundingBox;
+			if (doMultiplePyramidsIntersectInsideWorkspace(fList, currentPyramid, workspace, totalIntersectionBoundingBox, newTotalIntersectionBoundingBox, currentCamera, i)) {
 				std::vector<tree<rec::seAndPyramid>::pre_order_iterator> newfList = fList;
 				newfList.push_back(currentPyramid);
 
@@ -567,7 +568,7 @@ namespace rec {
 				if (currentCamera + 1 < cameraPyramidLists.size()) {
 					//perform another recursive computation on the next cameraPyramidList
 					std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinationsPart = 
-						testMultiplePyramidsWithMultiplePyramidsForIntersection(newfList, cameraPyramidLists, currentCamera + 1, workspace, totalIntersectionBoundingBox);
+						testMultiplePyramidsWithMultiplePyramidsForIntersection(newfList, cameraPyramidLists, currentCamera + 1, workspace, newTotalIntersectionBoundingBox);
 					//append received part of the result to the whole result
 					resultCombinations.insert(resultCombinations.end(), resultCombinationsPart.begin(), resultCombinationsPart.end());
 				}

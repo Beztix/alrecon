@@ -129,7 +129,7 @@ namespace rec {
 
 		// as long as there are unprocessed levels of the 2D trees left:
 		//for (int currentLevel = 0; currentLevel < depthOfSeAndPyramidTrees; currentLevel++) {
-		for (int currentLevel = 0; currentLevel < 1; currentLevel++) {
+		for (int currentLevel = 0; currentLevel < 3; currentLevel++) {
 			std::cout << std::endl;
 			std::cout << "==== processing level " + std::to_string(currentLevel) + " ====" << std::endl;
 			std::cout << std::endl;
@@ -141,8 +141,10 @@ namespace rec {
 			// for each object3D on the current level of the 3D tree
 			while (object3DTree.is_valid(currentLevel3DIterator)) {
 				
-				std::cout << "==== processing object " + std::to_string(object) + " on level " + std::to_string(currentLevel) + " ====" << std::endl;
-
+				if (object % 10 == 0) {
+					std::cout << "==== processing object " + std::to_string(object) + " on level " + std::to_string(currentLevel) + " ====" << std::endl;
+				}
+				
 				// get reference to current object3D
 				rec::object3D& currentObject3D = *currentLevel3DIterator;
 
@@ -196,7 +198,7 @@ namespace rec {
 
 				// ###### intersect current seAndPyramidITLists ######
 				intersectionIT = rec::intersectAllPyramids(seAndPyramidITLists, workspace);
-				std::cout << "intersection finished, Nr of new 3D children: " + std::to_string(intersectionIT.size()) << std::endl;
+				//std::cout << "intersection finished, Nr of new 3D children: " + std::to_string(intersectionIT.size()) << std::endl;
 				seAndPyramidITLists.clear();
 
 				// add all objects received from intersection as children of the currentObject3D to the object3DTree
@@ -306,7 +308,7 @@ namespace rec {
 
 
 
-	std::vector<std::vector<viral_core::vector>> reconstruct_object3DTree_objectSeparated(int stepsize, std::vector<rec::sensor> sensors, tree<rec::object3D> object3DTree, int level) {
+	std::vector<std::vector<viral_core::vector>> reconstruct_object3DTree_objectSeparated(rec::aabb workspace,int stepsize, std::vector<rec::sensor> sensors, tree<rec::object3D> object3DTree, int level) {
 
 		std::vector<std::vector<viral_core::vector>> allOccupiedWorldPositions;
 
@@ -328,16 +330,20 @@ namespace rec {
 
 			std::vector<viral_core::vector> currentOccupiedWorldPositions;
 
-		
+			//text_output::writeObject3DToTextFile("object_" + std::to_string(o) + ".txt", currentObject3D);
+
+
+			if (!(o == 100)) {
+
 				//text_output::writeObject3DToPyramidTextFiles("testObject_pyr", currentObject3D);
 
 				// run through all world space positions
-				for (int x = -3000; x < 3200; x += stepsize) {
+				for (int x = workspace.extremalValues[rec::aabb::minX]; x < workspace.extremalValues[rec::aabb::maxX]; x += stepsize) {
 					if (x % 100 == 0) {
 						std::cout << "testing x = " + std::to_string(x) << std::endl;
 					}
-					for (int y = -3200; y < 3200; y += stepsize) {
-						for (int z = -1880; z < 1600; z += stepsize) {
+					for (int y = workspace.extremalValues[rec::aabb::minY]; y < workspace.extremalValues[rec::aabb::maxY]; y += stepsize) {
+						for (int z = workspace.extremalValues[rec::aabb::minZ]; z < workspace.extremalValues[rec::aabb::maxZ]; z += stepsize) {
 							/*
 							if (x % 1 == 0) {
 							std::cout << "testing x = " + std::to_string(x) + "y = " + std::to_string(y) + "z = " + std::to_string(z) << std::endl;
@@ -357,18 +363,14 @@ namespace rec {
 						}
 					}
 				}
-
-			
-		
+			}
 
 			allOccupiedWorldPositions.push_back(currentOccupiedWorldPositions);
 
 			currentLevel3DIterator++;
 			o++;
+
 		}
-
-
-
 
 		return allOccupiedWorldPositions;
 
