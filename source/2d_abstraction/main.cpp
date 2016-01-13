@@ -95,6 +95,8 @@ int main() {
 	bool RENDER_IMAGES = false;
 	
 	
+	int quality = 200;
+	vector<int> qualityValues = { 500000, 30000, 5000, 1000, 300 };
 
 
 	//#######################################################
@@ -111,6 +113,11 @@ int main() {
 	std::vector<tree<rec::seAndPyramid>> seAndPyramidTrees;
 	std::vector<tree<se::contourAndSe>> contourAndSeTrees;
 	std::vector<std::vector<int>> treeContentCounts;
+	std::vector<int> totalContentCount;
+
+	for (int i = 0; i < (qualityValues.size() + 2); i++) {
+		totalContentCount.push_back(0);
+	}
 
 
 	// for each camera
@@ -124,8 +131,6 @@ int main() {
 		string bbImagePart = "se_rosin_tree_" + inputName + "_bb_";
 		string combinedImagePart = "se_rosin_tree_" + inputName + "_combined_";
 
-		int quality = 200;
-		vector<int> qualityValues = { 500000, 30000, 5000, 1000, 300 };
 		int iterations = 1;
 		//++++++++++++++++++++++++++++
 
@@ -194,6 +199,8 @@ int main() {
 			rec::seAndPyramid rootSeAndPyramid(cam, 0, 0, corner1, corner2, corner3, corner4);
 			rootSeAndPyramid.setLevel(0);
 			rootSeAndPyramid.setCamInternalID(0);
+			rootSeAndPyramid.setTotalID(totalContentCount.at(0));
+
 			seAndPyramidTree.set_head(rootSeAndPyramid);
 			treeContentCount.push_back(1);
 
@@ -212,7 +219,7 @@ int main() {
 
 
 			//start the main computation
-			startRosinTree(cam, contourAndSeTree, seAndPyramidTree, treeContentCount, contours, width, height, qualityValues);
+			startRosinTree(cam, contourAndSeTree, seAndPyramidTree, treeContentCount, totalContentCount, contours, width, height, qualityValues);
 			//startRosinTree(cam, contourAndSeTree, seAndFrustTree, contours, width, height, qualityValues);
 
 			//std::cout << std::endl;
@@ -229,6 +236,11 @@ int main() {
 			contourAndSeTrees.push_back(contourAndSeTree);
 			seAndPyramidTrees.push_back(seAndPyramidTree);
 			treeContentCounts.push_back(treeContentCount);
+
+			for (int i = 0; i < treeContentCount.size(); i++) {
+				totalContentCount[i] = totalContentCount[i] + treeContentCount[i];
+			}
+		
 
 
 			QueryPerformanceCounter(&t4);
@@ -393,7 +405,8 @@ int main() {
 
 	rec::aabb extendedWorkspace = rec::aabb(-2500, 2700, -2700, 2700, -1080, 2000);
 
- 	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, treeContentCounts, 7, 640, 480, 300, extendedWorkspace);
+ 	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, treeContentCounts, 
+																totalContentCount, 7, 640, 480, 300, extendedWorkspace);
 
 	std::vector<std::vector<viral_core::vector>> separatedOccupiedWorldPositions;
 

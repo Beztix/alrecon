@@ -107,6 +107,7 @@ namespace rec {
 
 		int level;
 		int camInternalID;
+		int totalID;
 		int cameraIndex;
 		int offSetX;
 		int offSetY;
@@ -128,6 +129,10 @@ namespace rec {
 
 		void setLevel(int level) {
 			this->level = level;
+		}
+
+		void setTotalID(int id) {
+			this->totalID = id;
 		}
 
 

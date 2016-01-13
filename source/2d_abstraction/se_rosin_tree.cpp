@@ -331,7 +331,7 @@ namespace se {
 
 
 	void startRosinTree(int cam, tree<contourAndSe> &seTree, tree<rec::seAndPyramid> &seAndPyramidTree, vector<int> &treeContentCount,
-		vector<vector<cv::Point>> contours, int width, int height, vector<int> qualityValues) {
+		vector<int> totalContentCount, vector<vector<cv::Point>> contours, int width, int height, vector<int> qualityValues) {
 
 		tree<se::contourAndSe>::iterator seTreeTop = seTree.begin();
 		tree<rec::seAndPyramid>::iterator seAndPyramidTreeTop = seAndPyramidTree.begin();
@@ -383,6 +383,7 @@ namespace se {
 			rec::seAndPyramid initialSeAndPyramid = rec::seAndPyramid(cam, offsetX, offsetY, initialFit);
 			initialSeAndPyramid.setLevel(1);
 			initialSeAndPyramid.setCamInternalID(camInternalID);
+			initialSeAndPyramid.setTotalID(totalContentCount.at(1) + camInternalID);
 			camInternalID++;
 
 			//add the initial fit to the seTree
@@ -443,6 +444,7 @@ namespace se {
 					rec::seAndPyramid newSeAndPyramid = rec::seAndPyramid(currentSeAndPyramid);
 					newSeAndPyramid.setLevel(currentTreeDepth + 1);
 					newSeAndPyramid.setCamInternalID(camInternalID);
+					newSeAndPyramid.setTotalID(totalContentCount.at(currentTreeDepth + 1) + camInternalID);
 					camInternalID++;
 
 					seTree.append_child(seTreeDepthBeginIterator, newContourAndSe);
@@ -463,6 +465,7 @@ namespace se {
 						rec::seAndPyramid currentNewSeAndPyramid = rec::seAndPyramid(cam, currentNewFit.offSetX, currentNewFit.offSetY, currentNewFit.fittedEllipse);
 						currentNewSeAndPyramid.setLevel(currentTreeDepth + 1);
 						currentNewSeAndPyramid.setCamInternalID(camInternalID);
+						currentNewSeAndPyramid.setTotalID(totalContentCount.at(currentTreeDepth + 1) + camInternalID);
 						camInternalID++;
 						
 						seAndPyramidTree.append_child(seAndPyramidTreeDepthBeginIterator, currentNewSeAndPyramid);

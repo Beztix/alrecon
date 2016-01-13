@@ -492,6 +492,10 @@ namespace rec {
 			tree<rec::seAndPyramid>::pre_order_iterator currentPyramidOne = pyramidOneList.at(i);
 			rec::pyramid currentPyrOne = (*currentPyramidOne).pyr;
 
+			int idTwo = pyrTwo.id;
+			int idOne = currentPyrOne.id;
+
+
 			//calculate camera containment
 			bool firstCamInSecondPyramid = false;
 			bool secondCamInFirstPyramid = false;

@@ -27,7 +27,8 @@ namespace rec {
 
 
 	tree<rec::object3D> createObject3DTree(std::vector<viral_core::vector> cameraPositions, std::vector<std::vector<std::vector<viral_core::vector>>> &directionsGrids,
-		std::vector<tree<rec::seAndPyramid>> &seAndPyramidTrees, std::vector<std::vector<int>> treeContentCounts, int nrOfCams, int width, int height, int offset, rec::aabb workspace) {
+		std::vector<tree<rec::seAndPyramid>> &seAndPyramidTrees, std::vector<std::vector<int>> treeContentCounts, std::vector<int> totalContentCount, 
+		int nrOfCams, int width, int height, int offset, rec::aabb workspace) {
 
 		double CAM_NEAR_PLANE = 500;
 		double CAM_FAR_PLANE = 8000;
@@ -44,25 +45,6 @@ namespace rec {
 
 
 		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> seAndPyramidITLists;
-
-
-
-
-		//calculate total content count
-
-		std::vector<int> totalContentCount;
-		for (int i = 0; i < treeContentCounts.at(0).size(); i++) {
-			totalContentCount.push_back(0);
-		}
-
-		for (int cam = 1; cam <= nrOfCams; cam++) {
-			std::vector<int> treeContentCount = treeContentCounts.at(cam - 1);
-		
-			for (int i = 0; i < treeContentCount.size(); i++) {
-				totalContentCount[i] = totalContentCount[i] + treeContentCount[i];
-			}
-		}
-
 
 
 
@@ -100,7 +82,7 @@ namespace rec {
 			viral_core::vector top_left = camPosition + (direction1 * CAM_FAR_PLANE);
 
 			rec::pyramid currentPyramid = rec::pyramid(bot_left, bot_right, top_right, top_left, camPosition);
-			currentPyramid.setID(usedTotalIDs + rootSeAndPyramid.camInternalID);
+			currentPyramid.setID(rootSeAndPyramid.totalID);
 			usedTotalIDs += treeContentCount.at(0);
 
 			rootSeAndPyramid.setPyramid(currentPyramid);
@@ -159,6 +141,16 @@ namespace rec {
 			std::cout << std::endl;
 
 
+			//create lookup data structure
+			int currentTotalCount = totalContentCount.at(currentLevel + 1);
+			intersectionLookup** lookupMatrix = new intersectionLookup*[currentTotalCount];
+			for (int i = 0; i < currentTotalCount; i++) {
+				lookupMatrix[i] = new intersectionLookup[currentTotalCount];
+			}
+
+
+
+
 			tree<rec::object3D>::fixed_depth_iterator currentLevel3DIterator = object3DTree.begin_fixed(object3DTreeTop, currentLevel);
 			int objectsOnNextLevel = 0;
 			int object = 0;
@@ -207,6 +199,7 @@ namespace rec {
 						viral_core::vector top_left = camPosition + (direction1 * CAM_FAR_PLANE);
 						
 						rec::pyramid currentPyramid = rec::pyramid(bot_left, bot_right, top_right, top_left, camPosition);
+						currentPyramid.setID(currentChild.totalID);
 						currentChild.setPyramid(currentPyramid);
 
 						//text_output::appendPyramidToTextFile("Pyramids_cam" + std::to_string(cam) + ".txt", currentPyramid);
