@@ -9,7 +9,8 @@
 namespace se {
 
 
-	void startRosinTree(int cam, tree<se::contourAndSe> &seTree, tree<rec::seAndPyramid> &seAndPyramidTree, std::vector<std::vector<cv::Point>> contours, int width, int height, std::vector<int> qualityValues);
+	void startRosinTree(int cam, tree<se::contourAndSe> &seTree, tree<rec::seAndPyramid> &seAndPyramidTree, std::vector<int> &treeContentCount,
+		std::vector<std::vector<cv::Point>> contours, int width, int height, std::vector<int> qualityValues);
 
 	std::vector<se::superellipse> getEllipsesOfGivenDepth(tree<se::contourAndSe> seTree, int depth);
 }

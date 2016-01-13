@@ -105,6 +105,8 @@ namespace rec {
 	// struct representing a fitted superellipse, its bounding box and the corresponding pyramid
 	struct seAndPyramid {
 
+		int level;
+		int camInternalID;
 		int cameraIndex;
 		int offSetX;
 		int offSetY;
@@ -119,6 +121,14 @@ namespace rec {
 
 		rec::pyramid pyr;
 
+
+		void setCamInternalID(int id) {
+			this->camInternalID = id;
+		}
+
+		void setLevel(int level) {
+			this->level = level;
+		}
 
 
 		//empty default constructor
@@ -142,7 +152,7 @@ namespace rec {
 		}
 
 
-		//constructor receiving only the corners of the bounding box (NOT setting SE or frustum)
+		//constructor receiving only the corners of the bounding box (NOT setting SE or pyramid)
 		seAndPyramid(int cam, int offSetX, int offSetY, viral_core::vector2f corner1, viral_core::vector2f corner2,
 			viral_core::vector2f corner3, viral_core::vector2f corner4) {
 			cameraIndex = cam;
@@ -155,7 +165,7 @@ namespace rec {
 		}
 
 
-		//constructor receiving only a frustum
+		//constructor receiving only a pyramid
 		seAndPyramid(rec::pyramid pyr) {
 			this->pyr = pyr;
 		}
@@ -176,6 +186,43 @@ namespace rec {
 	};
 
 	std::ostream& operator<<(std::ostream& os, const rec::seAndPyramid& c);
+
+
+
+
+
+
+
+	struct intersectionLookup {
+
+		char intersection;			//specifying the intersection of the two objects - 0 = not calculated yet, 1 = intersection, -1 = no intersection
+		rec::aabb intersectionBoundingBox;
+
+		//empty default constructor
+		intersectionLookup() {
+			intersection = 0;
+		}
+
+		void setIntersectTrue() {
+			intersection = 1;
+		}
+
+		void setIntersectFalse() {
+			intersection = -1;
+		}
+
+		void setIntersectionBoundingBox(rec::aabb intersectionBoundingBox) {
+			this->intersectionBoundingBox = intersectionBoundingBox;
+		}
+
+
+	};
+
+
+
+
+
+
 
 
 }

@@ -330,7 +330,8 @@ namespace se {
 
 
 
-	void startRosinTree(int cam, tree<contourAndSe> &seTree, tree<rec::seAndPyramid> &seAndPyramidTree, vector<vector<cv::Point>> contours, int width, int height, vector<int> qualityValues) {
+	void startRosinTree(int cam, tree<contourAndSe> &seTree, tree<rec::seAndPyramid> &seAndPyramidTree, vector<int> &treeContentCount,
+		vector<vector<cv::Point>> contours, int width, int height, vector<int> qualityValues) {
 
 		tree<se::contourAndSe>::iterator seTreeTop = seTree.begin();
 		tree<rec::seAndPyramid>::iterator seAndPyramidTreeTop = seAndPyramidTree.begin();
@@ -339,6 +340,8 @@ namespace se {
 		//========================================
 		//==    initial fit for each contour    ==
 		//========================================
+
+		int camInternalID = 0;
 
 		//for each contour:
 		for (int i = 0; i < contours.size(); i++) {
@@ -378,6 +381,9 @@ namespace se {
 			//build seAndPyramids for the fit
 			se::contourAndSe initialContourAndSe = se::contourAndSe(currentContourWithOffset, sizeX, sizeY, offsetX, offsetY, initialFit);
 			rec::seAndPyramid initialSeAndPyramid = rec::seAndPyramid(cam, offsetX, offsetY, initialFit);
+			initialSeAndPyramid.setLevel(1);
+			initialSeAndPyramid.setCamInternalID(camInternalID);
+			camInternalID++;
 
 			//add the initial fit to the seTree
 			seTree.append_child(seTreeTop, initialContourAndSe);
@@ -394,6 +400,8 @@ namespace se {
 
 		}
 
+		treeContentCount.push_back(camInternalID);
+
 
 
 		//===================================================================================================================
@@ -404,7 +412,6 @@ namespace se {
 		int currentTreeDepth = 1;
 		tree<se::contourAndSe>::fixed_depth_iterator seTreeDepthBeginIterator;
 		tree<rec::seAndPyramid>::fixed_depth_iterator seAndPyramidTreeDepthBeginIterator;
-		//tree<rec::seAndFrust>::fixed_depth_iterator seAndFrustTreeDepthBeginIterator;
 
 
 		while (currentTreeDepth - 1 < qualityValues.size()) {
@@ -414,13 +421,13 @@ namespace se {
 			//get fixed depth iterator for currentTreeDepth
 			seTreeDepthBeginIterator = seTree.begin_fixed(seTreeTop, currentTreeDepth);
 			seAndPyramidTreeDepthBeginIterator = seAndPyramidTree.begin_fixed(seAndPyramidTreeTop, currentTreeDepth);
-			//seAndFrustTreeDepthBeginIterator = seAndFrustTree.begin_fixed(seAndFrustTreeTop, currentTreeDepth);
+			int camInternalID = 0;
 
 			//iterate through all fits at the current depth
 			while (seTree.is_valid(seTreeDepthBeginIterator)) {
 				se::contourAndSe currentContourAndSe = *seTreeDepthBeginIterator;
 				rec::seAndPyramid currentSeAndPyramid = *seAndPyramidTreeDepthBeginIterator;
-				//rec::seAndFrust currentSeAndFrust = *seAndFrustTreeDepthBeginIterator;
+			
 
 				if (!currentContourAndSe.alreadyFitted) {
 					se::superellipse fit = useRosinOnce(currentContourAndSe.contour, currentContourAndSe.width, currentContourAndSe.height);
@@ -432,9 +439,15 @@ namespace se {
 				if (currentContourAndSe.fittedEllipse.quality < desiredNextQuality) {
 					//TODO: SINNVOLL??
 					//duplicate current node
-					seTree.append_child(seTreeDepthBeginIterator, currentContourAndSe);
-					seAndPyramidTree.append_child(seAndPyramidTreeDepthBeginIterator, currentSeAndPyramid);
-					//seAndFrustTree.append_child(seAndFrustTreeDepthBeginIterator, currentSeAndFrust);
+					se::contourAndSe newContourAndSe = se::contourAndSe(currentContourAndSe);
+					rec::seAndPyramid newSeAndPyramid = rec::seAndPyramid(currentSeAndPyramid);
+					newSeAndPyramid.setLevel(currentTreeDepth + 1);
+					newSeAndPyramid.setCamInternalID(camInternalID);
+					camInternalID++;
+
+					seTree.append_child(seTreeDepthBeginIterator, newContourAndSe);
+					seAndPyramidTree.append_child(seAndPyramidTreeDepthBeginIterator, newSeAndPyramid);
+					
 				}
 
 				//fit is not good enough for the next depth
@@ -446,18 +459,21 @@ namespace se {
 					for (int i = 0; i < newFits.size(); i++) {
 						se::contourAndSe currentNewFit = newFits.at(i);
 						seTree.append_child(seTreeDepthBeginIterator, currentNewFit);
+
 						rec::seAndPyramid currentNewSeAndPyramid = rec::seAndPyramid(cam, currentNewFit.offSetX, currentNewFit.offSetY, currentNewFit.fittedEllipse);
+						currentNewSeAndPyramid.setLevel(currentTreeDepth + 1);
+						currentNewSeAndPyramid.setCamInternalID(camInternalID);
+						camInternalID++;
+						
 						seAndPyramidTree.append_child(seAndPyramidTreeDepthBeginIterator, currentNewSeAndPyramid);
-						/*rec::seAndFrust currentNewSeAndFrust = rec::seAndFrust(cam, currentNewFit.offSetX, currentNewFit.offSetY, currentNewFit.fittedEllipse);
-						seAndFrustTree.append_child(seAndFrustTreeDepthBeginIterator, currentNewSeAndFrust);*/
 					}
 				}
 
 				seTreeDepthBeginIterator++;
 				seAndPyramidTreeDepthBeginIterator++;
-				//seAndFrustTreeDepthBeginIterator++;
 			}
 
+			treeContentCount.push_back(camInternalID);
 			currentTreeDepth++;
 		}
 

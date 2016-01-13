@@ -100,6 +100,8 @@ namespace se {
 			alreadyFitted = true;
 			fittedEllipse = mfittedEllipse;
 		}
+
+		
 	};
 
 

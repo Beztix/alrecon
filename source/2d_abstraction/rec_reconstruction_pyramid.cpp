@@ -27,7 +27,7 @@ namespace rec {
 
 
 	tree<rec::object3D> createObject3DTree(std::vector<viral_core::vector> cameraPositions, std::vector<std::vector<std::vector<viral_core::vector>>> &directionsGrids,
-		std::vector<tree<rec::seAndPyramid>> &seAndPyramidTrees, int nrOfCams, int width, int height, int offset, rec::aabb workspace) {
+		std::vector<tree<rec::seAndPyramid>> &seAndPyramidTrees, std::vector<std::vector<int>> treeContentCounts, int nrOfCams, int width, int height, int offset, rec::aabb workspace) {
 
 		double CAM_NEAR_PLANE = 500;
 		double CAM_FAR_PLANE = 8000;
@@ -48,14 +48,35 @@ namespace rec {
 
 
 
+		//calculate total content count
+
+		std::vector<int> totalContentCount;
+		for (int i = 0; i < treeContentCounts.at(0).size(); i++) {
+			totalContentCount.push_back(0);
+		}
+
+		for (int cam = 1; cam <= nrOfCams; cam++) {
+			std::vector<int> treeContentCount = treeContentCounts.at(cam - 1);
+		
+			for (int i = 0; i < treeContentCount.size(); i++) {
+				totalContentCount[i] = totalContentCount[i] + treeContentCount[i];
+			}
+		}
+
+
+
+
+
 		//====================================
 		//===    Root Nodes of 2D Trees    ===
 		//====================================
 
+		int usedTotalIDs = 0;
 
 		// for each camera
 		for (int cam = 1; cam <= nrOfCams; cam++) {
 			tree<rec::seAndPyramid>::pre_order_iterator seAndPyramidTreeTop = seAndPyramidTrees.at(cam - 1).begin();
+			std::vector<int> treeContentCount = treeContentCounts.at(cam - 1);
 
 			// list of pointers to the current seAndPyramids
 			std::vector<rec::seAndPyramid*> currentSeAndPyramidPList;
@@ -79,6 +100,9 @@ namespace rec {
 			viral_core::vector top_left = camPosition + (direction1 * CAM_FAR_PLANE);
 
 			rec::pyramid currentPyramid = rec::pyramid(bot_left, bot_right, top_right, top_left, camPosition);
+			currentPyramid.setID(usedTotalIDs + rootSeAndPyramid.camInternalID);
+			usedTotalIDs += treeContentCount.at(0);
+
 			rootSeAndPyramid.setPyramid(currentPyramid);
 
 			//text_output::appendPyramidToTextFile("Pyramids_cam" + std::to_string(cam) + ".txt", currentPyramid);
@@ -185,7 +209,7 @@ namespace rec {
 						rec::pyramid currentPyramid = rec::pyramid(bot_left, bot_right, top_right, top_left, camPosition);
 						currentChild.setPyramid(currentPyramid);
 
-						text_output::appendPyramidToTextFile("Pyramids_cam" + std::to_string(cam) + ".txt", currentPyramid);
+						//text_output::appendPyramidToTextFile("Pyramids_cam" + std::to_string(cam) + ".txt", currentPyramid);
 
 
 						currentSeAndPyramidITList.push_back(tree<rec::seAndPyramid>::pre_order_iterator(childrenITbegin));

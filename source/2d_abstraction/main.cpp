@@ -101,17 +101,16 @@ int main() {
 	//##########        Superellipses Rosin        ##########       
 	//#######################################################
 
-	cout << endl;
-	cout << endl;
-	cout << "=======  Starting superellipses computation using Rosin  =======" << endl;
-	cout << endl;
-	cout << endl;
-	cout << endl;
+	std::cout << endl;
+	std::cout << endl;
+	std::cout << "=======  Starting superellipses computation using Rosin  =======" << endl;
+	std::cout << endl;
+	std::cout << endl;
+	std::cout << endl;
 
-	//std::vector<tree<rec::seAndPyramid>> seAndFrustTrees;
 	std::vector<tree<rec::seAndPyramid>> seAndPyramidTrees;
 	std::vector<tree<se::contourAndSe>> contourAndSeTrees;
-
+	std::vector<std::vector<int>> treeContentCounts;
 
 
 	// for each camera
@@ -130,8 +129,8 @@ int main() {
 		int iterations = 1;
 		//++++++++++++++++++++++++++++
 
-		cout << endl;
-		cout << "===   IMAGE: " << inputName << ".png   ===" << endl;
+		std::cout << endl;
+		std::cout << "===   IMAGE: " << inputName << ".png   ===" << endl;
 
 		int width;
 		int height;
@@ -151,7 +150,7 @@ int main() {
 
 		QueryPerformanceCounter(&t2);
 		double prepareDuration = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
-		cout << "prepareDuration:     " << prepareDuration << "ms" << endl;
+		std::cout << "prepareDuration:     " << prepareDuration << "ms" << endl;
 
 
 
@@ -159,8 +158,8 @@ int main() {
 		// ===========   SE COMPUTATION   ===========
 
 		tree<se::contourAndSe> contourAndSeTree;
-		//tree<rec::seAndFrust> seAndFrustTree;
 		tree<rec::seAndPyramid> seAndPyramidTree;
+		std::vector<int> treeContentCount;
 
 
 		//do the whole computation multiple times (performance averaging)
@@ -193,7 +192,10 @@ int main() {
 			viral_core::vector2f corner3((float)width, (float)height);
 			viral_core::vector2f corner4(0.f, (float)height);
 			rec::seAndPyramid rootSeAndPyramid(cam, 0, 0, corner1, corner2, corner3, corner4);
+			rootSeAndPyramid.setLevel(0);
+			rootSeAndPyramid.setCamInternalID(0);
 			seAndPyramidTree.set_head(rootSeAndPyramid);
+			treeContentCount.push_back(1);
 
 
 
@@ -210,7 +212,7 @@ int main() {
 
 
 			//start the main computation
-			startRosinTree(cam, contourAndSeTree, seAndPyramidTree, contours, width, height, qualityValues);
+			startRosinTree(cam, contourAndSeTree, seAndPyramidTree, treeContentCount, contours, width, height, qualityValues);
 			//startRosinTree(cam, contourAndSeTree, seAndFrustTree, contours, width, height, qualityValues);
 
 			//std::cout << std::endl;
@@ -225,13 +227,13 @@ int main() {
 
 			//add the trees of the current camera to the lsit of all trees
 			contourAndSeTrees.push_back(contourAndSeTree);
-			//seAndFrustTrees.push_back(seAndFrustTree);
 			seAndPyramidTrees.push_back(seAndPyramidTree);
+			treeContentCounts.push_back(treeContentCount);
 
 
 			QueryPerformanceCounter(&t4);
 			double computeDuration = (t4.QuadPart - t3.QuadPart) * 1000.0 / frequency.QuadPart;
-			cout << "computeDuration:     " << computeDuration << "ms" << endl;
+			std::cout << "computeDuration:     " << computeDuration << "ms" << endl;
 			totalComputeDuration = totalComputeDuration + computeDuration;
 		}
 
@@ -241,12 +243,12 @@ int main() {
 
 		int depth = contourAndSeTree.max_depth();
 
-		cout << endl;
-		cout << "totalComputeDuration:         " << totalComputeDuration << "ms" << endl;
-		cout << "medium compute Duration:      " << totalComputeDuration / iterations << "ms" << endl;
-		cout << endl;
-		cout << "quality used:                 " << quality << endl;
-		cout << "depth of tree:                " << depth << endl;
+		std::cout << endl;
+		std::cout << "totalComputeDuration:         " << totalComputeDuration << "ms" << endl;
+		std::cout << "medium compute Duration:      " << totalComputeDuration / iterations << "ms" << endl;
+		std::cout << endl;
+		std::cout << "quality used:                 " << quality << endl;
+		std::cout << "depth of tree:                " << depth << endl;
 
 
 
@@ -265,8 +267,8 @@ int main() {
 
 			QueryPerformanceCounter(&t6);
 			double renderDuration = (t6.QuadPart - t5.QuadPart) * 1000.0 / frequency.QuadPart;
-			cout << "renderDuration:               " << renderDuration << "ms" << endl;
-			cout << endl;
+			std::cout << "renderDuration:               " << renderDuration << "ms" << endl;
+			std::cout << endl;
 		}
 	}	
 	// end of for each camera
@@ -283,12 +285,12 @@ int main() {
 	//##########          Reconstruction           ##########       
 	//#######################################################
 
-	cout << endl;
-	cout << endl;
-	cout << "=======  Starting reconstruction computation  =======" << endl;
-	cout << endl;
-	cout << endl;
-	cout << endl;
+	std::cout << endl;
+	std::cout << endl;
+	std::cout << "=======  Starting reconstruction computation  =======" << endl;
+	std::cout << endl;
+	std::cout << endl;
+	std::cout << endl;
 
 
 	//rec::doAllSamplingCalculations();
@@ -300,7 +302,7 @@ int main() {
 	std::vector<rec::sensor> sensors;
 
 
-	cout << "Initialising file_camera and sensor objects, loading directionsGrids" << endl;
+	std::cout << "Initialising file_camera and sensor objects, loading directionsGrids" << endl;
 
 	// for each camera
 	for (int cam = 1; cam <= NROFCAMS; cam++) {
@@ -391,7 +393,7 @@ int main() {
 
 	rec::aabb extendedWorkspace = rec::aabb(-2500, 2700, -2700, 2700, -1080, 2000);
 
- 	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, 7, 640, 480, 300, extendedWorkspace);
+ 	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, treeContentCounts, 7, 640, 480, 300, extendedWorkspace);
 
 	std::vector<std::vector<viral_core::vector>> separatedOccupiedWorldPositions;
 

@@ -117,7 +117,7 @@ namespace rec {
 
 	// a struct representing a pyramid
 	struct pyramid {
-
+		int id;
 		viral_core::vector corners[5];			//the 4 corners of the base of the pyramid and the apex
 		viral_core::vector planeNormals[4];		//the normals of the 4 planes corresponding the the sides of the pyramid, normals pointing inside
 												//base corners of the normals are the corners at the same index
@@ -136,6 +136,11 @@ namespace rec {
 		};
 
 
+		void setID(int id) {
+			this->id = id;
+		}
+
+
 		//empty constructor
 		pyramid() {
 
@@ -145,6 +150,7 @@ namespace rec {
 		//constructor receiving the apex and the 4 corners of the pyramid base, automatically building the plane information
 		pyramid(viral_core::vector bot_left_corner, viral_core::vector bot_right_corner, 
 			viral_core::vector top_right_corner, viral_core::vector top_left_corner, viral_core::vector apex_corner) {
+
 			corners[bot_left] = bot_left_corner;
 			corners[bot_right] = bot_right_corner;
 			corners[top_right] = top_right_corner;
