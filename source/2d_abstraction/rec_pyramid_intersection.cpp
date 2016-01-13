@@ -484,7 +484,7 @@ namespace rec {
 	*	If each pyramidOne intersects pyramidTwo it returns true, otherwise false.
 	*/
 	bool doMultiplePyramidsIntersectInsideWorkspace(std::vector<tree<rec::seAndPyramid>::pre_order_iterator> pyramidOneList, tree<rec::seAndPyramid>::pre_order_iterator pyramidTwo,
-		rec::aabb workspace, rec::aabb totalIntersectionBoundingBox, rec::aabb &newTotalIntersectionBoundingBox, int currentCamera, int currentCameraPyrIndex) {
+		rec::aabb workspace, rec::aabb totalIntersectionBoundingBox, rec::aabb &newTotalIntersectionBoundingBox, int currentCamera, int currentCameraPyrIndex, rec::intersectionLookup** lookupMatrix) {
 
 		rec::pyramid pyrTwo = (*pyramidTwo).pyr;
 
@@ -495,30 +495,56 @@ namespace rec {
 			int idTwo = pyrTwo.id;
 			int idOne = currentPyrOne.id;
 
+			//get lookup object
+			rec::intersectionLookup lookup = lookupMatrix[idOne][idTwo];
 
-			//calculate camera containment
-			bool firstCamInSecondPyramid = false;
-			bool secondCamInFirstPyramid = false;
-			if (pyrTwo.isPointInside(currentPyrOne.corners[rec::pyramid::apex])) {
-				firstCamInSecondPyramid = true;
-			}
-			if (currentPyrOne.isPointInside(pyrTwo.corners[rec::pyramid::apex])) {
-				secondCamInFirstPyramid = true;
-			}
-
-			//check for intersection of the two pyramids
-			if (!doPyramidsIntersect(currentPyrOne, pyrTwo)) {
-				//no intersection between pyramids
-				return false;
-			}
-
-			//calculate intersection bounding box
 			rec::aabb currentIntersectionBoundingBox;
-			if (!computePyramidIntersectionBoundingBoxInWorkspace(currentPyrOne, pyrTwo, workspace, firstCamInSecondPyramid, secondCamInFirstPyramid, 
-				currentIntersectionBoundingBox, currentCamera, currentCameraPyrIndex, i)) {
-				//intersection bounding box is completely outside of the workspace
+
+			//CASE 1: already calculated, do not intersect
+			if (lookup.intersection == -1) {
 				return false;
 			}
+
+			//CASE 2: already calculated, do intersect
+			else if (lookup.intersection == 1) {
+				currentIntersectionBoundingBox = lookup.intersectionBoundingBox;
+			}
+
+			//CASE 3: not calculated yet
+			else {
+				//calculate camera containment
+				bool firstCamInSecondPyramid = false;
+				bool secondCamInFirstPyramid = false;
+				if (pyrTwo.isPointInside(currentPyrOne.corners[rec::pyramid::apex])) {
+					firstCamInSecondPyramid = true;
+				}
+				if (currentPyrOne.isPointInside(pyrTwo.corners[rec::pyramid::apex])) {
+					secondCamInFirstPyramid = true;
+				}
+
+				//check for intersection of the two pyramids
+				if (!doPyramidsIntersect(currentPyrOne, pyrTwo)) {
+					//no intersection between pyramids
+					lookup.setIntersectFalse();
+					lookupMatrix[idOne][idTwo] = lookup;
+					return false;
+				}
+
+				//calculate intersection bounding box
+				if (!computePyramidIntersectionBoundingBoxInWorkspace(currentPyrOne, pyrTwo, workspace, firstCamInSecondPyramid, secondCamInFirstPyramid,
+					currentIntersectionBoundingBox, currentCamera, currentCameraPyrIndex, i)) {
+					//intersection bounding box is completely outside of the workspace
+					lookup.setIntersectFalse();
+					lookupMatrix[idOne][idTwo] = lookup;
+					return false;
+				}
+
+				//add calculated result to the lookup matrix
+				lookup.setIntersectTrue();
+				lookup.intersectionBoundingBox = currentIntersectionBoundingBox;
+				lookupMatrix[idOne][idTwo] = lookup;
+			}
+
 
 			//update totalIntersectionBoundingBox by intersecting it with the currentIntersectionBoundingBox
 			if (!util::doAABBsIntersect(totalIntersectionBoundingBox, currentIntersectionBoundingBox)) {
@@ -551,7 +577,7 @@ namespace rec {
 
 	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> testMultiplePyramidsWithMultiplePyramidsForIntersection
 		(std::vector<tree<rec::seAndPyramid>::pre_order_iterator> fList, std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> cameraPyramidLists, 
-			int currentCamera, rec::aabb workspace, rec::aabb &totalIntersectionBoundingBox) {
+			int currentCamera, rec::aabb workspace, rec::aabb &totalIntersectionBoundingBox, rec::intersectionLookup** lookupMatrix) {
 
 		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinations;
 
@@ -564,7 +590,7 @@ namespace rec {
 
 			//test if all already in fList gathered pyramids intersect the currentPyramid
 			rec::aabb newTotalIntersectionBoundingBox;
-			if (doMultiplePyramidsIntersectInsideWorkspace(fList, currentPyramid, workspace, totalIntersectionBoundingBox, newTotalIntersectionBoundingBox, currentCamera, i)) {
+			if (doMultiplePyramidsIntersectInsideWorkspace(fList, currentPyramid, workspace, totalIntersectionBoundingBox, newTotalIntersectionBoundingBox, currentCamera, i, lookupMatrix)) {
 				std::vector<tree<rec::seAndPyramid>::pre_order_iterator> newfList = fList;
 				newfList.push_back(currentPyramid);
 
@@ -572,7 +598,7 @@ namespace rec {
 				if (currentCamera + 1 < cameraPyramidLists.size()) {
 					//perform another recursive computation on the next cameraPyramidList
 					std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinationsPart = 
-						testMultiplePyramidsWithMultiplePyramidsForIntersection(newfList, cameraPyramidLists, currentCamera + 1, workspace, newTotalIntersectionBoundingBox);
+						testMultiplePyramidsWithMultiplePyramidsForIntersection(newfList, cameraPyramidLists, currentCamera + 1, workspace, newTotalIntersectionBoundingBox, lookupMatrix);
 					//append received part of the result to the whole result
 					resultCombinations.insert(resultCombinations.end(), resultCombinationsPart.begin(), resultCombinationsPart.end());
 				}
@@ -612,7 +638,7 @@ namespace rec {
 	*/
 
 	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectAllPyramids
-		(std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> cameraPyramidLists, rec::aabb workspace) {
+		(std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> cameraPyramidLists, rec::aabb workspace, rec::intersectionLookup** lookupMatrix) {
 
 		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinations;
 
@@ -629,7 +655,7 @@ namespace rec {
 
 			//start recursive computation
 			std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinationsPart =
-				testMultiplePyramidsWithMultiplePyramidsForIntersection(fList, cameraPyramidLists, 1, workspace, totalIntersectionBoundingBox);
+				testMultiplePyramidsWithMultiplePyramidsForIntersection(fList, cameraPyramidLists, 1, workspace, totalIntersectionBoundingBox, lookupMatrix);
 
 			//append received part of the result to the whole result
 			resultCombinations.insert(resultCombinations.end(), resultCombinationsPart.begin(), resultCombinationsPart.end());

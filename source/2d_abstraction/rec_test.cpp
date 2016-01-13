@@ -79,7 +79,13 @@ namespace rec {
 
 		rec::aabb workspace = rec::aabb(-2500, 2700, -2700, 2700, -1080, 2000);
 
-		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectionIT = intersectAllPyramids(cameraPyramidLists, workspace);
+		//create lookup data structure
+		intersectionLookup** lookupMatrix = new intersectionLookup*[7];
+		for (int i = 0; i < 7; i++) {
+			lookupMatrix[i] = new intersectionLookup[7];
+		}
+
+		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectionIT = intersectAllPyramids(cameraPyramidLists, workspace, lookupMatrix);
 
 		bool inPyramids3 = true;
 		std::vector<tree<rec::seAndPyramid>::pre_order_iterator> firstIntersectionIT = intersectionIT.at(0);

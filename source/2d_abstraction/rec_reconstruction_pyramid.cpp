@@ -104,9 +104,17 @@ namespace rec {
 		}
 
 		
+		//create lookup data structure
+		int currentTotalCount = totalContentCount.at(0);
+		intersectionLookup** lookupMatrix = new intersectionLookup*[currentTotalCount];
+		for (int i = 0; i < currentTotalCount; i++) {
+			lookupMatrix[i] = new intersectionLookup[currentTotalCount];
+		}
+
+
 
 		// ###### intersect initial seAndPyramidITLists ######
-		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectionIT = rec::intersectAllPyramids(seAndPyramidITLists, workspace);
+		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectionIT = rec::intersectAllPyramids(seAndPyramidITLists, workspace, lookupMatrix);
 		seAndPyramidITLists.clear();
 
 
@@ -135,7 +143,7 @@ namespace rec {
 
 		// as long as there are unprocessed levels of the 2D trees left:
 		//for (int currentLevel = 0; currentLevel < depthOfSeAndPyramidTrees; currentLevel++) {
-		for (int currentLevel = 0; currentLevel < 3; currentLevel++) {
+		for (int currentLevel = 0; currentLevel < 4; currentLevel++) {
 			std::cout << std::endl;
 			std::cout << "==== processing level " + std::to_string(currentLevel) + " ====" << std::endl;
 			std::cout << std::endl;
@@ -214,7 +222,7 @@ namespace rec {
 
 
 				// ###### intersect current seAndPyramidITLists ######
-				intersectionIT = rec::intersectAllPyramids(seAndPyramidITLists, workspace);
+				intersectionIT = rec::intersectAllPyramids(seAndPyramidITLists, workspace, lookupMatrix);
 				//std::cout << "intersection finished, Nr of new 3D children: " + std::to_string(intersectionIT.size()) << std::endl;
 				seAndPyramidITLists.clear();
 
