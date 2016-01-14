@@ -20,7 +20,7 @@ namespace rec {
 
 	
 
-	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> testPyramidsWithGivenPoint(viral_core::vector p) {
+	std::vector<rec::object3D> testPyramidsWithGivenPoint(viral_core::vector p) {
 		std::vector<tree<rec::seAndPyramid>> seAndPyramidTrees;
 
 		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> cameraPyramidLists;
@@ -85,11 +85,11 @@ namespace rec {
 			lookupMatrix[i] = new intersectionLookup[7];
 		}
 
-		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectionIT = intersectAllPyramids(cameraPyramidLists, workspace, lookupMatrix);
+		std::vector<rec::object3D> intersectionObjects = intersectAllPyramids(cameraPyramidLists, workspace, lookupMatrix);
 
 		bool inPyramids3 = true;
-		std::vector<tree<rec::seAndPyramid>::pre_order_iterator> firstIntersectionIT = intersectionIT.at(0);
-		for (tree<rec::seAndPyramid>::pre_order_iterator currentPyrIt : firstIntersectionIT) {
+		rec::object3D firstIntersectionObject = intersectionObjects.at(0);
+		for (tree<rec::seAndPyramid>::pre_order_iterator currentPyrIt : firstIntersectionObject.generatingPyramidsIT) {
 			rec::seAndPyramid currentSeAndPyr = (*currentPyrIt);
 			rec::pyramid currentPyr = currentSeAndPyr.pyr;
 			if (!currentPyr.isPointInside(p)) {
@@ -98,7 +98,7 @@ namespace rec {
 		}
 
 		
-		return intersectionIT;
+		return intersectionObjects;
 	}
 
 

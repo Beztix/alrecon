@@ -20,6 +20,8 @@ namespace rec {
 		std::vector<viral_core::vector> planeNormalBases;	//the base vectors of the plane normals
 		std::vector<rec::seAndFrust*> generatingFrustums;	//the frustums which are intersected to generate this object3D
 		std::vector<rec::seAndPyramid*> generatingPyramids;	//the pyramids which are intersected to generate this object3D
+		rec::aabb intersectionBoundingBox;					//the bounding box
+
 
 		std::vector<tree<rec::seAndFrust>::pre_order_iterator> generatingFrustumsIT;
 		std::vector<tree<rec::seAndPyramid>::pre_order_iterator> generatingPyramidsIT;

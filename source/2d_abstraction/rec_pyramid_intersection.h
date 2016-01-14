@@ -15,8 +15,7 @@ namespace rec {
 
 
 
-	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectAllPyramids
-		(std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> PyramidLists, rec::aabb workspace, rec::intersectionLookup** lookupMatrix);
+	std::vector<rec::object3D> intersectAllPyramids(std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> PyramidLists, rec::aabb workspace, rec::intersectionLookup** lookupMatrix);
 
 
 }

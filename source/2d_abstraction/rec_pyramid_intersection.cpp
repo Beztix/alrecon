@@ -575,11 +575,11 @@ namespace rec {
 	*
 	*/
 
-	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> testMultiplePyramidsWithMultiplePyramidsForIntersection
+	std::vector<rec::object3D> testMultiplePyramidsWithMultiplePyramidsForIntersection
 		(std::vector<tree<rec::seAndPyramid>::pre_order_iterator> fList, std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> cameraPyramidLists, 
 			int currentCamera, rec::aabb workspace, rec::aabb &totalIntersectionBoundingBox, rec::intersectionLookup** lookupMatrix) {
 
-		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinations;
+		std::vector<rec::object3D> resultObjects;
 
 		//get cameraPyramidList which has to be processed in this recursion step
 		std::vector<tree<rec::seAndPyramid>::pre_order_iterator> currentCameraPyramidList = cameraPyramidLists.at(currentCamera);
@@ -597,16 +597,19 @@ namespace rec {
 				//this was not the last computation to be performed, there are cameraPyramidLists not evaluated yet
 				if (currentCamera + 1 < cameraPyramidLists.size()) {
 					//perform another recursive computation on the next cameraPyramidList
-					std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinationsPart = 
+					std::vector<rec::object3D> resultObjectsPart =
 						testMultiplePyramidsWithMultiplePyramidsForIntersection(newfList, cameraPyramidLists, currentCamera + 1, workspace, newTotalIntersectionBoundingBox, lookupMatrix);
 					//append received part of the result to the whole result
-					resultCombinations.insert(resultCombinations.end(), resultCombinationsPart.begin(), resultCombinationsPart.end());
+					resultObjects.insert(resultObjects.end(), resultObjectsPart.begin(), resultObjectsPart.end());
 				}
 
 				//this was the last computation to be performed
 				else {
-					//add the gathered combination the the whole result
-					resultCombinations.push_back(newfList);
+					//create the object3D from the gathered combinations
+					rec::object3D resultObject = rec::object3D(newfList);
+					resultObject.intersectionBoundingBox = newTotalIntersectionBoundingBox;
+					//add the object3D to the whole result
+					resultObjects.push_back(resultObject);
 				}
 			}
 
@@ -614,7 +617,7 @@ namespace rec {
 			// -> do nothing, continue computation with next currentPyramid
 		}
 
-		return resultCombinations;
+		return resultObjects;
 
 	}
 
@@ -637,10 +640,10 @@ namespace rec {
 	*	-returns:			 A List of x resulting combinations, each combination contains of n pyramids with each pyramid from one of the n cameras, while all have a common intersection.
 	*/
 
-	std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectAllPyramids
+	std::vector<rec::object3D> intersectAllPyramids
 		(std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> cameraPyramidLists, rec::aabb workspace, rec::intersectionLookup** lookupMatrix) {
 
-		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinations;
+		std::vector<rec::object3D> resultObjects;
 
 		//begin recursive computation with the pyramidList of camera 0
 		std::vector<tree<rec::seAndPyramid>::pre_order_iterator> camera0PyramidList = cameraPyramidLists.at(0);
@@ -654,14 +657,14 @@ namespace rec {
 			rec::aabb totalIntersectionBoundingBox = rec::aabb(); //initialize with maximum size bounding box
 
 			//start recursive computation
-			std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> resultCombinationsPart =
+			std::vector<rec::object3D> resultObjectsPart =
 				testMultiplePyramidsWithMultiplePyramidsForIntersection(fList, cameraPyramidLists, 1, workspace, totalIntersectionBoundingBox, lookupMatrix);
 
 			//append received part of the result to the whole result
-			resultCombinations.insert(resultCombinations.end(), resultCombinationsPart.begin(), resultCombinationsPart.end());
+			resultObjects.insert(resultObjects.end(), resultObjectsPart.begin(), resultObjectsPart.end());
 		}
 
-		return resultCombinations;
+		return resultObjects;
 	}
 
 

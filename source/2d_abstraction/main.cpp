@@ -413,11 +413,13 @@ int main() {
 	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_trivial(50, sensors);
 
 	//separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_objectSeparated(extendedWorkspace, 50, sensors, object3DTree, 2);
-	std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_object3DTree(50, sensors, object3DTree, 3);
-	separatedOccupiedWorldPositions.push_back(occupiedWorldPositions);
+	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_object3DTree(50, sensors, object3DTree, 3);
+	//separatedOccupiedWorldPositions.push_back(occupiedWorldPositions);
+
+	separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_boundingBoxes(extendedWorkspace, 15, sensors, object3DTree, 3);
 
 
-	rec::renderWorkspace(extendedWorkspace, cameras, sensors, separatedOccupiedWorldPositions, 10, 0.1f);
+	rec::renderWorkspace(extendedWorkspace, cameras, sensors, separatedOccupiedWorldPositions, 2, 0.1f);
 
 
 

@@ -114,19 +114,20 @@ namespace rec {
 
 
 		// ###### intersect initial seAndPyramidITLists ######
-		std::vector<std::vector<tree<rec::seAndPyramid>::pre_order_iterator>> intersectionIT = rec::intersectAllPyramids(seAndPyramidITLists, workspace, lookupMatrix);
+		std::vector<rec::object3D> intersectionObjects = rec::intersectAllPyramids(seAndPyramidITLists, workspace, lookupMatrix);
 		seAndPyramidITLists.clear();
 
 
 		//intersection of the whole camera viewing Pyramid should be one object
-		if (intersectionIT.size() != 1) {
+		if (intersectionObjects.size() != 1) {
 			//ERROR
 			//TODO: WHAT NOW?
+			std::cerr << "WTF? - rec_reconstruction_pyramid, first intersection not resulting in exactly one object3D" << std::endl;
 			return object3DTree;
 		}
 
 		//add root node to the tree
-		rec::object3D rootObject = object3D(intersectionIT.at(0));
+		rec::object3D rootObject = intersectionObjects.at(0);
 		object3DTree.set_head(rootObject);
 		tree<rec::object3D>::iterator object3DTreeTop = object3DTree.begin();
 
@@ -165,7 +166,7 @@ namespace rec {
 			// for each object3D on the current level of the 3D tree
 			while (object3DTree.is_valid(currentLevel3DIterator)) {
 				
-				if (object % 10 == 0) {
+				if (object % 50 == 0) {
 					std::cout << "==== processing object " + std::to_string(object) + " on level " + std::to_string(currentLevel) + " ====" << std::endl;
 				}
 				
@@ -222,13 +223,13 @@ namespace rec {
 
 
 				// ###### intersect current seAndPyramidITLists ######
-				intersectionIT = rec::intersectAllPyramids(seAndPyramidITLists, workspace, lookupMatrix);
+				intersectionObjects = rec::intersectAllPyramids(seAndPyramidITLists, workspace, lookupMatrix);
 				//std::cout << "intersection finished, Nr of new 3D children: " + std::to_string(intersectionIT.size()) << std::endl;
 				seAndPyramidITLists.clear();
 
 				// add all objects received from intersection as children of the currentObject3D to the object3DTree
-				for (int i = 0; i < intersectionIT.size(); i++) {
-					rec::object3D currentIntersectionObject = object3D(intersectionIT.at(i));
+				for (int i = 0; i < intersectionObjects.size(); i++) {
+					rec::object3D currentIntersectionObject = intersectionObjects.at(i);
 					object3DTree.append_child(currentLevel3DIterator, currentIntersectionObject);
 				}
 				
@@ -236,7 +237,7 @@ namespace rec {
 				// proceed to next object of the current level
 				currentLevel3DIterator++;
 				object++;
-				objectsOnNextLevel += intersectionIT.size();
+				objectsOnNextLevel += intersectionObjects.size();
 			}
 
 			std::cout << std::endl;
@@ -400,5 +401,118 @@ namespace rec {
 		return allOccupiedWorldPositions;
 
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	std::vector<std::vector<viral_core::vector>> reconstruct_object3DTree_boundingBoxes(rec::aabb workspace, int stepsize, std::vector<rec::sensor> sensors, tree<rec::object3D> object3DTree, int level) {
+
+		std::vector<std::vector<viral_core::vector>> allOccupiedWorldPositions;
+
+		tree<rec::object3D>::iterator object3DTreeTop = object3DTree.begin();
+
+
+		std::cout << "Testing all world space positions for being occupied in the various 3D object" << std::endl;
+
+
+		int o = 0;
+		tree<rec::object3D>::fixed_depth_iterator currentLevel3DIterator = object3DTree.begin_fixed(object3DTreeTop, level);
+
+		// run through all objects at the desired level
+		while (object3DTree.is_valid(currentLevel3DIterator)) {
+			rec::object3D& currentObject3D = *currentLevel3DIterator;
+
+			std::vector<viral_core::vector> currentOccupiedWorldPositions;
+
+			if (o % 20 == 0) {
+				std::cout << "testing object o = " + std::to_string(o) << std::endl;
+			}
+			
+
+			// calculate the sampling grid boundaries inside the bounding box of the object3D
+			float xMinBB = currentObject3D.intersectionBoundingBox.extremalValues[rec::aabb::minX];
+			float xMinWS = workspace.extremalValues[rec::aabb::minX];
+			int xDiff = int(xMinBB - xMinWS);
+			int xStepsBeforeBB = xDiff / stepsize;
+			int xMinInBB = xMinWS + (xStepsBeforeBB + 1)*stepsize;
+
+			float yMinBB = currentObject3D.intersectionBoundingBox.extremalValues[rec::aabb::minY];
+			float yMinWS = workspace.extremalValues[rec::aabb::minY];
+			int yDiff = int(yMinBB - yMinWS);
+			int yStepsBeforeBB = yDiff / stepsize;
+			int yMinInBB = yMinWS + (yStepsBeforeBB + 1)*stepsize;
+
+			float zMinBB = currentObject3D.intersectionBoundingBox.extremalValues[rec::aabb::minZ];
+			float zMinWS = workspace.extremalValues[rec::aabb::minZ];
+			int zDiff = int(zMinBB - zMinWS);
+			int zStepsBeforeBB = zDiff / stepsize;
+			int zMinInBB = zMinWS + (zStepsBeforeBB + 1)*stepsize;
+
+
+
+
+			// run through all world space positions inside the bounding box of the object3D
+			for (int x = xMinInBB; x < currentObject3D.intersectionBoundingBox.extremalValues[rec::aabb::maxX]; x += stepsize) {
+				for (int y = yMinInBB; y < currentObject3D.intersectionBoundingBox.extremalValues[rec::aabb::maxY]; y += stepsize) {
+					for (int z = zMinInBB; z < currentObject3D.intersectionBoundingBox.extremalValues[rec::aabb::maxZ]; z += stepsize) {
+						
+						viral_core::vector vec((float)x, (float)y, (float)z);
+
+						//test if world space positions are occupied according to object3DTree
+
+						if (currentObject3D.isPointInside(vec)) {
+							currentOccupiedWorldPositions.emplace_back(vec);
+
+						}
+					}
+				}
+			}
+
+
+			allOccupiedWorldPositions.push_back(currentOccupiedWorldPositions);
+
+			currentLevel3DIterator++;
+			o++;
+
+		}
+
+		return allOccupiedWorldPositions;
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
