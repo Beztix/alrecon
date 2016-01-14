@@ -396,17 +396,18 @@ int main() {
 	bool inObject = firstObject.isPointInside(testPoint);
 	//separatedOccupiedWorldPositions = rec::testReconstruct(100, sensors, intersectionIT);
 	*/
-
-
-
-
-
-
-
 	rec::aabb extendedWorkspace = rec::aabb(-2500, 2700, -2700, 2700, -1080, 2000);
 
- 	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, treeContentCounts, 
-																totalContentCount, 7, 640, 480, 300, extendedWorkspace);
+	tree<rec::object3D> object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, treeContentCounts,
+		totalContentCount, 7, 640, 480, 300, extendedWorkspace);
+
+	int iterations = 0;
+
+	for (int i = 0; i < iterations; i++) {
+		object3DTree = rec::createObject3DTree(cameraPositions, directionsGrids, seAndPyramidTrees, treeContentCounts,
+			totalContentCount, 7, 640, 480, 300, extendedWorkspace);
+	}
+
 
 	std::vector<std::vector<viral_core::vector>> separatedOccupiedWorldPositions;
 
@@ -416,7 +417,7 @@ int main() {
 	//std::vector<viral_core::vector> occupiedWorldPositions = rec::reconstruct_object3DTree(50, sensors, object3DTree, 3);
 	//separatedOccupiedWorldPositions.push_back(occupiedWorldPositions);
 
-	separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_boundingBoxes(extendedWorkspace, 15, sensors, object3DTree, 3);
+	separatedOccupiedWorldPositions = rec::reconstruct_object3DTree_boundingBoxes(extendedWorkspace, 10, sensors, object3DTree, 4);
 
 
 	rec::renderWorkspace(extendedWorkspace, cameras, sensors, separatedOccupiedWorldPositions, 2, 0.1f);
